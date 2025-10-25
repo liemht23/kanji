@@ -1,0 +1,21 @@
+.text-wrapper {
+    display: flex;
+    width: fit-content;
+}
+
+.hiragana {
+    visibility: hidden;
+}
+
+.text-wrapper:hover .character-wrapper > .hiragana {
+    visibility: visible;
+
+}
+
+.card-action {
+    visibility: hidden;
+}
+
+.kanji-wrapper:hover .card-action {
+    visibility: visible;
+}
