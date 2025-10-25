@@ -1,14 +1,8 @@
 "use client";
-import { Suspense } from 'react'
-import KanjiCard from './components/KanjiCard'
-import Spinner from '@/components/common/Spinner';
+import KanjiCard from "./components/KanjiCard";
 
 const KanjiPage = () => {
-  return (
-    <Suspense fallback={<Spinner />}>
-      <KanjiCard />
-    </Suspense>
-  )
-}
+  return <KanjiCard />;
+};
 
-export default KanjiPage
+export default KanjiPage;
