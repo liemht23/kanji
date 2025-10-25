@@ -1,5 +1,6 @@
 export const mockKanji = {
   no: "101",
+  character: "達",
   img: "/kanji/09054.svg",
   onyomi: "タツ",
   kunyomi: "たち",

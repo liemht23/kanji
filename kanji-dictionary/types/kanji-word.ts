@@ -10,6 +10,7 @@ export interface Example {
 
 export interface KanjiData {
   no: string;
+  character: string;
   img: string;
   onyomi: string;
   kunyomi: string;
