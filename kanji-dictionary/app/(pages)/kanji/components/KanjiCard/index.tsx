@@ -58,8 +58,8 @@ const KanjiCard = () => {
                   </Tooltip>
                 </div>
                 <Image
-                  src="/kanji/09054.svg"
-                  alt="Kanji"
+                  src={kanjiWord?.img_url}
+                  alt={kanjiWord?.character}
                   width={360}
                   height={360}
                 />
@@ -91,11 +91,13 @@ const KanjiCard = () => {
                             <div key={index} className="character-wrapper">
                               <p
                                 className={cn(
-                                  "text-sm hiragana",
+                                  "text-sm hiragana text-center",
                                   part.reading_type === READING_TYPE.ON
                                     ? "text-blue-300"
                                     : part.reading_type === READING_TYPE.KUN
                                     ? "text-red-500"
+                                    : part.reading_type === READING_TYPE.SPECIAL
+                                    ? "text-purple-400"
                                     : ""
                                 )}
                               >
@@ -103,11 +105,13 @@ const KanjiCard = () => {
                               </p>
                               <p
                                 className={cn(
-                                  "text-3xl font-bold",
+                                  "text-3xl font-bold text-center",
                                   part.reading_type === READING_TYPE.ON
                                     ? "text-blue-300"
                                     : part.reading_type === READING_TYPE.KUN
                                     ? "text-red-500"
+                                    : part.reading_type === READING_TYPE.SPECIAL
+                                    ? "text-purple-400"
                                     : ""
                                 )}
                               >
