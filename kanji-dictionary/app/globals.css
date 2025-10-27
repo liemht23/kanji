@@ -9,6 +9,8 @@
   --color-black-600: #5B5B5B;
   --color-black-900: #1D1D1D;
   --color-blue-300: #00B0F0;
+  --color-blue-400: #0096D5;
+  --color-blue-700: #004D87;
   --color-red-500: #DF0000;
   --color-purple-400: #9B5DE0;
   --color-orange-400: #F75907;
@@ -28,6 +30,7 @@
   --color-black-600: var(--color-black-600);
   --color-black-900: var(--color-black-900);
   --color-blue-300: var(--color-blue-300);
+  --color-blue-700: var(--color-blue-700);
   --color-red-500: var(--color-red-500);
   --color-purple-400: var(--color-purple-400);
   --color-orange-400: var(--color-orange-400);

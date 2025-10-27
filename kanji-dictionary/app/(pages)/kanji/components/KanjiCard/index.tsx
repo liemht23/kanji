@@ -8,26 +8,27 @@ import { useEffect, useMemo } from "react";
 import { getKanjiThunk } from "@/store/slices/kanji-word/thunk";
 import { useAppDispatch, useAppSelector } from "@/store/hook";
 import Spinner from "@/components/common/Spinner";
+import { READING_TYPE } from "@/enum/kanji-word";
+import { SAMPLE_KANJI_BATCH_SIZE } from "./const";
 
 const KanjiCard = () => {
   const dispatch = useAppDispatch();
-  const { kanjiWord, loading } = useAppSelector(
+  const { kanjiWord, currentKanjiId, loading } = useAppSelector(
     (state: RootState) => state.kanjiWord
   );
 
-  const batchSize = 5;
   const exampleBatches = useMemo(() => {
     const examples = kanjiWord?.example ?? [];
     const chunks = [];
-    for (let i = 0; i < examples.length; i += batchSize) {
-      chunks.push(examples.slice(i, i + batchSize));
+    for (let i = 0; i < examples.length; i += SAMPLE_KANJI_BATCH_SIZE) {
+      chunks.push(examples.slice(i, i + SAMPLE_KANJI_BATCH_SIZE));
     }
     return chunks;
-  }, [kanjiWord, batchSize]);
+  }, [kanjiWord]);
 
   useEffect(() => {
-    dispatch(getKanjiThunk("101"));
-  }, [dispatch]);
+    dispatch(getKanjiThunk(currentKanjiId));
+  }, [dispatch, currentKanjiId]);
 
   return (
     <div className="bg-black-0 p-4 border border-black-100 rounded-2xl shadow-sm h-[80vh]">
@@ -39,7 +40,7 @@ const KanjiCard = () => {
             <div className="bg-orange-400 text-black-0 px-2 py-1 rounded-sm">
               N5
             </div>
-            <div className="text-2xl">漢字{kanjiWord?.no}</div>
+            <div className="text-2xl">漢字{kanjiWord?.kanji_id}</div>
           </div>
 
           <div className="grid grid-cols-12">
@@ -64,7 +65,7 @@ const KanjiCard = () => {
                 />
               </div>
               <div className="text-5xl font-bold p-4 text-center">
-                {kanjiWord?.mean}
+                {kanjiWord?.meaning}
               </div>
             </div>
 
@@ -72,11 +73,11 @@ const KanjiCard = () => {
               <div className="text-4xl font-bold">
                 <p className="py-2">
                   音読み:　
-                  <span className="text-blue-300">{kanjiWord?.onyomi}</span>
+                  <span className="text-blue-300">{kanjiWord?.on_reading}</span>
                 </p>
                 <p className="py-2">
                   訓読み:　
-                  <span className="text-red-500">{kanjiWord?.kunyomi}</span>
+                  <span className="text-red-500">{kanjiWord?.kun_reading}</span>
                 </p>
               </div>
 
@@ -86,14 +87,14 @@ const KanjiCard = () => {
                     {batch.map((item, index) => (
                       <div key={index} className="text-wrapper cursor-pointer">
                         <div className="flex items-end">
-                          {item.words.map((part, index) => (
+                          {item.map((part, index) => (
                             <div key={index} className="character-wrapper">
                               <p
                                 className={cn(
                                   "text-sm hiragana",
-                                  part.flg === "onyomi"
+                                  part.reading_type === READING_TYPE.ON
                                     ? "text-blue-300"
-                                    : part.flg === "kunyomi"
+                                    : part.reading_type === READING_TYPE.KUN
                                     ? "text-red-500"
                                     : ""
                                 )}
@@ -103,9 +104,9 @@ const KanjiCard = () => {
                               <p
                                 className={cn(
                                   "text-3xl font-bold",
-                                  part.flg === "onyomi"
+                                  part.reading_type === READING_TYPE.ON
                                     ? "text-blue-300"
-                                    : part.flg === "kunyomi"
+                                    : part.reading_type === READING_TYPE.KUN
                                     ? "text-red-500"
                                     : ""
                                 )}

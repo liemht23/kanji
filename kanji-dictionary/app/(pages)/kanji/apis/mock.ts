@@ -1,57 +1,53 @@
+import { READING_TYPE } from "@/enum/kanji-word";
+
 export const mockKanji = {
-  no: "101",
+  kanji_id: 101,
   character: "達",
-  img: "/kanji/09054.svg",
-  onyomi: "タツ",
-  kunyomi: "たち",
-  mean: "ĐẠT",
+  img_url: "/kanji/09054.svg",
+  on_reading: "タツ",
+  kun_reading: "たち",
+  meaning: "ĐẠT",
   example: [
-    {
-      words: [
-        {
-          word: "達",
-          pronun: "だち",
-          flg: "onyomi",
-        },
-        {
-          word: "友",
-          pronun: "とも",
-          flg: "none",
-        },
-      ],
-    },
-    {
-      words: [
-        {
-          word: "達",
-          pronun: "たっ",
-          flg: "kunyomi",
-        },
-        {
-          word: "します",
-          pronun: "",
-          flg: "none",
-        },
-      ],
-    },
-    {
-      words: [
-        {
-          word: "達",
-          pronun: "たっ",
-          flg: "kunyomi",
-        },
-        {
-          word: "成",
-          pronun: "せい",
-          flg: "none",
-        },
-        {
-          word: "します",
-          pronun: "",
-          flg: "none",
-        },
-      ],
-    },
+    [
+      {
+        flg: READING_TYPE.ON,
+        word: "達",
+        pronun: "だち",
+      },
+      {
+        flg: READING_TYPE.NONE,
+        word: "友",
+        pronun: "とも",
+      },
+    ],
+    [
+      {
+        flg: READING_TYPE.KUN,
+        word: "達",
+        pronun: "たっ",
+      },
+      {
+        flg: READING_TYPE.NONE,
+        word: "します",
+        pronun: "",
+      },
+    ],
+    [
+      {
+        flg: READING_TYPE.KUN,
+        word: "達",
+        pronun: "たっ",
+      },
+      {
+        flg: READING_TYPE.NONE,
+        word: "成",
+        pronun: "せい",
+      },
+      {
+        flg: READING_TYPE.NONE,
+        word: "します",
+        pronun: "",
+      },
+    ],
   ],
 };

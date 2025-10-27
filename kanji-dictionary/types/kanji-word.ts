@@ -1,24 +1,17 @@
-export interface WordPart {
-  word: string;
-  pronun: string;
-  flg: "onyomi" | "kunyomi" | "none";
-}
-
-export interface Example {
-  words: WordPart[];
-}
+import { WordPart } from "./word-part";
 
 export interface KanjiData {
-  no: string;
+  kanji_id: number;
   character: string;
-  img: string;
-  onyomi: string;
-  kunyomi: string;
-  mean: string;
-  example: Example[];
+  img_url: string;
+  on_reading: string;
+  kun_reading: string;
+  meaning: string;
+  example: WordPart[][];
 }
 
 export interface KanjiState {
   kanjiWord: KanjiData | null;
   loading: boolean;
+  currentKanjiId: number;
 }
