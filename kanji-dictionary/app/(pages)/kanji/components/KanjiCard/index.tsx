@@ -10,6 +10,7 @@ import { useAppDispatch, useAppSelector } from "@/store/hook";
 import Spinner from "@/components/common/Spinner";
 import { READING_TYPE } from "@/enum/kanji-word";
 import { SAMPLE_KANJI_BATCH_SIZE } from "./const";
+import KanjiAnimate from "../KanjiAnimate";
 
 const KanjiCard = () => {
   const dispatch = useAppDispatch();
@@ -57,12 +58,13 @@ const KanjiCard = () => {
                     <FileDown className="w-6 h-6 text-black-300 cursor-pointer hover:text-black-900" />
                   </Tooltip>
                 </div>
-                <Image
+                {/* <Image
                   src="/kanji/09054.svg"
                   alt="Kanji"
                   width={360}
                   height={360}
-                />
+                /> */}
+                <KanjiAnimate />
               </div>
               <div className="text-5xl font-bold p-4 text-center">
                 {kanjiWord?.meaning}
