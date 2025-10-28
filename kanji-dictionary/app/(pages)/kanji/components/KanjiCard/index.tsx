@@ -67,7 +67,7 @@ const KanjiCard = () => {
                   width={360}
                   height={360}
                 /> */}
-                <KanjiAnimate />
+                <KanjiAnimate kanjiSvgUrl={kanjiWord?.img_url} />
               </div>
               <div className="text-5xl font-bold p-4 text-center">
                 {kanjiWord?.meaning}
@@ -105,10 +105,6 @@ const KanjiCard = () => {
                                       : part.reading_type === READING_TYPE.SPECIAL
                                         ? "text-purple-400"
                                         : ""
-                                          ? "text-red-500"
-                                          : part.reading_type === READING_TYPE.SPECIAL
-                                            ? "text-purple-400"
-                                            : ""
                                 )}
                               >
                                 {part.pronun}
@@ -124,10 +120,6 @@ const KanjiCard = () => {
                                       : part.reading_type === READING_TYPE.SPECIAL
                                         ? "text-purple-400"
                                         : ""
-                                          ? "text-red-500"
-                                          : part.reading_type === READING_TYPE.SPECIAL
-                                            ? "text-purple-400"
-                                            : ""
                                 )}
                               >
                                 {part.word}

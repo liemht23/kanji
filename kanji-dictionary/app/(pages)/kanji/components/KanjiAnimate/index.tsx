@@ -1,6 +1,5 @@
 'use client';
-
-import { useEffect, useRef } from 'react';
+import { useEffect, useState } from 'react';
 
 interface KanjiAnimateProps {
   kanjiSvgUrl?: string;
@@ -9,43 +8,46 @@ interface KanjiAnimateProps {
 export default function KanjiAnimate({
   kanjiSvgUrl = '/kanji/09054.svg',
 }: KanjiAnimateProps) {
-  const objectRef = useRef<HTMLObjectElement>(null);
+  const [svgContent, setSvgContent] = useState<string | null>(null);
 
   useEffect(() => {
-    const objectElement = objectRef.current;
-    if (!objectElement) return;
-
-    const handleLoad = () => {
-      const svgDoc = objectElement.contentDocument;
-      if (!svgDoc) return;
-
-      const paths = svgDoc.querySelectorAll<SVGPathElement>("path[id*='-s']");
-      const colors = ["#e11d48", "#f97316", "#facc15", "#22c55e", "#e11d48", "#f97316", "#facc15", "#22c55e", "#e11d48", "#f97316", "#facc15", "#22c55e"];
-
-      paths.forEach((path, i) => {
-        const length = path.getTotalLength();
-        path.style.stroke = colors[i % colors.length];
-        path.style.strokeDasharray = `${length}`;
-        path.style.strokeDashoffset = `${length}`;
-        path.style.transition = "stroke-dashoffset 0.4s ease-in-out";
-
-        setTimeout(() => {
-          path.style.strokeDashoffset = "0";
-        }, i * 250);
-      });
-    };
-
-    objectElement.addEventListener('load', handleLoad);
-    return () => objectElement.removeEventListener('load', handleLoad);
+    fetch(kanjiSvgUrl)
+      .then(res => res.text())
+      .then(text =>
+        text
+          .replace(/<\?xml[^>]*>/g, '')
+          .replace(/<!DOCTYPE[^>]*\[[\s\S]*?\]>/g, '')
+          .replace(/<!DOCTYPE[^>]*>/g, '')
+          .replace(/\s(width|height)="[^"]*"/g, '')
+      )
+      .then(setSvgContent)
+      .catch(console.error);
   }, [kanjiSvgUrl]);
 
+  useEffect(() => {
+    if (!svgContent) return;
+    const container = document.getElementById('kanji-container');
+    if (!container) return;
+    const paths = container.querySelectorAll<SVGPathElement>("path[id*='-s']");
+    const colors = ["#dc2626", "#ea580c", "#ca8a04", "#16a34a", "#2563eb", "#7c3aed"];
+    paths.forEach((path, i) => {
+      const length = path.getTotalLength();
+      path.style.stroke = colors[i % colors.length];
+      path.style.strokeDasharray = `${length}`;
+      path.style.strokeDashoffset = `${length}`;
+      path.style.transition = 'stroke-dashoffset 0.4s ease-in-out';
+      setTimeout(() => {
+        path.style.strokeDashoffset = '0';
+      }, i * 500);
+    });
+  }, [svgContent]);
+
   return (
-    <div className="w-full flex justify-center items-center">
-      <object
-        ref={objectRef}
-        type="image/svg+xml"
-        data={kanjiSvgUrl}
-        className="w-full h-full"
+    <div className="flex justify-center items-center w-full h-full">
+      <div
+        id="kanji-container"
+        className="w-[90%] h-[90%] flex justify-center items-center"
+        dangerouslySetInnerHTML={svgContent ? { __html: svgContent } : undefined}
       />
     </div>
   );
