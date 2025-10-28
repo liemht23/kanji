@@ -58,7 +58,10 @@ const KanjiCard = () => {
                     <FileDown className="w-6 h-6 text-black-300 cursor-pointer hover:text-black-900" />
                   </Tooltip>
                 </div>
-                {/* <Image
+                {/*<Image
+                  src={kanjiWord?.img_url}
+                  alt={kanjiWord?.character}
+                 <Image
                   src={kanjiWord?.img_url}
                   alt={kanjiWord?.character}
                   width={360}
@@ -94,6 +97,7 @@ const KanjiCard = () => {
                               <p
                                 className={cn(
                                   "text-sm hiragana text-center",
+                                  "text-sm hiragana text-center",
                                   part.reading_type === READING_TYPE.ON
                                     ? "text-blue-300"
                                     : part.reading_type === READING_TYPE.KUN
@@ -101,12 +105,17 @@ const KanjiCard = () => {
                                       : part.reading_type === READING_TYPE.SPECIAL
                                         ? "text-purple-400"
                                         : ""
+                                          ? "text-red-500"
+                                          : part.reading_type === READING_TYPE.SPECIAL
+                                            ? "text-purple-400"
+                                            : ""
                                 )}
                               >
                                 {part.pronun}
                               </p>
                               <p
                                 className={cn(
+                                  "text-3xl font-bold text-center",
                                   "text-3xl font-bold text-center",
                                   part.reading_type === READING_TYPE.ON
                                     ? "text-blue-300"
@@ -115,6 +124,10 @@ const KanjiCard = () => {
                                       : part.reading_type === READING_TYPE.SPECIAL
                                         ? "text-purple-400"
                                         : ""
+                                          ? "text-red-500"
+                                          : part.reading_type === READING_TYPE.SPECIAL
+                                            ? "text-purple-400"
+                                            : ""
                                 )}
                               >
                                 {part.word}
