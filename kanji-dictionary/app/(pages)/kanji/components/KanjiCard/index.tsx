@@ -59,8 +59,8 @@ const KanjiCard = () => {
                   </Tooltip>
                 </div>
                 {/* <Image
-                  src="/kanji/09054.svg"
-                  alt="Kanji"
+                  src={kanjiWord?.img_url}
+                  alt={kanjiWord?.character}
                   width={360}
                   height={360}
                 /> */}
@@ -74,11 +74,11 @@ const KanjiCard = () => {
             <div className="col-span-7">
               <div className="text-4xl font-bold">
                 <p className="py-2">
-                  音読み:　
+                  音読み:
                   <span className="text-blue-300">{kanjiWord?.on_reading}</span>
                 </p>
                 <p className="py-2">
-                  訓読み:　
+                  訓読み:
                   <span className="text-red-500">{kanjiWord?.kun_reading}</span>
                 </p>
               </div>
@@ -93,24 +93,28 @@ const KanjiCard = () => {
                             <div key={index} className="character-wrapper">
                               <p
                                 className={cn(
-                                  "text-sm hiragana",
+                                  "text-sm hiragana text-center",
                                   part.reading_type === READING_TYPE.ON
                                     ? "text-blue-300"
                                     : part.reading_type === READING_TYPE.KUN
-                                    ? "text-red-500"
-                                    : ""
+                                      ? "text-red-500"
+                                      : part.reading_type === READING_TYPE.SPECIAL
+                                        ? "text-purple-400"
+                                        : ""
                                 )}
                               >
                                 {part.pronun}
                               </p>
                               <p
                                 className={cn(
-                                  "text-3xl font-bold",
+                                  "text-3xl font-bold text-center",
                                   part.reading_type === READING_TYPE.ON
                                     ? "text-blue-300"
                                     : part.reading_type === READING_TYPE.KUN
-                                    ? "text-red-500"
-                                    : ""
+                                      ? "text-red-500"
+                                      : part.reading_type === READING_TYPE.SPECIAL
+                                        ? "text-purple-400"
+                                        : ""
                                 )}
                               >
                                 {part.word}
