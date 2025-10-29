@@ -1,4 +1,4 @@
-import { getKanji, insertKanji } from "@/lib/api";
+import { getKanjiWord, insertKanji } from "@/lib/api";
 import { KanjiData } from "@/types/kanji-word";
 import { createAsyncThunk } from "@reduxjs/toolkit";
 
@@ -6,7 +6,7 @@ export const getKanjiThunk = createAsyncThunk(
   "kanji/getKanji",
   async (id: number, { rejectWithValue }) => {
     try {
-      const response = await getKanji(id);
+      const response = await getKanjiWord(id);
       return response;
     } catch (error) {
       return rejectWithValue(error);

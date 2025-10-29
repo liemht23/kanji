@@ -14,4 +14,6 @@ export interface KanjiState {
   kanjiWord: KanjiData | null;
   loading: boolean;
   currentKanjiId: number;
+  maxKanjiId: number;
+  minKanjiId: number;
 }

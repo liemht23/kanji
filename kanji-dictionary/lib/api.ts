@@ -1,7 +1,21 @@
 import { KanjiData } from "@/types/kanji-word";
 import { supabase } from "./supabase-client";
 
-export const getKanji = async (id: number) => {
+export const getKanjiWord = async (id: number) => {
+  try {
+    const [kanjiWord, maxKanjiId, minKanjiId] = await Promise.all([
+      getKanjiData(id),
+      getMaxKanjiId(),
+      getMinKanjiId()
+    ])
+
+    return { kanjiWord, maxKanjiId, minKanjiId };
+  } catch (error) {
+    throw error;
+  }
+};
+
+export const getKanjiData = async (id: number) => {
   const { data, error } = await supabase
     .from("kanji")
     .select("*")
@@ -10,6 +24,28 @@ export const getKanji = async (id: number) => {
 
   if (error) throw error;
   return data;
+};
+
+export const getMaxKanjiId = async () => {
+  const { data, error } = await supabase
+    .from("kanji")
+    .select("kanji_id")
+    .order("kanji_id", { ascending: false })
+    .limit(1);
+
+  if (error) throw error;
+  return data?.[0]?.kanji_id ?? null;
+};
+
+export const getMinKanjiId = async () => {
+  const { data, error } = await supabase
+    .from("kanji")
+    .select("kanji_id")
+    .order("kanji_id", { ascending: true })
+    .limit(1);
+
+  if (error) throw error;
+  return data?.[0]?.kanji_id ?? null;
 };
 
 export const insertKanji = async (kanjiWord: KanjiData) => {

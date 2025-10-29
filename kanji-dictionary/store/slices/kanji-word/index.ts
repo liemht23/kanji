@@ -1,7 +1,6 @@
 import { createSlice } from "@reduxjs/toolkit";
 import { getKanjiThunk } from "./thunk";
 import kanjiInitialState from "./initial-state";
-import { KanjiData } from "@/types/kanji-word";
 
 export const kanjiSlice = createSlice({
   name: "kanji-word",
@@ -17,7 +16,9 @@ export const kanjiSlice = createSlice({
         state.loading = true;
       })
       .addCase(getKanjiThunk.fulfilled, (state, action) => {
-        state.kanjiWord = action.payload as KanjiData;
+        state.kanjiWord = action.payload.kanjiWord;
+        state.maxKanjiId = action.payload.maxKanjiId;
+        state.minKanjiId = action.payload.minKanjiId;
         state.loading = false;
       })
       .addCase(getKanjiThunk.rejected, (state) => {

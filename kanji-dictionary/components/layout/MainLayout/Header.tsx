@@ -15,21 +15,33 @@ import {
   Trash2,
 } from "lucide-react";
 import Image from "next/image";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 
 const Header = () => {
   const dispatch = useAppDispatch();
   const [isOpen, setIsOpen] = useState(false);
-  const { kanjiWord, loading } = useAppSelector(
+  const [hasPrevious, setHasPrevious] = useState(false);
+  const [hasNext, setHasNext] = useState(false);
+  const { kanjiWord, maxKanjiId, minKanjiId, loading } = useAppSelector(
     (state: RootState) => state.kanjiWord
   );
 
-  const getKanji = (id: number | undefined, step: number) => {
-    if (!id) {
-      return;
+  useEffect(() => {
+    if (kanjiWord?.kanji_id && minKanjiId !== null) {
+      setHasPrevious(kanjiWord?.kanji_id > minKanjiId);
     }
 
-    dispatch(getKanjiThunk(id + step));
+    if (kanjiWord?.kanji_id && maxKanjiId !== null) {
+      setHasNext(kanjiWord?.kanji_id < maxKanjiId);
+    }
+  }, [kanjiWord, minKanjiId, maxKanjiId]);
+
+  const handleGetKanji = (step: number) => {
+    if (!kanjiWord?.kanji_id) return;
+
+    const newId = kanjiWord.kanji_id + step;
+    if (newId < minKanjiId || newId > maxKanjiId) return;
+    dispatch(getKanjiThunk(newId));
   };
 
   return (
@@ -47,14 +59,21 @@ const Header = () => {
           </Tooltip>
           <Tooltip text="Previous">
             <CircleChevronLeft
-              className="w-8 h-8 text-black-400 cursor-pointer hover:text-black-900"
-              onClick={() => getKanji(kanjiWord?.kanji_id, PREVIOUS_STEP_SIZE)}
+              className={`w-8 h-8 cursor-pointer ${hasPrevious
+                ? "text-black-400 hover:text-black-900"
+                : "text-gray-300 cursor-not-allowed"
+                }`}
+              onClick={hasPrevious ? () => handleGetKanji(PREVIOUS_STEP_SIZE) : undefined}
             />
           </Tooltip>
+
           <Tooltip text="Next">
             <CircleChevronRight
-              className="w-8 h-8 text-black-400 cursor-pointer hover:text-black-900"
-              onClick={() => getKanji(kanjiWord?.kanji_id, NEXT_STEP_SIZE)}
+              className={`w-8 h-8 text-black-400 cursor-pointer ${hasNext
+                ? "text-black-400 hover:text-black-900"
+                : "text-gray-300 cursor-not-allowed"
+                }`}
+              onClick={hasNext ? () => handleGetKanji(NEXT_STEP_SIZE) : undefined}
             />
           </Tooltip>
           <div className="flex items-center gap-4 border-l border-black-100 pl-4">
