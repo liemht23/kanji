@@ -54,3 +54,15 @@ export const insertKanji = async (kanjiWord: KanjiData) => {
   if (error) throw error;
   return data;
 };
+
+export const searchKanji = async (character: string) => {
+  const { data, error } = await supabase
+    .from("kanji")
+    .select("*")
+    .eq("character", character)
+    .single();
+
+  if (error) throw error;
+  return data;
+};
+

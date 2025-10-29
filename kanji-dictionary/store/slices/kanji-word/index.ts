@@ -1,5 +1,5 @@
 import { createSlice } from "@reduxjs/toolkit";
-import { getKanjiThunk } from "./thunk";
+import { getKanjiThunk, searchKanjiThunk } from "./thunk";
 import kanjiInitialState from "./initial-state";
 
 export const kanjiSlice = createSlice({
@@ -24,6 +24,18 @@ export const kanjiSlice = createSlice({
       .addCase(getKanjiThunk.rejected, (state) => {
         state.kanjiWord = null;
         state.loading = false;
+      })
+
+      .addCase(searchKanjiThunk.pending, (state) => {
+        state.loading = true;
+      })
+      .addCase(searchKanjiThunk.fulfilled, (state, action) => {
+        state.loading = false;
+        state.kanjiWord = action.payload;
+      })
+      .addCase(searchKanjiThunk.rejected, (state) => {
+        state.loading = false;
+        state.kanjiWord = null;
       });
   },
 });

@@ -75,29 +75,28 @@ const KanjiCard = () => {
             </div>
 
             <div className="col-span-7">
-              <div className="text-4xl font-bold">
+              <div className="text-6xl font-bold">
                 <p className="py-2">
                   音読み:
-                  <span className="text-blue-300">{kanjiWord?.on_reading}</span>
+                  <span className="text-blue-300 pl-10">{kanjiWord?.on_reading}</span>
                 </p>
                 <p className="py-2">
                   訓読み:
-                  <span className="text-red-500">{kanjiWord?.kun_reading}</span>
+                  <span className="text-red-500 pl-10">{kanjiWord?.kun_reading}</span>
                 </p>
               </div>
 
-              <div className="py-8 flex items-center justify-between">
+              <div className="py-8 flex items-start justify-between">
                 {exampleBatches.map((batch, batchIndex) => (
                   <div key={batchIndex} className="w-1/2">
                     {batch.map((item, index) => (
                       <div key={index} className="text-wrapper cursor-pointer">
                         <div className="flex items-end">
                           {item.map((part, index) => (
-                            <div key={index} className="character-wrapper">
+                            <div key={index} className="character-wrapper py-1">
                               <p
                                 className={cn(
-                                  "text-sm hiragana text-center",
-                                  "text-sm hiragana text-center",
+                                  "text-md hiragana text-center",
                                   part.reading_type === READING_TYPE.ON
                                     ? "text-blue-300"
                                     : part.reading_type === READING_TYPE.KUN
@@ -111,8 +110,7 @@ const KanjiCard = () => {
                               </p>
                               <p
                                 className={cn(
-                                  "text-3xl font-bold text-center",
-                                  "text-3xl font-bold text-center",
+                                  "text-5xl font-bold text-center",
                                   part.reading_type === READING_TYPE.ON
                                     ? "text-blue-300"
                                     : part.reading_type === READING_TYPE.KUN

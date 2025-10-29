@@ -1,1 +1,1 @@
-export const SAMPLE_KANJI_BATCH_SIZE = 5;
+export const SAMPLE_KANJI_BATCH_SIZE = 4;
