@@ -1,10 +1,10 @@
-import { Bookmark, FileDown, SquarePlay } from "lucide-react";
+import { Bookmark, SquarePlay } from "lucide-react";
 import Image from "next/image";
 import "./kanji-card.css";
 import Tooltip from "@/components/common/Tooltip";
 import { RootState } from "@/store/store";
 import { cn } from "@/utils/class-name";
-import { useEffect, useLayoutEffect, useMemo, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { getKanjiThunk } from "@/store/slices/kanji-word/thunk";
 import { useAppDispatch, useAppSelector } from "@/store/hook";
 import Spinner from "@/components/common/Spinner";
