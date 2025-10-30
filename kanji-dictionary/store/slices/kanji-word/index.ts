@@ -19,6 +19,7 @@ export const kanjiSlice = createSlice({
         state.kanjiWord = action.payload.kanjiWord;
         state.maxKanjiId = action.payload.maxKanjiId;
         state.minKanjiId = action.payload.minKanjiId;
+        state.currentKanjiId = action.payload.kanjiWord.kanji_id;
         state.loading = false;
       })
       .addCase(getKanjiThunk.rejected, (state) => {

@@ -4,7 +4,7 @@ import "./kanji-card.css";
 import Tooltip from "@/components/common/Tooltip";
 import { RootState } from "@/store/store";
 import { cn } from "@/utils/class-name";
-import { useEffect, useMemo } from "react";
+import { useEffect, useLayoutEffect, useMemo, useState } from "react";
 import { getKanjiThunk } from "@/store/slices/kanji-word/thunk";
 import { useAppDispatch, useAppSelector } from "@/store/hook";
 import Spinner from "@/components/common/Spinner";
@@ -13,6 +13,7 @@ import { SAMPLE_KANJI_BATCH_SIZE } from "./const";
 import KanjiAnimate from "../KanjiAnimate";
 
 const KanjiCard = () => {
+  const [showKanjiAnimation, setShowKanjiAnimation] = useState(false);
   const dispatch = useAppDispatch();
   const { kanjiWord, currentKanjiId, loading } = useAppSelector(
     (state: RootState) => state.kanjiWord
@@ -31,6 +32,13 @@ const KanjiCard = () => {
     dispatch(getKanjiThunk(currentKanjiId));
   }, [dispatch, currentKanjiId]);
 
+  useEffect(() => {
+    if (!loading && kanjiWord) {
+      // eslint-disable-next-line react-hooks/set-state-in-effect
+      setShowKanjiAnimation(false);
+    }
+  }, [kanjiWord, loading]);
+
   return (
     <div className="bg-black-0 p-4 border border-black-100 rounded-2xl shadow-sm h-[80vh]">
       {loading || !kanjiWord ? (
@@ -48,37 +56,49 @@ const KanjiCard = () => {
             <div className="col-span-5 px-20">
               <div className="kanji-wrapper bg-black-100 rounded-2xl px-8 py-4">
                 <div className="card-action flex items-center justify-end gap-2 p-2">
-                  <Tooltip text="Bookmark">
+                  <Tooltip text="Save Kanji">
                     <Bookmark className="w-6 h-6 text-black-300 cursor-pointer hover:text-black-900" />
                   </Tooltip>
-                  <Tooltip text="Play">
-                    <SquarePlay className="w-6 h-6 text-black-300 cursor-pointer hover:text-black-900" />
-                  </Tooltip>
-                  <Tooltip text="Download">
-                    <FileDown className="w-6 h-6 text-black-300 cursor-pointer hover:text-black-900" />
+                  <Tooltip
+                    text={showKanjiAnimation ? "Show Image" : "Draw Kanji"}
+                  >
+                    <SquarePlay
+                      className={cn(
+                        "w-6 h-6 cursor-pointer transition-colors",
+                        showKanjiAnimation
+                          ? "text-blue-300"
+                          : "text-black-300 hover:text-black-900"
+                      )}
+                      onClick={() => setShowKanjiAnimation((prev) => !prev)}
+                    />
                   </Tooltip>
                 </div>
-                {/*<Image
-                  src={kanjiWord?.img_url}
-                  alt={kanjiWord?.character}
-                 <Image
-                  src={kanjiWord?.img_url}
-                  alt={kanjiWord?.character}
-                  width={360}
-                  height={360}
-                /> */}
-                <KanjiAnimate kanjiSvgUrl={kanjiWord?.img_url} />
+                <div className="relative w-full h-84">
+                  {showKanjiAnimation ? (
+                    <KanjiAnimate
+                      kanjiSvgUrl={kanjiWord?.img_url}
+                      onFinish={() => setShowKanjiAnimation(false)}
+                    />
+                  ) : (
+                    <Image
+                      src={kanjiWord?.img_url}
+                      alt={kanjiWord?.character}
+                      fill
+                      className="object-contain"
+                    />
+                  )}
+                </div>
               </div>
               <div className="text-5xl font-bold p-4 text-center">
                 <p>{kanjiWord?.chinese_character}</p>
                 <p className="text-3xl font-medium py-1">
-                  ({kanjiWord?.meaning})
+                  {kanjiWord?.meaning ? "(" + kanjiWord?.meaning + ")" : ""}
                 </p>
               </div>
             </div>
 
             <div className="col-span-7">
-              <div className="text-6xl font-bold">
+              <div className="text-5xl font-bold">
                 <p className="py-2">
                   音読み:
                   <span className="text-blue-300 pl-10">
@@ -93,7 +113,7 @@ const KanjiCard = () => {
                 </p>
               </div>
 
-              <div className="py-8 flex items-start justify-between">
+              <div className="py-4 flex items-start justify-between">
                 {exampleBatches.map((batch, batchIndex) => (
                   <div key={batchIndex} className="w-1/2">
                     {batch.map((item, index) => (

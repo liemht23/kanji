@@ -3,7 +3,10 @@ import AddKanjiModal from "@/app/(pages)/kanji/components/AddKanjiModal";
 import Tooltip from "@/components/common/Tooltip";
 import { NEXT_STEP_SIZE, PREVIOUS_STEP_SIZE } from "@/constants/const";
 import { useAppDispatch, useAppSelector } from "@/store/hook";
-import { getKanjiThunk, searchKanjiThunk } from "@/store/slices/kanji-word/thunk";
+import {
+  getKanjiThunk,
+  searchKanjiThunk,
+} from "@/store/slices/kanji-word/thunk";
 import { RootState } from "@/store/store";
 import {
   CircleChevronLeft,
@@ -13,7 +16,7 @@ import {
   Maximize2Icon,
   Search,
   SquarePen,
-  Trash2
+  Trash2,
 } from "lucide-react";
 import Image from "next/image";
 import { useEffect, useState } from "react";
@@ -31,6 +34,7 @@ const Header = () => {
 
   useEffect(() => {
     if (kanjiWord?.kanji_id && minKanjiId !== null) {
+      // eslint-disable-next-line react-hooks/set-state-in-effect
       setHasPrevious(kanjiWord?.kanji_id > minKanjiId);
     }
 
@@ -41,7 +45,6 @@ const Header = () => {
 
   const handleGetKanji = (step: number) => {
     if (!kanjiWord?.kanji_id) return;
-
     const newId = kanjiWord.kanji_id + step;
     if (newId < minKanjiId || newId > maxKanjiId) return;
     dispatch(getKanjiThunk(newId));
@@ -104,21 +107,29 @@ const Header = () => {
           <div className="flex items-center gap-4 border-l border-black-100 pl-4">
             <Tooltip text="Previous">
               <CircleChevronLeft
-                className={`w-8 h-8 cursor-pointer ${hasPrevious
-                  ? "text-black-400 hover:text-black-900"
-                  : "text-gray-300 cursor-not-allowed"
-                  }`}
-                onClick={hasPrevious ? () => handleGetKanji(PREVIOUS_STEP_SIZE) : undefined}
+                className={`w-8 h-8 cursor-pointer ${
+                  hasPrevious
+                    ? "text-black-400 hover:text-black-900"
+                    : "text-gray-300 cursor-not-allowed"
+                }`}
+                onClick={
+                  hasPrevious
+                    ? () => handleGetKanji(PREVIOUS_STEP_SIZE)
+                    : undefined
+                }
               />
             </Tooltip>
 
             <Tooltip text="Next">
               <CircleChevronRight
-                className={`w-8 h-8 text-black-400 cursor-pointer ${hasNext
-                  ? "text-black-400 hover:text-black-900"
-                  : "text-gray-300 cursor-not-allowed"
-                  }`}
-                onClick={hasNext ? () => handleGetKanji(NEXT_STEP_SIZE) : undefined}
+                className={`w-8 h-8 text-black-400 cursor-pointer ${
+                  hasNext
+                    ? "text-black-400 hover:text-black-900"
+                    : "text-gray-300 cursor-not-allowed"
+                }`}
+                onClick={
+                  hasNext ? () => handleGetKanji(NEXT_STEP_SIZE) : undefined
+                }
               />
             </Tooltip>
           </div>
@@ -126,11 +137,13 @@ const Header = () => {
           <div className="flex items-center gap-4 border-l border-black-100 pl-4">
             <Tooltip text="Edit">
               <SquarePen
-                className={`w-8 h-8 text-black-400 cursor-pointer ${false
-                  ? "text-black-400 hover:text-black-900"
-                  : "text-gray-300 cursor-not-allowed"
-                  }`}
-                onClick={undefined} />
+                className={`w-8 h-8 text-black-400 cursor-pointer ${
+                  false
+                    ? "text-black-400 hover:text-black-900"
+                    : "text-gray-300 cursor-not-allowed"
+                }`}
+                onClick={undefined}
+              />
             </Tooltip>
             <Tooltip text="Add">
               <CirclePlus
@@ -140,11 +153,13 @@ const Header = () => {
             </Tooltip>
             <Tooltip text="Delete">
               <Trash2
-                className={`w-8 h-8 text-black-400 cursor-pointer ${false
-                  ? "text-black-400 hover:text-black-900"
-                  : "text-gray-300 cursor-not-allowed"
-                  }`}
-                onClick={undefined} />
+                className={`w-8 h-8 text-black-400 cursor-pointer ${
+                  false
+                    ? "text-black-400 hover:text-black-900"
+                    : "text-gray-300 cursor-not-allowed"
+                }`}
+                onClick={undefined}
+              />
             </Tooltip>
           </div>
         </div>
