@@ -70,7 +70,10 @@ const KanjiCard = () => {
                 <KanjiAnimate kanjiSvgUrl={kanjiWord?.img_url} />
               </div>
               <div className="text-5xl font-bold p-4 text-center">
-                {kanjiWord?.meaning}
+                <p>{kanjiWord?.chinese_character}</p>
+                <p className="text-3xl font-medium py-1">
+                  ({kanjiWord?.meaning})
+                </p>
               </div>
             </div>
 
@@ -78,11 +81,15 @@ const KanjiCard = () => {
               <div className="text-6xl font-bold">
                 <p className="py-2">
                   音読み:
-                  <span className="text-blue-300 pl-10">{kanjiWord?.on_reading}</span>
+                  <span className="text-blue-300 pl-10">
+                    {kanjiWord?.on_reading}
+                  </span>
                 </p>
                 <p className="py-2">
                   訓読み:
-                  <span className="text-red-500 pl-10">{kanjiWord?.kun_reading}</span>
+                  <span className="text-red-500 pl-10">
+                    {kanjiWord?.kun_reading}
+                  </span>
                 </p>
               </div>
 
@@ -100,10 +107,10 @@ const KanjiCard = () => {
                                   part.reading_type === READING_TYPE.ON
                                     ? "text-blue-300"
                                     : part.reading_type === READING_TYPE.KUN
-                                      ? "text-red-500"
-                                      : part.reading_type === READING_TYPE.SPECIAL
-                                        ? "text-purple-400"
-                                        : ""
+                                    ? "text-red-500"
+                                    : part.reading_type === READING_TYPE.SPECIAL
+                                    ? "text-purple-400"
+                                    : ""
                                 )}
                               >
                                 {part.pronun}
@@ -114,10 +121,10 @@ const KanjiCard = () => {
                                   part.reading_type === READING_TYPE.ON
                                     ? "text-blue-300"
                                     : part.reading_type === READING_TYPE.KUN
-                                      ? "text-red-500"
-                                      : part.reading_type === READING_TYPE.SPECIAL
-                                        ? "text-purple-400"
-                                        : ""
+                                    ? "text-red-500"
+                                    : part.reading_type === READING_TYPE.SPECIAL
+                                    ? "text-purple-400"
+                                    : ""
                                 )}
                               >
                                 {part.word}

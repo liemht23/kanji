@@ -34,6 +34,7 @@ const AddKanjiModal = ({ isOpen, onClose }: AddKanjiModalProps) => {
     const character = formData.get("character") as string;
     const on_reading = formData.get("on_reading") as string;
     const kun_reading = formData.get("kun_reading") as string;
+    const chinese_character = formData.get("chinese_character") as string;
     const meaning = formData.get("meaning") as string;
 
     let img_url = "";
@@ -50,6 +51,7 @@ const AddKanjiModal = ({ isOpen, onClose }: AddKanjiModalProps) => {
       character: character,
       on_reading: on_reading,
       kun_reading: kun_reading,
+      chinese_character: chinese_character,
       meaning: meaning,
       img_url: img_url,
       example: listWordParts,
@@ -267,10 +269,28 @@ const AddKanjiModal = ({ isOpen, onClose }: AddKanjiModalProps) => {
 
                 <div className="mb-5">
                   <label
+                    htmlFor="chinese_character"
+                    className="block mb-2 text-sm font-medium text-black-900"
+                  >
+                    Chinese Character
+                  </label>
+                  <input
+                    type="text"
+                    id="chinese_character"
+                    name="chinese_character"
+                    className="border border-black-400 text-black-900 text-sm rounded-lg
+                      focus:ring-blue-300 focus:border-blue-500 block w-full p-2.5"
+                    placeholder="ĐẠT"
+                    required
+                  />
+                </div>
+
+                <div className="mb-5">
+                  <label
                     htmlFor="meaning"
                     className="block mb-2 text-sm font-medium text-black-900"
                   >
-                    Chinese Meaning
+                    Meaning
                   </label>
                   <input
                     type="text"
@@ -278,7 +298,7 @@ const AddKanjiModal = ({ isOpen, onClose }: AddKanjiModalProps) => {
                     name="meaning"
                     className="border border-black-400 text-black-900 text-sm rounded-lg
                       focus:ring-blue-300 focus:border-blue-500 block w-full p-2.5"
-                    placeholder="ĐẠT"
+                    placeholder="tiễn"
                     required
                   />
                 </div>

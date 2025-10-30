@@ -6,6 +6,7 @@ export interface KanjiData {
   img_url: string;
   on_reading: string;
   kun_reading: string;
+  chinese_character: string;
   meaning: string;
   example: WordPart[][];
 }

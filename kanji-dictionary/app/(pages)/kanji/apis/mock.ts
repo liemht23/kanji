@@ -6,7 +6,8 @@ export const mockKanji = {
   img_url: "/kanji/09054.svg",
   on_reading: "タツ",
   kun_reading: "たち",
-  meaning: "ĐẠT",
+  chinese_character: "ĐẠT",
+  meaning: "",
   example: [
     [
       {
