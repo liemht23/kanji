@@ -5,7 +5,7 @@ import { useLayout } from "@/app/context/LayoutContext";
 import { cn } from "@/utils/class-name";
 
 const MainLayout = ({ children }: { children: ReactNode }) => {
-  const { isDocked, setIsDocked } = useLayout();
+  const { isDocked, setIsDocked, isMobile } = useLayout();
 
   return (
     <div className="bg-black-50 h-screen relative overflow-hidden">
@@ -20,10 +20,14 @@ const MainLayout = ({ children }: { children: ReactNode }) => {
             "transition-all duration-300",
             isDocked
               ? "col-span-2 relative"
-              : "absolute top-6 left-6 right-6 z-50"
+              : "absolute top-5 left-5 right-5 z-50"
           )}
         >
-          <Navigation isDocked={isDocked} setIsDocked={setIsDocked} />
+          <Navigation
+            isDocked={isDocked}
+            isMobile={isMobile}
+            setIsDocked={setIsDocked}
+          />
         </div>
 
         <div

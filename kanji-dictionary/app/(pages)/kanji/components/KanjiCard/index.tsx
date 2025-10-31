@@ -1,4 +1,4 @@
-import { Bookmark, SquarePlay } from "lucide-react";
+import { BookmarkIcon, SquarePlayIcon, ImageIcon } from "lucide-react";
 import Image from "next/image";
 import "./kanji-card.css";
 import Tooltip from "@/components/common/Tooltip";
@@ -58,12 +58,12 @@ const KanjiCard = () => {
               <div className="kanji-wrapper bg-black-100 rounded-2xl px-8 py-4">
                 <div className="card-action flex items-center justify-end gap-2 p-2">
                   <Tooltip text="Save Kanji">
-                    <Bookmark className="w-6 h-6 text-black-300 cursor-pointer hover:text-black-900" />
+                    <BookmarkIcon className="w-6 h-6 text-black-300 cursor-pointer hover:text-black-900" />
                   </Tooltip>
                   <Tooltip
                     text={showKanjiAnimation ? "Show Image" : "Draw Kanji"}
                   >
-                    <SquarePlay
+                    <SquarePlayIcon
                       className={cn(
                         "w-6 h-6 cursor-pointer transition-colors",
                         showKanjiAnimation
@@ -72,6 +72,9 @@ const KanjiCard = () => {
                       )}
                       onClick={() => setShowKanjiAnimation((prev) => !prev)}
                     />
+                  </Tooltip>
+                  <Tooltip text="Example Image">
+                    <ImageIcon className="w-6 h-6 text-black-300 cursor-pointer hover:text-black-900" />
                   </Tooltip>
                 </div>
                 <div className="relative w-full h-84">

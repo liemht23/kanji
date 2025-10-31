@@ -1,17 +1,30 @@
 "use client";
-import { createContext, useContext, useState, ReactNode } from "react";
-
-type LayoutContextType = {
-  isDocked: boolean;
-  setIsDocked: (val: boolean) => void;
-};
+import { LayoutContextType } from "@/types/layout-context";
+import {
+  createContext,
+  useContext,
+  useState,
+  useEffect,
+  ReactNode,
+} from "react";
 
 const LayoutContext = createContext<LayoutContextType | undefined>(undefined);
 
 export const LayoutProvider = ({ children }: { children: ReactNode }) => {
-  const [isDocked, setIsDocked] = useState(false);
+  const [isDocked, setIsDocked] = useState(true);
+  const [isMobile, setIsMobile] = useState(false);
+
+  useEffect(() => {
+    const handleResize = () => {
+      setIsMobile(window.innerWidth < 768);
+    };
+    handleResize();
+    window.addEventListener("resize", handleResize);
+    return () => window.removeEventListener("resize", handleResize);
+  }, []);
+
   return (
-    <LayoutContext.Provider value={{ isDocked, setIsDocked }}>
+    <LayoutContext.Provider value={{ isDocked, setIsDocked, isMobile }}>
       {children}
     </LayoutContext.Provider>
   );

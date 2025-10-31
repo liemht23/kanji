@@ -160,7 +160,7 @@ const KanjiToolBar = () => {
             </div>
 
             {!isSearchVisible && (
-              <Tooltip text="Search kanji">
+              <Tooltip text="Search Kanji">
                 <Search
                   className="w-8 h-8 text-black-400 cursor-pointer hover:text-black-900 transition"
                   onClick={() => {
