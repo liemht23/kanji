@@ -33,11 +33,12 @@ const KanjiCard = () => {
   }, [dispatch, currentKanjiId]);
 
   useEffect(() => {
-    if (!loading && kanjiWord) {
-      // eslint-disable-next-line react-hooks/set-state-in-effect
-      setShowKanjiAnimation(false);
+    if (!loading && kanjiWord && showKanjiAnimation) {
+      const timeout = setTimeout(() => setShowKanjiAnimation(false), 0);
+      return () => clearTimeout(timeout);
     }
-  }, [kanjiWord, loading]);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [kanjiWord?.kanji_id, loading]);
 
   return (
     <div className="bg-black-0 p-4 border border-black-100 rounded-2xl shadow-sm h-[80vh]">

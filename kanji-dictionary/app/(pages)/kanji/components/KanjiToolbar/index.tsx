@@ -1,5 +1,3 @@
-"use client";
-import AddKanjiModal from "@/app/(pages)/kanji/components/AddKanjiModal";
 import Tooltip from "@/components/common/Tooltip";
 import { NEXT_STEP_SIZE, PREVIOUS_STEP_SIZE } from "@/constants/const";
 import { useAppDispatch, useAppSelector } from "@/store/hook";
@@ -8,22 +6,21 @@ import {
   searchKanjiThunk,
 } from "@/store/slices/kanji-word/thunk";
 import { RootState } from "@/store/store";
+import { cn } from "@/utils/class-name";
 import {
   CircleChevronLeft,
   CircleChevronRight,
   CirclePlus,
   CircleX,
-  Maximize2Icon,
   Search,
   SquarePen,
   Trash2,
 } from "lucide-react";
-import Image from "next/image";
-import { useCallback, useEffect, useState } from "react";
-import { cn } from "@/utils/class-name";
-import { useRef } from "react";
+import { useCallback, useEffect, useRef, useState } from "react";
+import AddKanjiModal from "../AddKanjiModal";
+import { useLayout } from "@/app/context/LayoutContext";
 
-const Header = () => {
+const KanjiToolBar = () => {
   const dispatch = useAppDispatch();
   const [isOpen, setIsOpen] = useState(false);
   const [isSearchVisible, setIsSearchVisible] = useState(false);
@@ -33,6 +30,7 @@ const Header = () => {
   const { kanjiWord, maxKanjiId, minKanjiId, loading } = useAppSelector(
     (state: RootState) => state.kanjiWord
   );
+  const { isDocked } = useLayout();
 
   const handleGetKanji = useCallback(
     (step: number) => {
@@ -112,12 +110,17 @@ const Header = () => {
 
   return (
     <>
-      <header className="flex items-center justify-between mb-4">
-        <div className="flex items-center gap-4 bg-black-0 p-4 border border-black-100 rounded-2xl shadow-sm">
-          <Image src="/logo/logo-0.png" alt="Logo" width={40} height={40} />
-          <span className="text-xl font-bold">Kanji Dictionary</span>
-          <Maximize2Icon className="w-6 h-6 text-black-400 cursor-pointer" />
-        </div>
+      <div
+        className={cn(
+          "flex items-center mb-4",
+          isDocked ? "justify-between" : "justify-end"
+        )}
+      >
+        {isDocked ? (
+          <div className="text-3xl font-bold">Kanji Dictionary</div>
+        ) : (
+          ""
+        )}
 
         <div className="flex items-center gap-4 bg-black-0 p-4 border border-black-100 rounded-2xl shadow-sm">
           <div className="flex items-center relative">
@@ -232,11 +235,10 @@ const Header = () => {
             </Tooltip>
           </div>
         </div>
-      </header>
-
+      </div>
       <AddKanjiModal isOpen={isOpen} onClose={() => setIsOpen(false)} />
     </>
   );
 };
 
-export default Header;
+export default KanjiToolBar;
