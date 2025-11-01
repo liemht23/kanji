@@ -55,6 +55,7 @@ const AddKanjiModal = ({ isOpen, onClose }: AddKanjiModalProps) => {
       meaning: meaning,
       img_url: img_url,
       example: listWordParts,
+      example_images: [],
     };
     dispatch(insertKanjiThunk(kanjiData))
       .unwrap()

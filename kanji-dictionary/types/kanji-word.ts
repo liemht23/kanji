@@ -9,6 +9,7 @@ export interface KanjiData {
   chinese_character: string;
   meaning: string;
   example: WordPart[][];
+  example_images: [];
 }
 
 export interface KanjiState {

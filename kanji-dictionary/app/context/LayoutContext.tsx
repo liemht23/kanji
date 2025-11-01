@@ -11,8 +11,9 @@ import {
 const LayoutContext = createContext<LayoutContextType | undefined>(undefined);
 
 export const LayoutProvider = ({ children }: { children: ReactNode }) => {
-  const [isDocked, setIsDocked] = useState(true);
+  const [isDocked, setIsDocked] = useState(false);
   const [isMobile, setIsMobile] = useState(false);
+  const [isModalOpen, setIsModalOpen] = useState(false);
 
   useEffect(() => {
     const handleResize = () => {
@@ -24,7 +25,9 @@ export const LayoutProvider = ({ children }: { children: ReactNode }) => {
   }, []);
 
   return (
-    <LayoutContext.Provider value={{ isDocked, setIsDocked, isMobile }}>
+    <LayoutContext.Provider
+      value={{ isDocked, setIsDocked, isMobile, isModalOpen, setIsModalOpen }}
+    >
       {children}
     </LayoutContext.Provider>
   );

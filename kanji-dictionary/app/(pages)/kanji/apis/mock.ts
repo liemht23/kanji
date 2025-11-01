@@ -51,4 +51,5 @@ export const mockKanji = {
       },
     ],
   ],
+  example_images: [],
 };

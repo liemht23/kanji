@@ -30,7 +30,7 @@ const KanjiToolBar = () => {
   const { kanjiWord, maxKanjiId, minKanjiId, loading } = useAppSelector(
     (state: RootState) => state.kanjiWord
   );
-  const { isDocked } = useLayout();
+  const { isDocked, isModalOpen } = useLayout();
 
   const handleGetKanji = useCallback(
     (step: number) => {
@@ -65,6 +65,8 @@ const KanjiToolBar = () => {
     let lastFPress = 0;
 
     const handleKeyDown = (e: KeyboardEvent) => {
+      if (isModalOpen) return;
+
       if (document.activeElement === searchInputRef.current) {
         if (e.key === "Escape") {
           setIsSearchVisible(false);
@@ -106,7 +108,7 @@ const KanjiToolBar = () => {
 
     window.addEventListener("keydown", handleKeyDown);
     return () => window.removeEventListener("keydown", handleKeyDown);
-  }, [hasPrevious, hasNext, handleGetKanji, isSearchVisible]);
+  }, [hasPrevious, hasNext, handleGetKanji, isSearchVisible, isModalOpen]);
 
   return (
     <>

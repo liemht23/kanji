@@ -11,9 +11,11 @@ import Spinner from "@/components/common/Spinner";
 import { READING_TYPE } from "@/enum/kanji-word";
 import { SAMPLE_KANJI_BATCH_SIZE } from "./const";
 import KanjiAnimate from "../KanjiAnimate";
+import ExampleImagePopup from "../ExampleImageModal";
 
 const KanjiCard = () => {
   const [showKanjiAnimation, setShowKanjiAnimation] = useState(false);
+  const [showImagePopup, setShowImagePopup] = useState(false);
   const dispatch = useAppDispatch();
   const { kanjiWord, currentKanjiId, loading } = useAppSelector(
     (state: RootState) => state.kanjiWord
@@ -27,6 +29,11 @@ const KanjiCard = () => {
     }
     return chunks;
   }, [kanjiWord]);
+
+  const exampleImages = kanjiWord?.example_images ?? [
+    "/example-images/sample-1.png",
+    "/example-images/sample-2.png",
+  ];
 
   useEffect(() => {
     dispatch(getKanjiThunk(currentKanjiId));
@@ -72,7 +79,15 @@ const KanjiCard = () => {
                     />
                   </Tooltip>
                   <Tooltip text="Example Image">
-                    <ImageIcon className="w-6 h-6 text-black-300 cursor-pointer hover:text-black-900" />
+                    <ImageIcon
+                      className={cn(
+                        "w-6 h-6 cursor-pointer transition-colors",
+                        showKanjiAnimation
+                          ? "text-blue-300"
+                          : "text-black-300 hover:text-black-900"
+                      )}
+                      onClick={() => setShowImagePopup(true)}
+                    />
                   </Tooltip>
                 </div>
                 <div className="relative w-full h-84">
@@ -167,6 +182,12 @@ const KanjiCard = () => {
               </div>
             </div>
           </div>
+          {showImagePopup && (
+            <ExampleImagePopup
+              images={exampleImages}
+              onClose={() => setShowImagePopup(false)}
+            />
+          )}
         </>
       )}
     </div>
