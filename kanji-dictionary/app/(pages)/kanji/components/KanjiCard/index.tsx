@@ -60,9 +60,7 @@ const KanjiCard = () => {
                   <Tooltip text="Save Kanji">
                     <BookmarkIcon className="w-6 h-6 text-black-300 cursor-pointer hover:text-black-900" />
                   </Tooltip>
-                  <Tooltip
-                    text={showKanjiAnimation ? "Show Image" : "Draw Kanji"}
-                  >
+                  <Tooltip text={showKanjiAnimation ? "Stop" : "Draw Kanji"}>
                     <SquarePlayIcon
                       className={cn(
                         "w-6 h-6 cursor-pointer transition-colors",
