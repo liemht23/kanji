@@ -1,7 +1,6 @@
 import { supabase } from "./supabase-client";
 
-export const uploadImage = async (file: File) => {
-  const bucket = "kanji-images";
+export const uploadImage = async (file: File, bucket: string) => {
   const ext = file.name.split(".").pop();
   const fileName = `${Date.now()}.${ext}`;
 

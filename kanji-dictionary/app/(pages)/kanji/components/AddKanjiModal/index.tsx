@@ -11,6 +11,7 @@ import { insertKanjiThunk } from "@/store/slices/kanji-word/thunk";
 import { setCurrentKanjiId } from "@/store/slices/kanji-word";
 import { clearListWordParts } from "@/store/slices/word-parts";
 import { uploadImage } from "@/lib/upload";
+import { BUCKET_EXAMPLE_IMAGES, BUCKET_KANJI_IMAGES } from "./const";
 
 interface AddKanjiModalProps {
   isOpen: boolean;
@@ -19,8 +20,10 @@ interface AddKanjiModalProps {
 
 const AddKanjiModal = ({ isOpen, onClose }: AddKanjiModalProps) => {
   const [isOpenAddSampleKanjiModal, setIsOpen] = useState(false);
-  const [file, setFile] = useState<File | null>(null);
+  const [kanjiImage, setFile] = useState<File | null>(null);
   const [preview, setPreview] = useState<string | null>(null);
+  const [imageFiles, setImageFiles] = useState<File[]>([]);
+  const [imagePreviews, setImagePreviews] = useState<string[]>([]);
   const prevPreviewRef = useRef<string | null>(null);
   const listWordParts = useAppSelector(
     (state: RootState) => state.wordParts.listWordParts
@@ -38,14 +41,36 @@ const AddKanjiModal = ({ isOpen, onClose }: AddKanjiModalProps) => {
     const meaning = formData.get("meaning") as string;
 
     let img_url = "";
-    if (file) {
+    if (kanjiImage) {
       try {
-        img_url = await uploadImage(file);
+        img_url = await uploadImage(kanjiImage, BUCKET_KANJI_IMAGES);
       } catch (err) {
         console.error(err);
-        alert("Upload ảnh thất bại!");
+        alert("Upload kanji image failed");
       }
     }
+
+    let example_images: string[] = [];
+    if (imageFiles.length > 0) {
+      try {
+        const uploadedUrls = (
+          await Promise.all(
+            imageFiles.map(async (f) => {
+              try {
+                return await uploadImage(f, BUCKET_EXAMPLE_IMAGES);
+              } catch {
+                return null;
+              }
+            })
+          )
+        ).filter((url): url is string => Boolean(url));
+        example_images = uploadedUrls;
+      } catch (err) {
+        console.error(err);
+        alert("Upload example images failed");
+      }
+    }
+
     const kanjiData: KanjiData = {
       kanji_id: kanjiId,
       character: character,
@@ -55,8 +80,9 @@ const AddKanjiModal = ({ isOpen, onClose }: AddKanjiModalProps) => {
       meaning: meaning,
       img_url: img_url,
       example: listWordParts,
-      example_images: [],
+      example_images: example_images,
     };
+
     dispatch(insertKanjiThunk(kanjiData))
       .unwrap()
       .then(() => {
@@ -67,18 +93,29 @@ const AddKanjiModal = ({ isOpen, onClose }: AddKanjiModalProps) => {
     onClose();
   };
 
-  // Clear preview and file when modal closes, and revoke any object URL to avoid memory leaks
+  // Clear preview and kanjiImage when modal closes, and revoke any object URL to avoid memory leaks
   useEffect(() => {
     if (!isOpen) {
+      // Cleanup preview Kanji image
       if (prevPreviewRef.current) {
         URL.revokeObjectURL(prevPreviewRef.current);
         prevPreviewRef.current = null;
       }
-      // eslint-disable-next-line react-hooks/set-state-in-effect
-      setFile(null);
-      setPreview(null);
+
+      // Cleanup preview example images
+      imagePreviews.forEach((url) => URL.revokeObjectURL(url));
+
+      // Deferred state reset (prevent from set State sync warning)
+      const timeout = setTimeout(() => {
+        setImagePreviews([]);
+        setImageFiles([]);
+        setFile(null);
+        setPreview(null);
+      }, 0);
+
+      return () => clearTimeout(timeout);
     }
-  }, [isOpen]);
+  }, [isOpen, imagePreviews]);
 
   // Revoke any leftover object URL on unmount
   useEffect(() => {
@@ -110,64 +147,278 @@ const AddKanjiModal = ({ isOpen, onClose }: AddKanjiModalProps) => {
 
           <form onSubmit={(e) => handleSaveKanji(e)}>
             <div className="grid grid-cols-12 mb-5">
-              <div className="col-span-3 px-4">
-                <div className="mb-5">
-                  <label
-                    htmlFor="kanji_id"
-                    className="block mb-2 text-sm font-medium text-black-900"
-                  >
-                    No.
-                  </label>
-                  <input
-                    type="text"
-                    id="kanji_id"
-                    name="kanji_id"
-                    className="border border-black-400 text-black-900 text-sm rounded-lg
-                    focus:ring-blue-300 focus:border-blue-500 block w-full p-2.5"
-                    placeholder="1"
-                    required
-                  />
-                </div>
-
-                <div className="mb-5">
-                  <label
-                    htmlFor="on_reading"
-                    className="block mb-2 text-sm font-medium text-black-900"
-                  >
-                    On Reading
-                  </label>
-                  <input
-                    type="text"
-                    id="on_reading"
-                    name="on_reading"
-                    className="border border-black-400 text-black-900 text-sm rounded-lg
-                    focus:ring-blue-300 focus:border-blue-500 block w-full p-2.5"
-                    placeholder="タツ"
-                    required
-                  />
-                </div>
-
-                <div className="mb-5">
-                  <label
-                    htmlFor="file-upload"
-                    className="block mb-2 text-sm font-medium text-black-900"
-                  >
-                    Upload File
-                  </label>
-
-                  <label
-                    htmlFor="file-upload"
-                    className="flex flex-col items-center justify-center w-full h-32 border-2 border-dashed 
-                    border-gray-300 rounded-lg cursor-pointer bg-gray-50 
-                    hover:bg-gray-100 transition-all duration-200 ease-in-out overflow-hidden"
-                  >
-                    {preview ? (
-                      // eslint-disable-next-line @next/next/no-img-element
-                      <img
-                        src={preview}
-                        alt="preview"
-                        className="object-contain w-full h-full rounded-lg"
+              <div className="col-span-6">
+                <div className="grid grid-cols-12">
+                  <div className="col-span-6 px-4">
+                    <div className="mb-5">
+                      <label
+                        htmlFor="kanji_id"
+                        className="block mb-2 text-sm font-medium text-black-900"
+                      >
+                        No.
+                      </label>
+                      <input
+                        type="text"
+                        id="kanji_id"
+                        name="kanji_id"
+                        className="border border-black-400 text-black-900 text-sm rounded-lg
+                          focus:ring-blue-300 focus:border-blue-500 block w-full p-2.5"
+                        placeholder="1"
+                        required
                       />
+                    </div>
+
+                    <div className="mb-5">
+                      <label
+                        htmlFor="on_reading"
+                        className="block mb-2 text-sm font-medium text-black-900"
+                      >
+                        On Reading
+                      </label>
+                      <input
+                        type="text"
+                        id="on_reading"
+                        name="on_reading"
+                        className="border border-black-400 text-black-900 text-sm rounded-lg
+                    focus:ring-blue-300 focus:border-blue-500 block w-full p-2.5"
+                        placeholder="タツ"
+                        required
+                      />
+                    </div>
+
+                    <div className="mb-5">
+                      <label
+                        htmlFor="kanjiImage-upload"
+                        className="block mb-2 text-sm font-medium text-black-900"
+                      >
+                        Upload File
+                      </label>
+
+                      <label
+                        htmlFor="kanjiImage-upload"
+                        className="flex flex-col items-center justify-center w-full h-32 border-2 border-dashed 
+                        border-gray-300 rounded-lg cursor-pointer bg-gray-50 
+                        hover:bg-gray-100 transition-all duration-200 ease-in-out overflow-hidden"
+                        onClickCapture={(e) => {
+                          const target = e.target as HTMLElement;
+                          if (target.closest(".stop-label-click")) {
+                            e.preventDefault();
+                          }
+                        }}
+                      >
+                        {preview ? (
+                          <div className="relative w-full h-full">
+                            {/* eslint-disable-next-line @next/next/no-img-element */}
+                            <img
+                              src={preview}
+                              alt="preview"
+                              className="object-contain w-full h-full rounded-lg"
+                            />
+                            <button
+                              type="button"
+                              onClick={(e) => {
+                                e.stopPropagation();
+                                if (prevPreviewRef.current) {
+                                  URL.revokeObjectURL(prevPreviewRef.current);
+                                  prevPreviewRef.current = null;
+                                }
+                                setPreview(null);
+                                setFile(null);
+                              }}
+                              className="stop-label-click absolute top-2 right-2 bg-black/60 text-white text-sm rounded-full px-1 hover:bg-black/80"
+                            >
+                              ✕
+                            </button>
+                          </div>
+                        ) : (
+                          <>
+                            <svg
+                              className="w-8 h-8 mb-2 text-gray-400"
+                              fill="none"
+                              stroke="currentColor"
+                              strokeWidth="2"
+                              viewBox="0 0 24 24"
+                            >
+                              <path
+                                strokeLinecap="round"
+                                strokeLinejoin="round"
+                                d="M12 4v16m8-8H4"
+                              />
+                            </svg>
+                            <p className="text-center text-sm text-gray-500">
+                              <span className="font-semibold">
+                                Click to upload
+                              </span>
+                              <br />
+                              <span>or drag and drop</span>
+                            </p>
+                          </>
+                        )}
+
+                        <input
+                          id="kanjiImage-upload"
+                          type="file"
+                          accept="image/*,application/pdf"
+                          className="hidden"
+                          onChange={(e) => {
+                            const selectedFile = e.target.files?.[0];
+                            if (!selectedFile) return;
+
+                            setFile(selectedFile);
+
+                            // If image then create preview URL
+                            if (selectedFile.type.startsWith("image/")) {
+                              // revoke previous preview if exists
+                              if (prevPreviewRef.current) {
+                                URL.revokeObjectURL(prevPreviewRef.current);
+                              }
+                              const url = URL.createObjectURL(selectedFile);
+                              prevPreviewRef.current = url;
+                              setPreview(url);
+                            } else {
+                              // revoke previous preview if switching to non-image
+                              if (prevPreviewRef.current) {
+                                URL.revokeObjectURL(prevPreviewRef.current);
+                                prevPreviewRef.current = null;
+                              }
+                              setPreview(null);
+                            }
+                          }}
+                        />
+                      </label>
+
+                      {kanjiImage && !preview && (
+                        <p className="mt-2 text-sm text-gray-600 text-center">
+                          {kanjiImage.name}
+                        </p>
+                      )}
+                    </div>
+                  </div>
+
+                  <div className="col-span-6 px-4">
+                    <div className="mb-5">
+                      <label
+                        htmlFor="character"
+                        className="block mb-2 text-sm font-medium text-black-900"
+                      >
+                        Character
+                      </label>
+                      <input
+                        type="text"
+                        id="character"
+                        name="character"
+                        className="border border-black-400 text-black-900 text-sm rounded-lg
+                    focus:ring-blue-300 focus:border-blue-500 block w-full p-2.5"
+                        placeholder="達"
+                        required
+                      />
+                    </div>
+
+                    <div className="mb-5">
+                      <label
+                        htmlFor="kun_reading"
+                        className="block mb-2 text-sm font-medium text-black-900"
+                      >
+                        Kun Reading
+                      </label>
+                      <input
+                        type="text"
+                        id="kun_reading"
+                        name="kun_reading"
+                        className="border border-black-400 text-black-900 text-sm rounded-lg
+                    focus:ring-blue-300 focus:border-blue-500 block w-full p-2.5"
+                        placeholder="たち"
+                        required
+                      />
+                    </div>
+
+                    <div className="mb-5">
+                      <label
+                        htmlFor="chinese_character"
+                        className="block mb-2 text-sm font-medium text-black-900"
+                      >
+                        Chinese Character
+                      </label>
+                      <input
+                        type="text"
+                        id="chinese_character"
+                        name="chinese_character"
+                        className="border border-black-400 text-black-900 text-sm rounded-lg
+                      focus:ring-blue-300 focus:border-blue-500 block w-full p-2.5"
+                        placeholder="ĐẠT"
+                        required
+                      />
+                    </div>
+
+                    <div className="mb-5">
+                      <label
+                        htmlFor="meaning"
+                        className="block mb-2 text-sm font-medium text-black-900"
+                      >
+                        Meaning
+                      </label>
+                      <input
+                        type="text"
+                        id="meaning"
+                        name="meaning"
+                        className="border border-black-400 text-black-900 text-sm rounded-lg
+                      focus:ring-blue-300 focus:border-blue-500 block w-full p-2.5"
+                        placeholder="tiễn"
+                        required
+                      />
+                    </div>
+                  </div>
+                </div>
+
+                <div className="mb-5 px-4">
+                  <label
+                    htmlFor="example-images"
+                    className="block mb-2 text-sm font-medium text-black-900"
+                  >
+                    Example Images
+                  </label>
+
+                  <label
+                    htmlFor="example-images"
+                    className="flex flex-col items-center justify-center w-full min-h-24 border-2 border-dashed 
+                      border-gray-300 rounded-lg cursor-pointer bg-gray-50 
+                      hover:bg-gray-100 transition-all duration-200 ease-in-out overflow-hidden"
+                    onClickCapture={(e) => {
+                      const target = e.target as HTMLElement;
+                      if (target.closest(".stop-label-click")) {
+                        e.preventDefault();
+                      }
+                    }}
+                  >
+                    {imagePreviews.length > 0 ? (
+                      <div className="grid grid-cols-4 gap-2 p-2">
+                        {imagePreviews.map((src, idx) => (
+                          <div key={idx} className="relative">
+                            {/* eslint-disable-next-line @next/next/no-img-element */}
+                            <img
+                              src={src}
+                              alt={`example-${idx}`}
+                              className="object-cover w-full h-16 rounded-md border"
+                            />
+                            <button
+                              type="button"
+                              onClick={() => {
+                                // Revoke object URL
+                                URL.revokeObjectURL(src);
+                                setImagePreviews((prev) =>
+                                  prev.filter((_, i) => i !== idx)
+                                );
+                                setImageFiles((prev) =>
+                                  prev.filter((_, i) => i !== idx)
+                                );
+                              }}
+                              className="stop-label-click absolute top-1 right-1 bg-black/60 text-white text-sm rounded-full px-1 hover:bg-black/80"
+                            >
+                              ✕
+                            </button>
+                          </div>
+                        ))}
+                      </div>
                     ) : (
                       <>
                         <svg
@@ -186,122 +437,38 @@ const AddKanjiModal = ({ isOpen, onClose }: AddKanjiModalProps) => {
                         <p className="text-center text-sm text-gray-500">
                           <span className="font-semibold">Click to upload</span>
                           <br />
-                          <span>or drag and drop</span>
+                          <span>multiple images</span>
                         </p>
                       </>
                     )}
 
                     <input
-                      id="file-upload"
+                      id="example-images"
                       type="file"
-                      accept="image/*,application/pdf"
+                      accept="image/*"
+                      multiple
                       className="hidden"
                       onChange={(e) => {
-                        const selectedFile = e.target.files?.[0];
-                        if (!selectedFile) return;
+                        const files = e.target.files
+                          ? Array.from(e.target.files)
+                          : [];
+                        if (files.length === 0) return;
 
-                        setFile(selectedFile);
+                        const newPreviews = files.map((file) =>
+                          URL.createObjectURL(file)
+                        );
 
-                        // If image then create preview URL
-                        if (selectedFile.type.startsWith("image/")) {
-                          // revoke previous preview if exists
-                          if (prevPreviewRef.current) {
-                            URL.revokeObjectURL(prevPreviewRef.current);
-                          }
-                          const url = URL.createObjectURL(selectedFile);
-                          prevPreviewRef.current = url;
-                          setPreview(url);
-                        } else {
-                          // revoke previous preview if switching to non-image
-                          if (prevPreviewRef.current) {
-                            URL.revokeObjectURL(prevPreviewRef.current);
-                            prevPreviewRef.current = null;
-                          }
-                          setPreview(null);
-                        }
+                        setImageFiles((prev) => [...prev, ...files]);
+                        setImagePreviews((prev) => [...prev, ...newPreviews]);
                       }}
                     />
                   </label>
 
-                  {file && !preview && (
+                  {imageFiles.length > 0 && (
                     <p className="mt-2 text-sm text-gray-600 text-center">
-                      {file.name}
+                      {imageFiles.length} file(s) selected
                     </p>
                   )}
-                </div>
-              </div>
-
-              <div className="col-span-3 px-4">
-                <div className="mb-5">
-                  <label
-                    htmlFor="character"
-                    className="block mb-2 text-sm font-medium text-black-900"
-                  >
-                    Character
-                  </label>
-                  <input
-                    type="text"
-                    id="character"
-                    name="character"
-                    className="border border-black-400 text-black-900 text-sm rounded-lg
-                    focus:ring-blue-300 focus:border-blue-500 block w-full p-2.5"
-                    placeholder="達"
-                    required
-                  />
-                </div>
-
-                <div className="mb-5">
-                  <label
-                    htmlFor="kun_reading"
-                    className="block mb-2 text-sm font-medium text-black-900"
-                  >
-                    Kun Reading
-                  </label>
-                  <input
-                    type="text"
-                    id="kun_reading"
-                    name="kun_reading"
-                    className="border border-black-400 text-black-900 text-sm rounded-lg
-                    focus:ring-blue-300 focus:border-blue-500 block w-full p-2.5"
-                    placeholder="たち"
-                    required
-                  />
-                </div>
-
-                <div className="mb-5">
-                  <label
-                    htmlFor="chinese_character"
-                    className="block mb-2 text-sm font-medium text-black-900"
-                  >
-                    Chinese Character
-                  </label>
-                  <input
-                    type="text"
-                    id="chinese_character"
-                    name="chinese_character"
-                    className="border border-black-400 text-black-900 text-sm rounded-lg
-                      focus:ring-blue-300 focus:border-blue-500 block w-full p-2.5"
-                    placeholder="ĐẠT"
-                    required
-                  />
-                </div>
-
-                <div className="mb-5">
-                  <label
-                    htmlFor="meaning"
-                    className="block mb-2 text-sm font-medium text-black-900"
-                  >
-                    Meaning
-                  </label>
-                  <input
-                    type="text"
-                    id="meaning"
-                    name="meaning"
-                    className="border border-black-400 text-black-900 text-sm rounded-lg
-                      focus:ring-blue-300 focus:border-blue-500 block w-full p-2.5"
-                    placeholder="tiễn"
-                    required
-                  />
                 </div>
               </div>
 

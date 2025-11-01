@@ -80,12 +80,7 @@ const KanjiCard = () => {
                   </Tooltip>
                   <Tooltip text="Example Image">
                     <ImageIcon
-                      className={cn(
-                        "w-6 h-6 cursor-pointer transition-colors",
-                        showKanjiAnimation
-                          ? "text-blue-300"
-                          : "text-black-300 hover:text-black-900"
-                      )}
+                      className="w-6 h-6 cursor-pointer transition-colors text-black-300 hover:text-black-900"
                       onClick={() => setShowImagePopup(true)}
                     />
                   </Tooltip>
@@ -109,13 +104,11 @@ const KanjiCard = () => {
               <div className="text-5xl font-bold p-4 text-center">
                 <p>{kanjiWord?.chinese_character}</p>
                 {kanjiWord?.meaning && (
-                  <p className="text-3xl font-medium">
-                    <Tooltip position="right" text={kanjiWord?.meaning}>
-                      <p className="py-1 truncate max-w-[300px] mx-auto">
-                        {kanjiWord?.meaning}
-                      </p>
-                    </Tooltip>
-                  </p>
+                  <Tooltip position="right" text={kanjiWord?.meaning}>
+                    <p className="text-3xl font-medium py-1 truncate max-w-[300px] mx-auto">
+                      {kanjiWord?.meaning}
+                    </p>
+                  </Tooltip>
                 )}
               </div>
             </div>
