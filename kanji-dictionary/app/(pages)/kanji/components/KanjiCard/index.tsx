@@ -95,9 +95,15 @@ const KanjiCard = () => {
               </div>
               <div className="text-5xl font-bold p-4 text-center">
                 <p>{kanjiWord?.chinese_character}</p>
-                <p className="text-3xl font-medium py-1">
-                  {kanjiWord?.meaning ? "(" + kanjiWord?.meaning + ")" : ""}
-                </p>
+                {kanjiWord?.meaning && (
+                  <p className="text-3xl font-medium">
+                    <Tooltip position="right" text={kanjiWord?.meaning}>
+                      <p className="py-1 truncate max-w-[300px] mx-auto">
+                        {kanjiWord?.meaning}
+                      </p>
+                    </Tooltip>
+                  </p>
+                )}
               </div>
             </div>
 
