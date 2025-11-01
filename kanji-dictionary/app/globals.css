@@ -14,8 +14,6 @@
   --color-red-500: #DF0000;
   --color-purple-400: #9B5DE0;
   --color-orange-400: #F75907;
-  --color-background: var(--color-black-900);
-  --color-foreground: var(--color-black-50);
 }
 
 @media (prefers-color-scheme: dark) {
@@ -33,9 +31,6 @@
     --color-red-500: #df0000;
     --color-purple-400: #9b5de0;
     --color-orange-400: #f75907;
-
-    --color-background: var(--color-black-900);
-    --color-foreground: var(--color-black-50);
   }
 }
 
