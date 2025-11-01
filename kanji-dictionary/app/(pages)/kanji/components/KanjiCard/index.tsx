@@ -30,10 +30,12 @@ const KanjiCard = () => {
     return chunks;
   }, [kanjiWord]);
 
-  const exampleImages = kanjiWord?.example_images ?? [
-    "/example-images/sample-1.png",
-    "/example-images/sample-2.png",
-  ];
+  const hasExampleImages =
+    kanjiWord?.example_images !== undefined &&
+    kanjiWord?.example_images !== null &&
+    kanjiWord?.example_images.length > 0
+      ? true
+      : false;
 
   useEffect(() => {
     dispatch(getKanjiThunk(currentKanjiId));
@@ -78,12 +80,19 @@ const KanjiCard = () => {
                       onClick={() => setShowKanjiAnimation((prev) => !prev)}
                     />
                   </Tooltip>
-                  <Tooltip text="Example Image">
-                    <ImageIcon
-                      className="w-6 h-6 cursor-pointer transition-colors text-black-300 hover:text-black-900"
-                      onClick={() => setShowImagePopup(true)}
-                    />
-                  </Tooltip>
+                  <div
+                    className={cn(
+                      "flex m-0 p-0",
+                      hasExampleImages ? "" : "hidden"
+                    )}
+                  >
+                    <Tooltip text="Show example Images">
+                      <ImageIcon
+                        className="w-6 h-6 cursor-pointer transition-colors text-black-300 hover:text-black-900"
+                        onClick={() => setShowImagePopup(true)}
+                      />
+                    </Tooltip>
+                  </div>
                 </div>
                 <div className="relative w-full h-84">
                   {showKanjiAnimation ? (
@@ -177,7 +186,7 @@ const KanjiCard = () => {
           </div>
           {showImagePopup && (
             <ExampleImagePopup
-              images={exampleImages}
+              images={kanjiWord?.example_images}
               onClose={() => setShowImagePopup(false)}
             />
           )}
