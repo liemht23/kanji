@@ -105,13 +105,13 @@ const KanjiCard = () => {
               <div className="text-5xl font-bold">
                 <p className="py-2">
                   音読み:
-                  <span className="text-blue-300 pl-10">
+                  <span className="text-4xl text-blue-300 pl-10">
                     {kanjiWord?.on_reading}
                   </span>
                 </p>
                 <p className="py-2">
                   訓読み:
-                  <span className="text-red-500 pl-10">
+                  <span className="text-4xl text-red-500 pl-10">
                     {kanjiWord?.kun_reading}
                   </span>
                 </p>
