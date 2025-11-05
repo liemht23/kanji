@@ -3,14 +3,16 @@ import { Pencil, Trash2, Check, X } from "lucide-react";
 import { READING_TYPE } from "@/enum/kanji-word";
 import { READING_TYPE_OPTION } from "./const";
 import { getLabel, Option } from "@/utils/select-option";
-import { WordPart } from "@/types/word-part";
+import { WordPart } from "@/types/sample-vocab";
 import { useAppDispatch, useAppSelector } from "@/store/hook";
 import { RootState } from "@/store/store";
-import { setWordPart, removeWordPart } from "@/store/slices/word-parts";
+import { setWordPart, removeWordPart } from "@/store/slices/sample-vocab";
 
 const WordPartTable = () => {
   const dispatch = useAppDispatch();
-  const { wordParts } = useAppSelector((state: RootState) => state.wordParts);
+  const { wordParts } = useAppSelector(
+    (state: RootState) => state.sampleVocab.currentSampleVocab
+  );
   const [editData, setEditData] = useState<WordPart | null>(null);
 
   const handleEdit = (wordPart: WordPart) => {
@@ -28,7 +30,7 @@ const WordPartTable = () => {
   };
 
   return (
-    <div>
+    <div className="mb-4">
       <h2 className="text-lg font-semibold mb-4 text-gray-800">
         List Word Parts
       </h2>

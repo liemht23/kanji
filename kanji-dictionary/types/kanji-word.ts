@@ -1,4 +1,4 @@
-import { WordPart } from "./word-part";
+import { SampleVocab } from "./sample-vocab";
 
 export interface KanjiData {
   kanji_id: number;
@@ -8,12 +8,12 @@ export interface KanjiData {
   kun_reading: string;
   chinese_character: string;
   meaning: string;
-  example: WordPart[][];
+  example: SampleVocab[];
   example_images: string[];
 }
 
 export interface KanjiState {
-  kanjiWord: KanjiData | null;
+  kanjiWord: KanjiData;
   loading: boolean;
   currentKanjiId: number;
   maxKanjiId: number;

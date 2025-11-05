@@ -4,7 +4,7 @@ import { useAppDispatch, useAppSelector } from "@/store/hook";
 import {
   getKanjiThunk,
   searchKanjiThunk,
-} from "@/store/slices/kanji-word/thunk";
+} from "@/store/slices/kanji-card/thunk";
 import { RootState } from "@/store/store";
 import { cn } from "@/utils/class-name";
 import {
@@ -28,7 +28,7 @@ const KanjiToolBar = () => {
   const [isComposing, setIsComposing] = useState(false);
   const searchInputRef = useRef<HTMLInputElement | null>(null);
   const { kanjiWord, maxKanjiId, minKanjiId, loading } = useAppSelector(
-    (state: RootState) => state.kanjiWord
+    (state: RootState) => state.kanjiCard
   );
   const { isDocked, isModalOpen } = useLayout();
 
@@ -49,6 +49,14 @@ const KanjiToolBar = () => {
         .then(() => console.log("Tìm thấy Kanji"))
         .catch(() => console.error("Không tìm thấy Kanji"));
     }
+  };
+
+  const handleEditKanji = () => {
+    setIsOpen(true);
+  };
+
+  const handleAddKanji = () => {
+    setIsOpen(true);
   };
 
   const hasPrevious =
@@ -215,13 +223,13 @@ const KanjiToolBar = () => {
                     ? "text-black-400 hover:text-black-900"
                     : "text-gray-300 cursor-not-allowed"
                 )}
-                onClick={undefined}
+                onClick={handleEditKanji}
               />
             </Tooltip>
             <Tooltip text="Add">
               <CirclePlus
                 className="w-8 h-8 text-black-400 cursor-pointer hover:text-black-900"
-                onClick={() => setIsOpen(true)}
+                onClick={handleAddKanji}
               />
             </Tooltip>
             <Tooltip text="Delete">

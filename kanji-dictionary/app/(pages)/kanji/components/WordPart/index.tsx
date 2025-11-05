@@ -1,11 +1,13 @@
-import { setWordPart } from "@/store/slices/word-parts";
+import { setWordPart } from "@/store/slices/sample-vocab";
 import ReadingTypeSelector from "../ReadingSelector";
 import { useAppDispatch, useAppSelector } from "@/store/hook";
 import { RootState } from "@/store/store";
 import { READING_TYPE } from "@/enum/kanji-word";
 
 const WordPart = () => {
-  const { wordParts } = useAppSelector((state: RootState) => state.wordParts);
+  const { wordParts } = useAppSelector(
+    (state: RootState) => state.sampleVocab.currentSampleVocab
+  );
   const dispatch = useAppDispatch();
 
   const handleAddWordPart = (e: React.FormEvent<HTMLFormElement>) => {

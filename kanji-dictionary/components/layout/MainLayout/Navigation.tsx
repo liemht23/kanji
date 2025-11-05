@@ -49,7 +49,7 @@ const Navigation = ({
                     src="/logo/logo-0.png"
                     alt="Logo"
                     fill
-                    className="object-contain"
+                    sizes="object-contain"
                   />
                 </div>
                 <span className="text-xl font-bold">Kanji Dictionary</span>

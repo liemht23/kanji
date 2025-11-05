@@ -5,7 +5,7 @@ import Tooltip from "@/components/common/Tooltip";
 import { RootState } from "@/store/store";
 import { cn } from "@/utils/class-name";
 import { useEffect, useMemo, useState } from "react";
-import { getKanjiThunk } from "@/store/slices/kanji-word/thunk";
+import { getKanjiThunk } from "@/store/slices/kanji-card/thunk";
 import { useAppDispatch, useAppSelector } from "@/store/hook";
 import Spinner from "@/components/common/Spinner";
 import { READING_TYPE } from "@/enum/kanji-word";
@@ -18,7 +18,7 @@ const KanjiCard = () => {
   const [showImagePopup, setShowImagePopup] = useState(false);
   const dispatch = useAppDispatch();
   const { kanjiWord, currentKanjiId, loading } = useAppSelector(
-    (state: RootState) => state.kanjiWord
+    (state: RootState) => state.kanjiCard
   );
 
   const exampleBatches = useMemo(() => {
@@ -144,7 +144,7 @@ const KanjiCard = () => {
                     {batch.map((item, index) => (
                       <div key={index} className="text-wrapper cursor-pointer">
                         <div className="flex items-end">
-                          {item.map((part, index) => (
+                          {item.wordParts.map((part, index) => (
                             <div key={index} className="character-wrapper py-1">
                               <p
                                 className={cn(

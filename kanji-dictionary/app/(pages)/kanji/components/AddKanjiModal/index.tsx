@@ -5,13 +5,19 @@ import { useEffect, useRef, useState } from "react";
 import AddSampleKanjiModal from "../AddSampleKanjiModal";
 import { useAppDispatch, useAppSelector } from "@/store/hook";
 import { RootState } from "@/store/store";
-import { WordPart } from "@/types/word-part";
+import { SampleVocab } from "@/types/sample-vocab";
 import { KanjiData } from "@/types/kanji-word";
-import { insertKanjiThunk } from "@/store/slices/kanji-word/thunk";
-import { setCurrentKanjiId } from "@/store/slices/kanji-word";
-import { clearListWordParts } from "@/store/slices/word-parts";
+import { insertKanjiThunk } from "@/store/slices/kanji-card/thunk";
+import { setCurrentKanjiId } from "@/store/slices/kanji-card";
+import {
+  clearListSampleVocab,
+  removeSampleVocabFromList,
+  setSampleVocab,
+} from "@/store/slices/sample-vocab";
 import { uploadImage } from "@/lib/upload";
 import { BUCKET_EXAMPLE_IMAGES, BUCKET_KANJI_IMAGES } from "./const";
+import { LEVEL_OPTION } from "../KanjiCard/const";
+import { getLabel } from "@/utils/select-option";
 
 interface AddKanjiModalProps {
   isOpen: boolean;
@@ -19,16 +25,27 @@ interface AddKanjiModalProps {
 }
 
 const AddKanjiModal = ({ isOpen, onClose }: AddKanjiModalProps) => {
-  const [isOpenAddSampleKanjiModal, setIsOpen] = useState(false);
+  const [isOpenAddSampleKanjiModal, setIsOpenAddSampleKanjiModal] =
+    useState(false);
   const [kanjiImage, setFile] = useState<File | null>(null);
   const [preview, setPreview] = useState<string | null>(null);
   const [imageFiles, setImageFiles] = useState<File[]>([]);
   const [imagePreviews, setImagePreviews] = useState<string[]>([]);
   const prevPreviewRef = useRef<string | null>(null);
-  const listWordParts = useAppSelector(
-    (state: RootState) => state.wordParts.listWordParts
+  const { listSampleVocab } = useAppSelector(
+    (state: RootState) => state.sampleVocab
   );
+  const { kanjiWord } = useAppSelector((state: RootState) => state.kanjiCard);
   const dispatch = useAppDispatch();
+
+  const handleEditSampleVocab = (sampleVocab: SampleVocab) => {
+    dispatch(setSampleVocab(sampleVocab));
+    setIsOpenAddSampleKanjiModal(true);
+  };
+
+  const handleDelete = (id: number) => {
+    dispatch(removeSampleVocabFromList(id));
+  };
 
   const handleSaveKanji = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
@@ -79,7 +96,7 @@ const AddKanjiModal = ({ isOpen, onClose }: AddKanjiModalProps) => {
       chinese_character: chinese_character,
       meaning: meaning,
       img_url: img_url,
-      example: listWordParts,
+      example: listSampleVocab,
       example_images: example_images,
     };
 
@@ -87,10 +104,15 @@ const AddKanjiModal = ({ isOpen, onClose }: AddKanjiModalProps) => {
       .unwrap()
       .then(() => {
         dispatch(setCurrentKanjiId(kanjiId));
-        dispatch(clearListWordParts());
+        dispatch(clearListSampleVocab());
       });
 
     onClose();
+  };
+
+  const handleCancel = () => {
+    onClose();
+    dispatch(clearListSampleVocab());
   };
 
   // Clear preview and kanjiImage when modal closes, and revoke any object URL to avoid memory leaks
@@ -132,22 +154,22 @@ const AddKanjiModal = ({ isOpen, onClose }: AddKanjiModalProps) => {
   return (
     <>
       <div className="fixed inset-0 z-50 flex items-center justify-center">
-        <div className="absolute inset-0 bg-black/50" onClick={onClose} />
+        <div className="absolute inset-0 bg-black/50" onClick={handleCancel} />
 
-        <div className="relative bg-white rounded-lg shadow-lg w-full max-w-2xl mx-4 p-6">
+        <div className="relative bg-white rounded-lg shadow-lg w-full max-w-6xl mx-4 p-6">
           <header className="flex items-center justify-between pl-4 mb-4">
             <h2 className="text-xl font-semibold">ADD KANJI</h2>
             <Tooltip text="Close">
               <CircleX
                 className="w-8 h-8 text-black-400 cursor-pointer hover:text-black-900"
-                onClick={onClose}
+                onClick={handleCancel}
               />
             </Tooltip>
           </header>
 
           <form onSubmit={(e) => handleSaveKanji(e)}>
             <div className="grid grid-cols-12 mb-5">
-              <div className="col-span-6">
+              <div className="col-span-4">
                 <div className="grid grid-cols-12">
                   <div className="col-span-6 px-4">
                     <div className="mb-5">
@@ -472,13 +494,13 @@ const AddKanjiModal = ({ isOpen, onClose }: AddKanjiModalProps) => {
                 </div>
               </div>
 
-              <div className="col-span-6 px-4 border-l border-black-100 pl-4">
+              <div className="col-span-8 px-4 border-l border-black-100 pl-4">
                 <div className="flex items-start gap-2">
                   <div className="text-lg font-semibold">Example</div>
                   <Tooltip text="Add Sample Kanji">
                     <SquarePlus
                       className="w-6 h-6 text-black-400 cursor-pointer hover:text-black-900"
-                      onClick={() => setIsOpen(true)}
+                      onClick={() => setIsOpenAddSampleKanjiModal(true)}
                     />
                   </Tooltip>
                 </div>
@@ -487,51 +509,69 @@ const AddKanjiModal = ({ isOpen, onClose }: AddKanjiModalProps) => {
                   <table className="min-w-full border-collapse">
                     <thead className="bg-gray-200 text-gray-700 sticky top-0 z-10">
                       <tr>
-                        <th className="p-3 text-left border border-gray-300 w-3/5">
+                        <th className="text-center border border-gray-300 w-1/10">
+                          No.
+                        </th>
+                        <th className="p-3 text-left border border-gray-300 w-3/10">
                           Sample Kanji
                         </th>
-                        <th className="p-3 text-center border border-gray-300 w-2/5">
+                        <th className="p-3 text-center border border-gray-300 w-1/10">
+                          Level
+                        </th>
+                        <th className="p-3 text-left border border-gray-300 w-3/10">
+                          Meaning
+                        </th>
+                        <th className="p-3 text-center border border-gray-300 w-1/5">
                           Actions
                         </th>
                       </tr>
                     </thead>
                     <tbody>
-                      {listWordParts.length === 0 ? (
+                      {listSampleVocab.length === 0 ? (
                         <tr className="transition-colors duration-200 h-16">
                           <td
-                            colSpan={2}
+                            colSpan={5}
                             className="p-3 border border-gray-300 text-center"
                           >
                             No data
                           </td>
                         </tr>
                       ) : (
-                        listWordParts.map(
-                          (wordPartArr: WordPart[], index: number) => {
-                            const sortedWords = [...wordPartArr]
-                              .sort((a, b) => a.id - b.id)
-                              .map((item) => item.word);
-
+                        listSampleVocab.map(
+                          (sampleVocab: SampleVocab, index: number) => {
                             return (
                               <tr
                                 key={index}
                                 className="hover:bg-gray-100 transition-colors duration-200"
                               >
+                                <td className="p-3 text-center border border-gray-300">
+                                  {sampleVocab.id}
+                                </td>
                                 <td className="p-3 border border-gray-300">
-                                  {sortedWords.join("")}
+                                  {sampleVocab.vocab}
+                                </td>
+                                <td className="p-3 text-center border border-gray-300">
+                                  {getLabel(LEVEL_OPTION, sampleVocab.level)}
+                                </td>
+                                <td className="p-3 text-center border border-gray-300">
+                                  {sampleVocab.meaning}
                                 </td>
                                 <td className="p-3 border border-gray-300 text-center">
-                                  <div className="flex justify-center gap-2">
+                                  <div className="flex justify-center gap-4">
                                     <button
-                                      // onClick={() => handleEdit(wordPart)}
+                                      onClick={(e) => {
+                                        e.preventDefault();
+                                        handleEditSampleVocab(sampleVocab);
+                                      }}
                                       className="p-1 text-blue-600 hover:text-blue-800"
                                     >
                                       <Pencil size={18} />
                                     </button>
                                     <button
-                                      // onClick={() =>
-                                      //   handleDelete(wordPart.id as number)
-                                      // }
+                                      onClick={(e) => {
+                                        e.preventDefault();
+                                        handleDelete(sampleVocab.id);
+                                      }}
                                       className="p-1 text-red-600 hover:text-red-800"
                                     >
                                       <Trash2 size={18} />
@@ -552,7 +592,7 @@ const AddKanjiModal = ({ isOpen, onClose }: AddKanjiModalProps) => {
             <div className="flex justify-center gap-2">
               <button
                 type="button"
-                onClick={onClose}
+                onClick={handleCancel}
                 className="px-4 py-2 text-black-400 font-medium border border-black-400 rounded-xl
                hover:text-black-900 hover:border-black-900 
                transition-all duration-200 ease-in-out"
@@ -574,7 +614,7 @@ const AddKanjiModal = ({ isOpen, onClose }: AddKanjiModalProps) => {
 
       <AddSampleKanjiModal
         isOpen={isOpenAddSampleKanjiModal}
-        onClose={() => setIsOpen(false)}
+        onClose={() => setIsOpenAddSampleKanjiModal(false)}
       />
     </>
   );

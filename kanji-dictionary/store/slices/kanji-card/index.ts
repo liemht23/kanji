@@ -1,9 +1,10 @@
 import { createSlice } from "@reduxjs/toolkit";
 import { getKanjiThunk, searchKanjiThunk } from "./thunk";
 import kanjiInitialState from "./initial-state";
+import { defaultKanjiData } from "@/app/(pages)/kanji/components/KanjiCard/const";
 
-export const kanjiSlice = createSlice({
-  name: "kanji-word",
+export const kanjiCardSlice = createSlice({
+  name: "kanji-card",
   initialState: kanjiInitialState,
   reducers: {
     setCurrentKanjiId: (state, action) => {
@@ -23,7 +24,7 @@ export const kanjiSlice = createSlice({
         state.loading = false;
       })
       .addCase(getKanjiThunk.rejected, (state) => {
-        state.kanjiWord = null;
+        state.kanjiWord = defaultKanjiData;
         state.loading = false;
       })
 
@@ -36,10 +37,10 @@ export const kanjiSlice = createSlice({
       })
       .addCase(searchKanjiThunk.rejected, (state) => {
         state.loading = false;
-        state.kanjiWord = null;
+        state.kanjiWord = defaultKanjiData;
       });
   },
 });
 
-export const { setCurrentKanjiId } = kanjiSlice.actions;
-export default kanjiSlice.reducer;
+export const { setCurrentKanjiId } = kanjiCardSlice.actions;
+export default kanjiCardSlice.reducer;
