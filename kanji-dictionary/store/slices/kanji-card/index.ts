@@ -1,7 +1,7 @@
 import { createSlice } from "@reduxjs/toolkit";
 import { getKanjiThunk, searchKanjiThunk } from "./thunk";
 import kanjiInitialState from "./initial-state";
-import { defaultKanjiData } from "@/app/(pages)/kanji/components/KanjiCard/const";
+import { defaultKanjiData } from "@/app/kanji/components/KanjiCard/const";
 
 export const kanjiCardSlice = createSlice({
   name: "kanji-card",

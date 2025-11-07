@@ -1,4 +1,4 @@
-import { defaultKanjiData } from "@/app/(pages)/kanji/components/KanjiCard/const";
+import { defaultKanjiData } from "@/app/kanji/components/KanjiCard/const";
 import {
   INITIAL_KANJI_ID,
   INITIAL_MAX_KANJI_ID,

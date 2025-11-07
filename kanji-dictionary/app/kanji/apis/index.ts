@@ -1,4 +1,3 @@
-import { mockKanji } from "./mock";
 import axiosClient from "@/lib/axios-client";
 
 export const getKanji = async (id: string) => {
