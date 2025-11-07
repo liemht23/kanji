@@ -38,7 +38,7 @@ const KanjiCard = () => {
       : false;
 
   useEffect(() => {
-    dispatch(getKanjiThunk(currentKanjiId));
+    dispatch(getKanjiThunk(currentKanjiId)).unwrap();
   }, [dispatch, currentKanjiId]);
 
   useEffect(() => {
@@ -143,40 +143,47 @@ const KanjiCard = () => {
                   <div key={batchIndex} className="w-1/2">
                     {batch.map((item, index) => (
                       <div key={index} className="text-wrapper cursor-pointer">
-                        <div className="flex items-end">
-                          {item.wordParts.map((part, index) => (
-                            <div key={index} className="character-wrapper py-1">
-                              <p
-                                className={cn(
-                                  "text-md hiragana text-center",
-                                  part.reading_type === READING_TYPE.ON
-                                    ? "text-blue-300"
-                                    : part.reading_type === READING_TYPE.KUN
-                                    ? "text-red-500"
-                                    : part.reading_type === READING_TYPE.SPECIAL
-                                    ? "text-purple-400"
-                                    : ""
-                                )}
+                        <Tooltip text={item.meaning} position="right">
+                          <div className="flex items-end">
+                            {item.wordParts.map((part, index) => (
+                              <div
+                                key={index}
+                                className="character-wrapper py-1"
                               >
-                                {part.pronun}
-                              </p>
-                              <p
-                                className={cn(
-                                  "text-5xl font-bold text-center",
-                                  part.reading_type === READING_TYPE.ON
-                                    ? "text-blue-300"
-                                    : part.reading_type === READING_TYPE.KUN
-                                    ? "text-red-500"
-                                    : part.reading_type === READING_TYPE.SPECIAL
-                                    ? "text-purple-400"
-                                    : ""
-                                )}
-                              >
-                                {part.word}
-                              </p>
-                            </div>
-                          ))}
-                        </div>
+                                <p
+                                  className={cn(
+                                    "text-md hiragana text-center",
+                                    part.reading_type === READING_TYPE.ON
+                                      ? "text-blue-300"
+                                      : part.reading_type === READING_TYPE.KUN
+                                      ? "text-red-500"
+                                      : part.reading_type ===
+                                        READING_TYPE.SPECIAL
+                                      ? "text-purple-400"
+                                      : ""
+                                  )}
+                                >
+                                  {part.pronun}
+                                </p>
+                                <p
+                                  className={cn(
+                                    "text-5xl font-bold text-center",
+                                    part.reading_type === READING_TYPE.ON
+                                      ? "text-blue-300"
+                                      : part.reading_type === READING_TYPE.KUN
+                                      ? "text-red-500"
+                                      : part.reading_type ===
+                                        READING_TYPE.SPECIAL
+                                      ? "text-purple-400"
+                                      : ""
+                                  )}
+                                >
+                                  {part.word}
+                                </p>
+                              </div>
+                            ))}
+                          </div>
+                        </Tooltip>
                       </div>
                     ))}
                   </div>

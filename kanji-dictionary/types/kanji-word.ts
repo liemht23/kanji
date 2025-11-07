@@ -12,8 +12,9 @@ export interface KanjiData {
   example_images: string[];
 }
 
-export interface KanjiState {
+export interface KanjiCardState {
   kanjiWord: KanjiData;
+  editedKanji: KanjiData | null;
   loading: boolean;
   currentKanjiId: number;
   maxKanjiId: number;

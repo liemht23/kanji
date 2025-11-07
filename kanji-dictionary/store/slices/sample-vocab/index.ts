@@ -32,7 +32,10 @@ export const sampleVocabSlice = createSlice({
     clearSampleVocab: (state) => {
       state.currentSampleVocab = defaultSampleVocab;
     },
-    setListSampleVocab: (state) => {
+    setListSampleVocal: (state, action) => {
+      state.listSampleVocab = action.payload;
+    },
+    setSampleVocabToList: (state) => {
       const wordParts = state.currentSampleVocab.wordParts;
       const sortedWords = [...wordParts]
         .sort((a, b) => a.id - b.id)
@@ -87,7 +90,8 @@ export const {
   setLevel,
   setMeaning,
   clearSampleVocab,
-  setListSampleVocab,
+  setListSampleVocal,
+  setSampleVocabToList,
   removeSampleVocabFromList,
   clearListSampleVocab,
 } = sampleVocabSlice.actions;

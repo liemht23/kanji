@@ -10,6 +10,12 @@ export const kanjiCardSlice = createSlice({
     setCurrentKanjiId: (state, action) => {
       state.currentKanjiId = action.payload;
     },
+    setEditedKanji(state, action) {
+      state.editedKanji = action.payload;
+    },
+    clearEditedKanji(state) {
+      state.editedKanji = null;
+    },
   },
   extraReducers: (builder) => {
     builder
@@ -20,7 +26,7 @@ export const kanjiCardSlice = createSlice({
         state.kanjiWord = action.payload.kanjiWord;
         state.maxKanjiId = action.payload.maxKanjiId;
         state.minKanjiId = action.payload.minKanjiId;
-        state.currentKanjiId = action.payload.kanjiWord.kanji_id;
+        state.currentKanjiId = action.payload?.kanjiWord.kanji_id;
         state.loading = false;
       })
       .addCase(getKanjiThunk.rejected, (state) => {
@@ -42,5 +48,6 @@ export const kanjiCardSlice = createSlice({
   },
 });
 
-export const { setCurrentKanjiId } = kanjiCardSlice.actions;
+export const { setCurrentKanjiId, setEditedKanji, clearEditedKanji } =
+  kanjiCardSlice.actions;
 export default kanjiCardSlice.reducer;

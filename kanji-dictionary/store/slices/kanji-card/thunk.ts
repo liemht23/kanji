@@ -1,4 +1,9 @@
-import { getKanjiWord, insertKanji, searchKanji } from "@/lib/api";
+import {
+  getKanjiFullData,
+  insertKanji,
+  searchKanji,
+  updateKanji,
+} from "@/lib/api";
 import { KanjiData } from "@/types/kanji-word";
 import { createAsyncThunk } from "@reduxjs/toolkit";
 
@@ -6,7 +11,7 @@ export const getKanjiThunk = createAsyncThunk(
   "kanji/getKanji",
   async (id: number, { rejectWithValue }) => {
     try {
-      const response = await getKanjiWord(id);
+      const response = await getKanjiFullData(id);
       return response;
     } catch (error) {
       return rejectWithValue(error);
@@ -14,11 +19,16 @@ export const getKanjiThunk = createAsyncThunk(
   }
 );
 
-export const insertKanjiThunk = createAsyncThunk(
-  "kanji/insertKanji",
-  async (kanjiWord: KanjiData, { rejectWithValue }) => {
+export const upsertKanjiThunk = createAsyncThunk(
+  "kanji/upsertKanji",
+  async (
+    { data, isEdit }: { data: KanjiData; isEdit: boolean },
+    { rejectWithValue }
+  ) => {
     try {
-      const response = await insertKanji(kanjiWord);
+      const response = isEdit
+        ? await updateKanji(data)
+        : await insertKanji(data);
       return response;
     } catch (error) {
       return rejectWithValue(error);

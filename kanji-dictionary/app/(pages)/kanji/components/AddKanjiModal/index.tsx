@@ -1,23 +1,25 @@
 "use client";
 import Tooltip from "@/components/common/Tooltip";
 import { CircleX, Pencil, SquarePlus, Trash2 } from "lucide-react";
-import { useEffect, useRef, useState } from "react";
+import { useEffect, useState } from "react";
 import AddSampleKanjiModal from "../AddSampleKanjiModal";
 import { useAppDispatch, useAppSelector } from "@/store/hook";
 import { RootState } from "@/store/store";
 import { SampleVocab } from "@/types/sample-vocab";
 import { KanjiData } from "@/types/kanji-word";
-import { insertKanjiThunk } from "@/store/slices/kanji-card/thunk";
+import { upsertKanjiThunk } from "@/store/slices/kanji-card/thunk";
 import { setCurrentKanjiId } from "@/store/slices/kanji-card";
 import {
   clearListSampleVocab,
   removeSampleVocabFromList,
+  setListSampleVocal,
   setSampleVocab,
 } from "@/store/slices/sample-vocab";
 import { uploadImage } from "@/lib/upload";
 import { BUCKET_EXAMPLE_IMAGES, BUCKET_KANJI_IMAGES } from "./const";
 import { LEVEL_OPTION } from "../KanjiCard/const";
 import { getLabel } from "@/utils/select-option";
+import { cn } from "@/utils/class-name";
 
 interface AddKanjiModalProps {
   isOpen: boolean;
@@ -27,87 +29,168 @@ interface AddKanjiModalProps {
 const AddKanjiModal = ({ isOpen, onClose }: AddKanjiModalProps) => {
   const [isOpenAddSampleKanjiModal, setIsOpenAddSampleKanjiModal] =
     useState(false);
-  const [kanjiImage, setFile] = useState<File | null>(null);
-  const [preview, setPreview] = useState<string | null>(null);
-  const [imageFiles, setImageFiles] = useState<File[]>([]);
-  const [imagePreviews, setImagePreviews] = useState<string[]>([]);
-  const prevPreviewRef = useRef<string | null>(null);
   const { listSampleVocab } = useAppSelector(
     (state: RootState) => state.sampleVocab
   );
-  const { kanjiWord } = useAppSelector((state: RootState) => state.kanjiCard);
+  const { editedKanji } = useAppSelector((state: RootState) => state.kanjiCard);
+  const isEditMode = Boolean(editedKanji);
+
+  // ------- Form Fields (controlled) -------
+  const [kanjiId, setKanjiId] = useState<number | "">("");
+  const [character, setCharacter] = useState("");
+  const [onReading, setOnReading] = useState("");
+  const [kunReading, setKunReading] = useState("");
+  const [chineseCharacter, setChineseCharacter] = useState("");
+  const [meaning, setMeaning] = useState("");
+
+  // ------- Main Image -------
+  const [existingImgUrl, setExistingImgUrl] = useState<string | null>(null); // URL from server (edit mode)
+  const [newMainFile, setNewMainFile] = useState<File | null>(null);
+  const [newMainPreview, setNewMainPreview] = useState<string | null>(null); // Revoke object URL
+
+  // ------- Example Images -------
+  const [existingExampleUrls, setExistingExampleUrls] = useState<string[]>([]); // URL server
+  const [newExampleFiles, setNewExampleFiles] = useState<File[]>([]);
+  const [newExamplePreviews, setNewExamplePreviews] = useState<string[]>([]); // Revoke object URLs
+
   const dispatch = useAppDispatch();
+
+  const onPickMainImage = (file?: File) => {
+    // Clear the previous preview if it exists
+    if (newMainPreview) URL.revokeObjectURL(newMainPreview);
+
+    // If no file was selected, reset both file and preview
+    if (!file) {
+      setNewMainFile(null);
+      setNewMainPreview(null);
+      return;
+    }
+
+    // Save the selected file and create a preview URL
+    setNewMainFile(file);
+    setNewMainPreview(URL.createObjectURL(file));
+
+    // When a new file is selected, the existing server image is visually replaced,
+    // but we don't actually remove `existingImgUrl` until the form is submitted
+    // (so that we can still cancel and revert safely).
+  };
+
+  const onPickExampleImages = (files: File[]) => {
+    // If no files were selected, do nothing
+    if (!files.length) return;
+
+    // Create temporary preview URLs for each selected file
+    const previews = files.map((f) => URL.createObjectURL(f));
+
+    // Append new files and their previews to the existing ones
+    setNewExampleFiles((prev) => [...prev, ...files]);
+    setNewExamplePreviews((prev) => [...prev, ...previews]);
+  };
+
+  const removeMainImage = () => {
+    // Revoke the object URL to free memory
+    if (newMainPreview) URL.revokeObjectURL(newMainPreview);
+
+    // Clear the selected file and its preview
+    setNewMainFile(null);
+    setNewMainPreview(null);
+
+    // Do not touch `existingImgUrl` — the server image remains intact
+  };
+
+  const removeExistingMainImage = () => {
+    // Mark the existing server image as removed
+    // (so if no new image is selected before submitting, img_url will be set to "")
+    setExistingImgUrl(null);
+  };
+
+  const removeExistingExampleAt = (idx: number) => {
+    // Remove the existing example image at the given index
+    // (this only affects the local state — the change is finalized on submit)
+    setExistingExampleUrls((prev) => prev.filter((_, i) => i !== idx));
+  };
+
+  const removeNewExampleAt = (idx: number) => {
+    // Revoke the object URL to free up memory
+    URL.revokeObjectURL(newExamplePreviews[idx]);
+
+    // Remove the selected preview and file at the given index
+    setNewExamplePreviews((prev) => prev.filter((_, i) => i !== idx));
+    setNewExampleFiles((prev) => prev.filter((_, i) => i !== idx));
+  };
 
   const handleEditSampleVocab = (sampleVocab: SampleVocab) => {
     dispatch(setSampleVocab(sampleVocab));
     setIsOpenAddSampleKanjiModal(true);
   };
 
-  const handleDelete = (id: number) => {
+  const handleDeleteSampleVocab = (id: number) => {
     dispatch(removeSampleVocabFromList(id));
   };
 
-  const handleSaveKanji = async (e: React.FormEvent<HTMLFormElement>) => {
-    e.preventDefault();
-    const formData = new FormData(e.currentTarget);
-    const kanjiId = Number(formData.get("kanji_id"));
-    const character = formData.get("character") as string;
-    const on_reading = formData.get("on_reading") as string;
-    const kun_reading = formData.get("kun_reading") as string;
-    const chinese_character = formData.get("chinese_character") as string;
-    const meaning = formData.get("meaning") as string;
-
-    let img_url = "";
-    if (kanjiImage) {
-      try {
-        img_url = await uploadImage(kanjiImage, BUCKET_KANJI_IMAGES);
-      } catch (err) {
-        console.error(err);
-        alert("Upload kanji image failed");
+  const handleSaveKanji = async () => {
+    try {
+      // --- Upload main kanji image ---
+      let img_url = existingImgUrl || "";
+      if (newMainFile) {
+        try {
+          img_url = await uploadImage(newMainFile, BUCKET_KANJI_IMAGES);
+        } catch (err) {
+          console.error(err);
+          alert("Upload kanji image failed");
+        }
+      } else if (existingImgUrl === null) {
+        // User removed existing image and didn't add a new one
+        img_url = "";
       }
-    }
 
-    let example_images: string[] = [];
-    if (imageFiles.length > 0) {
-      try {
-        const uploadedUrls = (
-          await Promise.all(
-            imageFiles.map(async (f) => {
-              try {
-                return await uploadImage(f, BUCKET_EXAMPLE_IMAGES);
-              } catch {
-                return null;
-              }
-            })
-          )
-        ).filter((url): url is string => Boolean(url));
-        example_images = uploadedUrls;
-      } catch (err) {
-        console.error(err);
-        alert("Upload example images failed");
+      // --- Upload example images ---
+      const example_images: string[] = [...existingExampleUrls];
+      if (newExampleFiles.length > 0) {
+        try {
+          const uploadedUrls = (
+            await Promise.all(
+              newExampleFiles.map(async (f) => {
+                try {
+                  return await uploadImage(f, BUCKET_EXAMPLE_IMAGES);
+                } catch {
+                  return null;
+                }
+              })
+            )
+          ).filter((url): url is string => Boolean(url));
+          example_images.push(...uploadedUrls);
+        } catch (err) {
+          console.error(err);
+          alert("Upload example images failed");
+        }
       }
+
+      // --- Build KanjiData ---
+      const kanjiData: KanjiData = {
+        kanji_id: Number(kanjiId),
+        character,
+        on_reading: onReading,
+        kun_reading: kunReading,
+        chinese_character: chineseCharacter,
+        meaning,
+        img_url,
+        example: listSampleVocab,
+        example_images,
+      };
+
+      // --- Dispatch insert or update thunk ---
+      await dispatch(
+        upsertKanjiThunk({ data: kanjiData, isEdit: isEditMode })
+      ).unwrap();
+
+      dispatch(setCurrentKanjiId(Number(kanjiId)));
+      dispatch(clearListSampleVocab());
+      onClose();
+    } catch (error) {
+      console.error(error);
+      alert("Save failed");
     }
-
-    const kanjiData: KanjiData = {
-      kanji_id: kanjiId,
-      character: character,
-      on_reading: on_reading,
-      kun_reading: kun_reading,
-      chinese_character: chinese_character,
-      meaning: meaning,
-      img_url: img_url,
-      example: listSampleVocab,
-      example_images: example_images,
-    };
-
-    dispatch(insertKanjiThunk(kanjiData))
-      .unwrap()
-      .then(() => {
-        dispatch(setCurrentKanjiId(kanjiId));
-        dispatch(clearListSampleVocab());
-      });
-
-    onClose();
   };
 
   const handleCancel = () => {
@@ -115,41 +198,76 @@ const AddKanjiModal = ({ isOpen, onClose }: AddKanjiModalProps) => {
     dispatch(clearListSampleVocab());
   };
 
-  // Clear preview and kanjiImage when modal closes, and revoke any object URL to avoid memory leaks
+  // Cleanup previews and temporary files when modal closes
   useEffect(() => {
     if (!isOpen) {
-      // Cleanup preview Kanji image
-      if (prevPreviewRef.current) {
-        URL.revokeObjectURL(prevPreviewRef.current);
-        prevPreviewRef.current = null;
-      }
-
-      // Cleanup preview example images
-      imagePreviews.forEach((url) => URL.revokeObjectURL(url));
-
-      // Deferred state reset (prevent from set State sync warning)
-      const timeout = setTimeout(() => {
-        setImagePreviews([]);
-        setImageFiles([]);
-        setFile(null);
-        setPreview(null);
+      // Revoke preview URLs to free memory
+      if (newMainPreview) URL.revokeObjectURL(newMainPreview);
+      newExamplePreviews.forEach((u) => URL.revokeObjectURL(u));
+      // Use a microtask (or next tick) to avoid synchronous state updates inside effect
+      setTimeout(() => {
+        setNewMainPreview(null);
+        setNewExamplePreviews([]);
+        setNewMainFile(null);
+        setNewExampleFiles([]);
       }, 0);
-
-      return () => clearTimeout(timeout);
     }
-  }, [isOpen, imagePreviews]);
+    // Add dependencies since we reference them
+  }, [isOpen, newMainPreview, newExamplePreviews]);
 
-  // Revoke any leftover object URL on unmount
+  // Handle form setup when modal opens (edit vs add)
   useEffect(() => {
-    return () => {
-      if (prevPreviewRef.current) {
-        URL.revokeObjectURL(prevPreviewRef.current);
-        prevPreviewRef.current = null;
-      }
-    };
-  }, []);
+    if (!isOpen) return;
 
-  if (!isOpen) return null;
+    if (isEditMode && editedKanji) {
+      // Defer the state updates to avoid cascading render warning
+      setTimeout(() => {
+        // Prefill fields
+        setKanjiId(editedKanji.kanji_id);
+        setCharacter(editedKanji.character);
+        setOnReading(editedKanji.on_reading);
+        setKunReading(editedKanji.kun_reading);
+        setChineseCharacter(editedKanji.chinese_character);
+        setMeaning(editedKanji?.meaning ?? "");
+
+        // Main image
+        setExistingImgUrl(editedKanji.img_url || null);
+        setNewMainFile(null);
+        setNewMainPreview(null);
+
+        // Example images
+        setExistingExampleUrls(editedKanji.example_images ?? []);
+        setNewExampleFiles([]);
+        setNewExamplePreviews([]);
+
+        // Prefill vocab list
+        dispatch(clearListSampleVocab());
+        dispatch(setListSampleVocal(editedKanji.example || []));
+      }, 0);
+    } else {
+      // Add mode → reset everything
+      setTimeout(() => {
+        setKanjiId("");
+        setCharacter("");
+        setOnReading("");
+        setKunReading("");
+        setChineseCharacter("");
+        setMeaning("");
+
+        setExistingImgUrl(null);
+        setNewMainFile(null);
+        setNewMainPreview(null);
+
+        setExistingExampleUrls([]);
+        setNewExampleFiles([]);
+        setNewExamplePreviews([]);
+
+        dispatch(clearListSampleVocab());
+      }, 0);
+    }
+  }, [isOpen, isEditMode, editedKanji, dispatch]);
+
+  if (!isOpen) return;
 
   return (
     <>
@@ -158,7 +276,9 @@ const AddKanjiModal = ({ isOpen, onClose }: AddKanjiModalProps) => {
 
         <div className="relative bg-white rounded-lg shadow-lg w-full max-w-6xl mx-4 p-6">
           <header className="flex items-center justify-between pl-4 mb-4">
-            <h2 className="text-xl font-semibold">ADD KANJI</h2>
+            <h2 className="text-xl font-semibold">
+              {isEditMode ? "EDIT KANJI" : "ADD KANJI"}
+            </h2>
             <Tooltip text="Close">
               <CircleX
                 className="w-8 h-8 text-black-400 cursor-pointer hover:text-black-900"
@@ -167,7 +287,12 @@ const AddKanjiModal = ({ isOpen, onClose }: AddKanjiModalProps) => {
             </Tooltip>
           </header>
 
-          <form onSubmit={(e) => handleSaveKanji(e)}>
+          <form
+            onSubmit={(e) => {
+              e.preventDefault();
+              handleSaveKanji();
+            }}
+          >
             <div className="grid grid-cols-12 mb-5">
               <div className="col-span-4">
                 <div className="grid grid-cols-12">
@@ -183,9 +308,18 @@ const AddKanjiModal = ({ isOpen, onClose }: AddKanjiModalProps) => {
                         type="text"
                         id="kanji_id"
                         name="kanji_id"
-                        className="border border-black-400 text-black-900 text-sm rounded-lg
-                          focus:ring-blue-300 focus:border-blue-500 block w-full p-2.5"
+                        className={cn(
+                          "border border-black-400 text-black-900 text-sm rounded-lg focus:ring-blue-300 focus:border-blue-500 block w-full p-2.5",
+                          isEditMode ? "bg-black-100" : ""
+                        )}
                         placeholder="1"
+                        value={kanjiId}
+                        onChange={(e) =>
+                          setKanjiId(
+                            e.target.value ? Number(e.target.value) : ""
+                          )
+                        }
+                        disabled={isEditMode}
                         required
                       />
                     </div>
@@ -202,8 +336,10 @@ const AddKanjiModal = ({ isOpen, onClose }: AddKanjiModalProps) => {
                         id="on_reading"
                         name="on_reading"
                         className="border border-black-400 text-black-900 text-sm rounded-lg
-                    focus:ring-blue-300 focus:border-blue-500 block w-full p-2.5"
+                      focus:ring-blue-300 focus:border-blue-500 block w-full p-2.5"
                         placeholder="タツ"
+                        value={onReading}
+                        onChange={(e) => setOnReading(e.target.value)}
                         required
                       />
                     </div>
@@ -215,7 +351,6 @@ const AddKanjiModal = ({ isOpen, onClose }: AddKanjiModalProps) => {
                       >
                         Upload File
                       </label>
-
                       <label
                         htmlFor="kanjiImage-upload"
                         className="flex flex-col items-center justify-center w-full h-32 border-2 border-dashed 
@@ -223,29 +358,42 @@ const AddKanjiModal = ({ isOpen, onClose }: AddKanjiModalProps) => {
                         hover:bg-gray-100 transition-all duration-200 ease-in-out overflow-hidden"
                         onClickCapture={(e) => {
                           const target = e.target as HTMLElement;
-                          if (target.closest(".stop-label-click")) {
+                          if (target.closest(".stop-label-click"))
                             e.preventDefault();
-                          }
                         }}
                       >
-                        {preview ? (
+                        {newMainPreview ? (
                           <div className="relative w-full h-full">
                             {/* eslint-disable-next-line @next/next/no-img-element */}
                             <img
-                              src={preview}
-                              alt="preview"
+                              src={newMainPreview}
+                              alt="new preview"
                               className="object-contain w-full h-full rounded-lg"
                             />
                             <button
                               type="button"
                               onClick={(e) => {
                                 e.stopPropagation();
-                                if (prevPreviewRef.current) {
-                                  URL.revokeObjectURL(prevPreviewRef.current);
-                                  prevPreviewRef.current = null;
-                                }
-                                setPreview(null);
-                                setFile(null);
+                                removeMainImage();
+                              }}
+                              className="stop-label-click absolute top-2 right-2 bg-black/60 text-white text-sm rounded-full px-1 hover:bg-black/80"
+                            >
+                              ✕
+                            </button>
+                          </div>
+                        ) : existingImgUrl ? (
+                          <div className="relative w-full h-full">
+                            {/* eslint-disable-next-line @next/next/no-img-element */}
+                            <img
+                              src={existingImgUrl}
+                              alt="existing"
+                              className="object-contain w-full h-full rounded-lg"
+                            />
+                            <button
+                              type="button"
+                              onClick={(e) => {
+                                e.stopPropagation();
+                                removeExistingMainImage();
                               }}
                               className="stop-label-click absolute top-2 right-2 bg-black/60 text-white text-sm rounded-full px-1 hover:bg-black/80"
                             >
@@ -283,35 +431,17 @@ const AddKanjiModal = ({ isOpen, onClose }: AddKanjiModalProps) => {
                           accept="image/*,application/pdf"
                           className="hidden"
                           onChange={(e) => {
-                            const selectedFile = e.target.files?.[0];
-                            if (!selectedFile) return;
-
-                            setFile(selectedFile);
-
-                            // If image then create preview URL
-                            if (selectedFile.type.startsWith("image/")) {
-                              // revoke previous preview if exists
-                              if (prevPreviewRef.current) {
-                                URL.revokeObjectURL(prevPreviewRef.current);
-                              }
-                              const url = URL.createObjectURL(selectedFile);
-                              prevPreviewRef.current = url;
-                              setPreview(url);
-                            } else {
-                              // revoke previous preview if switching to non-image
-                              if (prevPreviewRef.current) {
-                                URL.revokeObjectURL(prevPreviewRef.current);
-                                prevPreviewRef.current = null;
-                              }
-                              setPreview(null);
-                            }
+                            const f = e.target.files?.[0];
+                            if (!f) return;
+                            if (f.type.startsWith("image/")) onPickMainImage(f);
+                            else onPickMainImage(f); // skip preview if PDF
                           }}
                         />
                       </label>
 
-                      {kanjiImage && !preview && (
+                      {newMainFile && !newMainPreview && (
                         <p className="mt-2 text-sm text-gray-600 text-center">
-                          {kanjiImage.name}
+                          {newMainFile.name}
                         </p>
                       )}
                     </div>
@@ -332,6 +462,8 @@ const AddKanjiModal = ({ isOpen, onClose }: AddKanjiModalProps) => {
                         className="border border-black-400 text-black-900 text-sm rounded-lg
                     focus:ring-blue-300 focus:border-blue-500 block w-full p-2.5"
                         placeholder="達"
+                        value={character}
+                        onChange={(e) => setCharacter(e.target.value)}
                         required
                       />
                     </div>
@@ -350,6 +482,8 @@ const AddKanjiModal = ({ isOpen, onClose }: AddKanjiModalProps) => {
                         className="border border-black-400 text-black-900 text-sm rounded-lg
                     focus:ring-blue-300 focus:border-blue-500 block w-full p-2.5"
                         placeholder="たち"
+                        value={kunReading}
+                        onChange={(e) => setKunReading(e.target.value)}
                         required
                       />
                     </div>
@@ -368,6 +502,8 @@ const AddKanjiModal = ({ isOpen, onClose }: AddKanjiModalProps) => {
                         className="border border-black-400 text-black-900 text-sm rounded-lg
                       focus:ring-blue-300 focus:border-blue-500 block w-full p-2.5"
                         placeholder="ĐẠT"
+                        value={chineseCharacter}
+                        onChange={(e) => setChineseCharacter(e.target.value)}
                         required
                       />
                     </div>
@@ -386,7 +522,8 @@ const AddKanjiModal = ({ isOpen, onClose }: AddKanjiModalProps) => {
                         className="border border-black-400 text-black-900 text-sm rounded-lg
                       focus:ring-blue-300 focus:border-blue-500 block w-full p-2.5"
                         placeholder="tiễn"
-                        required
+                        value={meaning}
+                        onChange={(e) => setMeaning(e.target.value)}
                       />
                     </div>
                   </div>
@@ -403,36 +540,53 @@ const AddKanjiModal = ({ isOpen, onClose }: AddKanjiModalProps) => {
                   <label
                     htmlFor="example-images"
                     className="flex flex-col items-center justify-center w-full min-h-24 border-2 border-dashed 
-                      border-gray-300 rounded-lg cursor-pointer bg-gray-50 
-                      hover:bg-gray-100 transition-all duration-200 ease-in-out overflow-hidden"
+                  border-gray-300 rounded-lg cursor-pointer bg-gray-50 
+                  hover:bg-gray-100 transition-all duration-200 ease-in-out overflow-hidden"
                     onClickCapture={(e) => {
                       const target = e.target as HTMLElement;
-                      if (target.closest(".stop-label-click")) {
+                      if (target.closest(".stop-label-click"))
                         e.preventDefault();
-                      }
                     }}
                   >
-                    {imagePreviews.length > 0 ? (
-                      <div className="grid grid-cols-4 gap-2 p-2">
-                        {imagePreviews.map((src, idx) => (
-                          <div key={idx} className="relative">
+                    {existingExampleUrls.length > 0 ||
+                    newExamplePreviews.length > 0 ? (
+                      <div className="grid grid-cols-4 gap-2 p-2 w-full">
+                        {/* Old image(from server) */}
+                        {existingExampleUrls.map((src, idx) => (
+                          <div key={`old-${idx}`} className="relative">
                             {/* eslint-disable-next-line @next/next/no-img-element */}
                             <img
                               src={src}
-                              alt={`example-${idx}`}
+                              alt={`existing-example-${idx}`}
                               className="object-cover w-full h-16 rounded-md border"
                             />
                             <button
                               type="button"
-                              onClick={() => {
-                                // Revoke object URL
-                                URL.revokeObjectURL(src);
-                                setImagePreviews((prev) =>
-                                  prev.filter((_, i) => i !== idx)
-                                );
-                                setImageFiles((prev) =>
-                                  prev.filter((_, i) => i !== idx)
-                                );
+                              onClick={(e) => {
+                                e.stopPropagation();
+                                removeExistingExampleAt(idx);
+                              }}
+                              className="stop-label-click absolute top-1 right-1 bg-black/60 text-white text-sm rounded-full px-1 hover:bg-black/80"
+                            >
+                              ✕
+                            </button>
+                          </div>
+                        ))}
+
+                        {/* New images (object URL) */}
+                        {newExamplePreviews.map((src, idx) => (
+                          <div key={`new-${idx}`} className="relative">
+                            {/* eslint-disable-next-line @next/next/no-img-element */}
+                            <img
+                              src={src}
+                              alt={`new-example-${idx}`}
+                              className="object-cover w-full h-16 rounded-md border"
+                            />
+                            <button
+                              type="button"
+                              onClick={(e) => {
+                                e.stopPropagation();
+                                removeNewExampleAt(idx);
                               }}
                               className="stop-label-click absolute top-1 right-1 bg-black/60 text-white text-sm rounded-full px-1 hover:bg-black/80"
                             >
@@ -442,6 +596,7 @@ const AddKanjiModal = ({ isOpen, onClose }: AddKanjiModalProps) => {
                         ))}
                       </div>
                     ) : (
+                      /* --- Empty --- */
                       <>
                         <svg
                           className="w-8 h-8 mb-2 text-gray-400"
@@ -475,20 +630,16 @@ const AddKanjiModal = ({ isOpen, onClose }: AddKanjiModalProps) => {
                           ? Array.from(e.target.files)
                           : [];
                         if (files.length === 0) return;
-
-                        const newPreviews = files.map((file) =>
-                          URL.createObjectURL(file)
-                        );
-
-                        setImageFiles((prev) => [...prev, ...files]);
-                        setImagePreviews((prev) => [...prev, ...newPreviews]);
+                        onPickExampleImages(files);
                       }}
                     />
                   </label>
 
-                  {imageFiles.length > 0 && (
+                  {(existingExampleUrls.length > 0 ||
+                    newExampleFiles.length > 0) && (
                     <p className="mt-2 text-sm text-gray-600 text-center">
-                      {imageFiles.length} file(s) selected
+                      {existingExampleUrls.length + newExampleFiles.length}{" "}
+                      file(s) total
                     </p>
                   )}
                 </div>
@@ -570,7 +721,7 @@ const AddKanjiModal = ({ isOpen, onClose }: AddKanjiModalProps) => {
                                     <button
                                       onClick={(e) => {
                                         e.preventDefault();
-                                        handleDelete(sampleVocab.id);
+                                        handleDeleteSampleVocab(sampleVocab.id);
                                       }}
                                       className="p-1 text-red-600 hover:text-red-800"
                                     >

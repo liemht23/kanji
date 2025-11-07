@@ -19,10 +19,11 @@ import {
 import { useCallback, useEffect, useRef, useState } from "react";
 import AddKanjiModal from "../AddKanjiModal";
 import { useLayout } from "@/app/context/LayoutContext";
+import { clearEditedKanji, setEditedKanji } from "@/store/slices/kanji-card";
 
 const KanjiToolBar = () => {
   const dispatch = useAppDispatch();
-  const [isOpen, setIsOpen] = useState(false);
+  const [isOpenAddKanjiModal, setIsOpenAddKanjiModal] = useState(false);
   const [isSearchVisible, setIsSearchVisible] = useState(false);
   const [searchCharacter, setSearchCharacter] = useState("");
   const [isComposing, setIsComposing] = useState(false);
@@ -52,11 +53,13 @@ const KanjiToolBar = () => {
   };
 
   const handleEditKanji = () => {
-    setIsOpen(true);
+    dispatch(setEditedKanji(kanjiWord));
+    setIsOpenAddKanjiModal(true);
   };
 
   const handleAddKanji = () => {
-    setIsOpen(true);
+    dispatch(clearEditedKanji());
+    setIsOpenAddKanjiModal(true);
   };
 
   const hasPrevious =
@@ -217,12 +220,7 @@ const KanjiToolBar = () => {
           <div className="flex items-center gap-4 border-l border-black-100 pl-4">
             <Tooltip text="Edit">
               <SquarePen
-                className={cn(
-                  "w-8 h-8 text-black-400 cursor-pointer",
-                  false
-                    ? "text-black-400 hover:text-black-900"
-                    : "text-gray-300 cursor-not-allowed"
-                )}
+                className="w-8 h-8 text-black-400 cursor-pointer text-black-400 hover:text-black-900"
                 onClick={handleEditKanji}
               />
             </Tooltip>
@@ -246,7 +244,10 @@ const KanjiToolBar = () => {
           </div>
         </div>
       </div>
-      <AddKanjiModal isOpen={isOpen} onClose={() => setIsOpen(false)} />
+      <AddKanjiModal
+        isOpen={isOpenAddKanjiModal}
+        onClose={() => setIsOpenAddKanjiModal(false)}
+      />
     </>
   );
 };

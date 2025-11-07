@@ -5,13 +5,12 @@ import WordPartTable from "../WordPartTable";
 import { useAppDispatch, useAppSelector } from "@/store/hook";
 import {
   clearSampleVocab,
-  setListSampleVocab,
+  setSampleVocabToList,
   setLevel,
   setMeaning,
 } from "@/store/slices/sample-vocab";
 import { LEVEL_OPTION } from "../KanjiCard/const";
 import { Option } from "@/utils/select-option";
-import { LEVEL } from "@/enum/kanji-word";
 import { RootState } from "@/store/store";
 import { useEffect } from "react";
 
@@ -44,7 +43,7 @@ const AddSampleKanjiModal = ({ isOpen, onClose }: AddSampleKanjiModalProps) => {
       alert("Nhập từ");
       return;
     }
-    dispatch(setListSampleVocab());
+    dispatch(setSampleVocabToList());
     dispatch(clearSampleVocab());
     onClose();
   };
@@ -102,7 +101,7 @@ const AddSampleKanjiModal = ({ isOpen, onClose }: AddSampleKanjiModalProps) => {
               className="border border-black-400 text-black-900 text-sm rounded-lg
                           focus:ring-blue-300 focus:border-blue-500 block w-full p-2.5"
               placeholder="Enter the meaning of this vocab"
-              value={currentSampleVocab.meaning}
+              value={currentSampleVocab.meaning ?? ""}
               required
               onChange={(e) => dispatch(setMeaning(e.target.value))}
             />
