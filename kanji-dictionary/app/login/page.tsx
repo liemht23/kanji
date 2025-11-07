@@ -38,12 +38,7 @@ export default function LoginPage() {
     setError(null);
     setLoading(true);
     try {
-      const { data, error } = await supabase.auth.signInWithOAuth({
-        provider: "google",
-        options: {
-          redirectTo: `${window.location.origin}/auth/callback`,
-        },
-      });
+      const { data, error } = await supabase.auth.signInWithOAuth({ provider: 'google' });
       if (error) throw error;
       console.log("✅ redirecting to Google...");
     } catch (err) {
