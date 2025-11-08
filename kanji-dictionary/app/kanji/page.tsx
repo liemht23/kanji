@@ -9,7 +9,7 @@ import KanjiToolBar from "./components/KanjiToolbar";
 const KanjiPage = () => {
   const { isMobile } = useLayout();
   const router = useRouter();
-  const [user, setUser] = useState<any>(null);
+  const [user, setUser] = useState<unknown>(null);
 
   useEffect(() => {
     const checkSession = async () => {
