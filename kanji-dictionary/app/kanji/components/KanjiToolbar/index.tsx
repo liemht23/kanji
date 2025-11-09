@@ -17,9 +17,11 @@ import {
   Trash2,
 } from "lucide-react";
 import { useCallback, useEffect, useRef, useState } from "react";
+import { ADMIN_ROLE, SUPER_ADMIN_ROLE } from "@/types/user-role";
 import AddKanjiModal from "../AddKanjiModal";
 import { useLayout } from "@/app/context/LayoutContext";
 import { clearEditedKanji, setEditedKanji } from "@/store/slices/kanji-card";
+import useAuthGuard from "@/hooks/useAuthGuard";
 
 const KanjiToolBar = () => {
   const dispatch = useAppDispatch();
@@ -27,6 +29,7 @@ const KanjiToolBar = () => {
   const [isSearchVisible, setIsSearchVisible] = useState(false);
   const [searchCharacter, setSearchCharacter] = useState("");
   const [isComposing, setIsComposing] = useState(false);
+  const { role } = useAuthGuard();
   const searchInputRef = useRef<HTMLInputElement | null>(null);
   const { kanjiWord, maxKanjiId, minKanjiId, loading } = useAppSelector(
     (state: RootState) => state.kanjiCard
@@ -217,31 +220,40 @@ const KanjiToolBar = () => {
             </Tooltip>
           </div>
 
-          <div className="flex items-center gap-4 border-l border-black-100 pl-4">
-            <Tooltip text="Edit">
-              <SquarePen
-                className="w-8 h-8 text-black-400 cursor-pointer text-black-400 hover:text-black-900"
-                onClick={handleEditKanji}
-              />
-            </Tooltip>
-            <Tooltip text="Add">
-              <CirclePlus
-                className="w-8 h-8 text-black-400 cursor-pointer hover:text-black-900"
-                onClick={handleAddKanji}
-              />
-            </Tooltip>
-            <Tooltip text="Delete">
-              <Trash2
-                className={cn(
-                  "w-8 h-8 text-black-400 cursor-pointer",
-                  false
-                    ? "text-black-400 hover:text-black-900"
-                    : "text-gray-300 cursor-not-allowed"
-                )}
-                onClick={undefined}
-              />
-            </Tooltip>
-          </div>
+          {(role === ADMIN_ROLE || role === SUPER_ADMIN_ROLE) && (
+            <div className="flex items-center gap-4 border-l border-black-100 pl-4">
+              <Tooltip text="Edit">
+                <SquarePen
+                  className={cn(
+                    "w-8 h-8 cursor-pointer",
+                    role === SUPER_ADMIN_ROLE
+                      ? "text-black-400 hover:text-black-900"
+                      : "text-gray-300 cursor-not-allowed"
+                  )}
+                  onClick={
+                    role === SUPER_ADMIN_ROLE ? handleEditKanji : undefined
+                  }
+                />
+              </Tooltip>
+              <Tooltip text="Add">
+                <CirclePlus
+                  className="w-8 h-8 text-black-400 cursor-pointer hover:text-black-900"
+                  onClick={handleAddKanji}
+                />
+              </Tooltip>
+              <Tooltip text="Delete">
+                <Trash2
+                  className={cn(
+                    "w-8 h-8 cursor-pointer",
+                    role === SUPER_ADMIN_ROLE
+                      ? "text-black-400 hover:text-black-900"
+                      : "text-gray-300 cursor-not-allowed"
+                  )}
+                  onClick={role === SUPER_ADMIN_ROLE ? undefined : undefined}
+                />
+              </Tooltip>
+            </div>
+          )}
         </div>
       </div>
       <AddKanjiModal

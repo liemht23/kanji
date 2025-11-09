@@ -1,30 +1,21 @@
 "use client";
-import { useEffect, useState } from "react";
-import { useRouter } from "next/navigation";
-import { supabase } from "@/lib/supabase-client";
+import useAuthGuard from "@/hooks/useAuthGuard";
 import { useLayout } from "@/app/context/LayoutContext";
 import KanjiCard from "./components/KanjiCard";
 import KanjiToolBar from "./components/KanjiToolbar";
+import Spinner from "@/components/common/Spinner";
 
 const KanjiPage = () => {
   const { isMobile } = useLayout();
-  const router = useRouter();
-  const [user, setUser] = useState<unknown>(null);
+  const { checking } = useAuthGuard();
 
-  useEffect(() => {
-    const checkSession = async () => {
-      const {
-        data: { session },
-      } = await supabase.auth.getSession();
-      if (!session) {
-        router.push("/login");
-      } else {
-        setUser(session.user);
-      }
-    };
-    checkSession();
-  }, [router]);
-
+  if (checking) {
+    return (
+      <div className="w-full h-screen flex items-center justify-center">
+        <Spinner />
+      </div>
+    );
+  }
   return (
     <div className={isMobile ? "p-4" : "px-10 py-8"}>
       <KanjiToolBar />

@@ -5,6 +5,7 @@ import { supabase } from "@/lib/supabase-client";
 
 export default function HomePage() {
   const router = useRouter();
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   const [user, setUser] = useState<any>(null);
 
   useEffect(() => {

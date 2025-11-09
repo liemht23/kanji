@@ -25,20 +25,42 @@ export default function SignupPage() {
 
     setLoading(true);
     try {
-      const { error } = await supabase.auth.signUp({
+      const { data, error } = await supabase.auth.signUp({
         email,
         password,
       });
 
+      // Handle error: email already exists or registered with Google
       if (error) {
-        setError(error.message || "Failed to sign up");
+        if (
+          error.message?.toLowerCase().includes("user already registered") ||
+          error.message?.toLowerCase().includes("already registered") ||
+          error.message?.toLowerCase().includes("already exists")
+        ) {
+          setError(
+            "This email has already been registered. If you signed up with Google, please log in with Google."
+          );
+        } else {
+          setError(error.message || "Failed to sign up");
+        }
+        return;
+      }
+
+      // Special case: Supabase returns user but identities is empty (email already registered via OAuth)
+      if (
+        data?.user &&
+        Array.isArray(data.user.identities) &&
+        data.user.identities.length === 0
+      ) {
+        setError(
+          "This email has already been registered with Google. Please log in with Google."
+        );
         return;
       }
 
       setSuccess(
-        "Sign up successful. Check your email for a confirmation link if enabled. Redirecting to login..."
+        "Sign up successful. Please check your email for a confirmation link (if enabled). Redirecting to login..."
       );
-
       setTimeout(() => router.push("/login"), 1800);
     } catch (err) {
       const msg = err instanceof Error ? err.message : String(err);
