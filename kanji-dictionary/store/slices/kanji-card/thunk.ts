@@ -14,7 +14,9 @@ export const getKanjiThunk = createAsyncThunk(
       const response = await getKanjiFullData(id);
       return response;
     } catch (error) {
-      return rejectWithValue(error);
+      const msg =
+        error instanceof Error ? error.message : JSON.stringify(error);
+      return rejectWithValue(msg);
     }
   }
 );
@@ -31,7 +33,9 @@ export const upsertKanjiThunk = createAsyncThunk(
         : await insertKanji(data);
       return response;
     } catch (error) {
-      return rejectWithValue(error);
+      const msg =
+        error instanceof Error ? error.message : JSON.stringify(error);
+      return rejectWithValue(msg);
     }
   }
 );
@@ -43,7 +47,9 @@ export const searchKanjiThunk = createAsyncThunk(
       const response: KanjiData = await searchKanji(character);
       return response;
     } catch (error) {
-      return rejectWithValue(error);
+      const msg =
+        error instanceof Error ? error.message : JSON.stringify(error);
+      return rejectWithValue(msg);
     }
   }
 );

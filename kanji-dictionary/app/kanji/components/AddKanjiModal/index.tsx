@@ -136,8 +136,9 @@ const AddKanjiModal = ({ isOpen, onClose }: AddKanjiModalProps) => {
         try {
           img_url = await uploadImage(newMainFile, BUCKET_KANJI_IMAGES);
         } catch (err) {
-          console.error(err);
-          alert("Upload kanji image failed");
+          const msg = err instanceof Error ? err.message : JSON.stringify(err);
+          console.error(msg);
+          alert(`Upload kanji image failed: ${msg}`);
         }
       } else if (existingImgUrl === null) {
         // User removed existing image and didn't add a new one
@@ -153,7 +154,10 @@ const AddKanjiModal = ({ isOpen, onClose }: AddKanjiModalProps) => {
               newExampleFiles.map(async (f) => {
                 try {
                   return await uploadImage(f, BUCKET_EXAMPLE_IMAGES);
-                } catch {
+                } catch (err) {
+                  const msg =
+                    err instanceof Error ? err.message : JSON.stringify(err);
+                  console.error(msg);
                   return null;
                 }
               })
@@ -161,8 +165,9 @@ const AddKanjiModal = ({ isOpen, onClose }: AddKanjiModalProps) => {
           ).filter((url): url is string => Boolean(url));
           example_images.push(...uploadedUrls);
         } catch (err) {
-          console.error(err);
-          alert("Upload example images failed");
+          const msg = err instanceof Error ? err.message : JSON.stringify(err);
+          console.error(msg);
+          alert(`Upload example images failed: ${msg}`);
         }
       }
 
@@ -184,12 +189,18 @@ const AddKanjiModal = ({ isOpen, onClose }: AddKanjiModalProps) => {
         upsertKanjiThunk({ data: kanjiData, isEdit: isEditMode })
       ).unwrap();
 
-      dispatch(setCurrentKanjiId(Number(kanjiId)));
+      // Force reload KanjiCard by resetting currentKanjiId
+      dispatch(setCurrentKanjiId(undefined));
+      setTimeout(() => {
+        dispatch(setCurrentKanjiId(Number(kanjiId)));
+      }, 0);
       dispatch(clearListSampleVocab());
       onClose();
     } catch (error) {
-      console.error(error);
-      alert("Save failed");
+      const msg =
+        error instanceof Error ? error.message : JSON.stringify(error);
+      console.error(msg);
+      alert(`Save failed: ${msg}`);
     }
   };
 
@@ -656,7 +667,7 @@ const AddKanjiModal = ({ isOpen, onClose }: AddKanjiModalProps) => {
                   </Tooltip>
                 </div>
 
-                <div className="max-h-[316px] overflow-y-auto rounded-lg">
+                <div className="max-h-[530px] overflow-y-auto rounded-lg">
                   <table className="min-w-full border-collapse">
                     <thead className="bg-gray-200 text-gray-700 sticky top-0 z-10">
                       <tr>

@@ -3,6 +3,8 @@ import Tooltip from "@/components/common/Tooltip";
 import { cn } from "@/utils/class-name";
 import { Maximize2Icon, Menu, Minimize2Icon } from "lucide-react";
 import Image from "next/image";
+import { usePathname, useRouter } from "next/navigation";
+import Link from "next/link";
 
 const Navigation = ({
   isDocked,
@@ -13,11 +15,19 @@ const Navigation = ({
   isMobile: boolean;
   setIsDocked: (val: boolean) => void;
 }) => {
+  const pathname = usePathname();
+  const router = useRouter();
+  // Handler to keep docked state when navigating
+  const handleNavClick = (href: string) => (e: React.MouseEvent) => {
+    e.preventDefault();
+    router.push(href);
+    // Do not change docked state
+  };
   return (
     <>
       {isDocked ? (
-        <div className="px-4 py-4 bg-black-0 shadow-sm h-full transition-all duration-200">
-          <div className="flex items-center justify-between gap-4">
+        <div className="px-4 py-4 bg-black-0 shadow-sm h-full transition-all duration-200 flex flex-col">
+          <div className="flex items-center justify-between gap-4 mb-8">
             <Image src="/logo/logo-0.png" alt="Logo" width={40} height={40} />
             <Tooltip position="bottom" text="Expand navigation bar">
               <Maximize2Icon
@@ -26,6 +36,46 @@ const Navigation = ({
               />
             </Tooltip>
           </div>
+          <nav className="flex flex-col gap-2 flex-1">
+            <Link
+              href="/kanji"
+              className={cn(
+                "px-3 py-2 rounded-lg font-medium transition",
+                pathname === "/kanji"
+                  ? "bg-black-900 text-white"
+                  : "hover:bg-black-100 text-black-900"
+              )}
+              onClick={handleNavClick("/kanji")}
+            >
+              Kanji Dictionary
+            </Link>
+            <Link
+              href="/vocab"
+              className={cn(
+                "px-3 py-2 rounded-lg font-medium transition",
+                pathname === "/vocab"
+                  ? "bg-black-900 text-white"
+                  : "hover:bg-black-100 text-black-900"
+              )}
+              onClick={handleNavClick("/vocab")}
+            >
+              Vocab Dictionary
+            </Link>
+            <div className="flex-1" />
+            <Link
+              href="/login"
+              className={cn(
+                "px-3 py-2 rounded-lg font-medium transition mb-2",
+                pathname === "/login"
+                  ? "bg-black-900 text-white"
+                  : "hover:bg-black-100 text-black-900"
+              )}
+              style={{ marginTop: "auto" }}
+              onClick={handleNavClick("/login")}
+            >
+              Logout
+            </Link>
+          </nav>
         </div>
       ) : (
         <>

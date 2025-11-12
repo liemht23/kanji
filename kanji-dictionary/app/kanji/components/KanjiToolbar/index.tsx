@@ -1,5 +1,9 @@
 import Tooltip from "@/components/common/Tooltip";
-import { NEXT_STEP_SIZE, PREVIOUS_STEP_SIZE } from "@/constants/const";
+import {
+  INITIAL_KANJI_ID,
+  NEXT_STEP_SIZE,
+  PREVIOUS_STEP_SIZE,
+} from "@/constants/const";
 import { useAppDispatch, useAppSelector } from "@/store/hook";
 import {
   getKanjiThunk,
@@ -51,7 +55,10 @@ const KanjiToolBar = () => {
       dispatch(searchKanjiThunk(searchCharacter))
         .unwrap()
         .then(() => console.log("Tìm thấy Kanji"))
-        .catch(() => console.error("Không tìm thấy Kanji"));
+        .catch(() => {
+          alert("Kanji not found!");
+          dispatch(getKanjiThunk(INITIAL_KANJI_ID));
+        });
     }
   };
 
