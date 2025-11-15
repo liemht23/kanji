@@ -7,8 +7,10 @@ import { useAppDispatch, useAppSelector } from "@/store/hook";
 import { RootState } from "@/store/store";
 import { SampleVocab } from "@/types/sample-vocab";
 import { KanjiData } from "@/types/kanji-word";
-import { upsertKanjiThunk } from "@/store/slices/kanji-card/thunk";
-import { setCurrentKanjiId } from "@/store/slices/kanji-card";
+import {
+  getKanjiThunk,
+  upsertKanjiThunk,
+} from "@/store/slices/kanji-card/thunk";
 import {
   clearListSampleVocab,
   removeSampleVocabFromList,
@@ -182,6 +184,7 @@ const AddKanjiModal = ({ isOpen, onClose }: AddKanjiModalProps) => {
         img_url,
         example: listSampleVocab,
         example_images,
+        is_official: false,
       };
 
       // --- Dispatch insert or update thunk ---
@@ -189,12 +192,8 @@ const AddKanjiModal = ({ isOpen, onClose }: AddKanjiModalProps) => {
         upsertKanjiThunk({ data: kanjiData, isEdit: isEditMode })
       ).unwrap();
 
-      // Force reload KanjiCard by resetting currentKanjiId
-      dispatch(setCurrentKanjiId(undefined));
-      setTimeout(() => {
-        dispatch(setCurrentKanjiId(Number(kanjiId)));
-      }, 0);
       dispatch(clearListSampleVocab());
+      dispatch(getKanjiThunk(Number(kanjiId)));
       onClose();
     } catch (error) {
       const msg =

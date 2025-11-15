@@ -2,6 +2,7 @@ import {
   getKanjiFullData,
   insertKanji,
   searchKanji,
+  updateIsOfficial,
   updateKanji,
 } from "@/lib/api";
 import { KanjiData } from "@/types/kanji-word";
@@ -45,6 +46,23 @@ export const searchKanjiThunk = createAsyncThunk(
   async (character: string, { rejectWithValue }) => {
     try {
       const response: KanjiData = await searchKanji(character);
+      return response;
+    } catch (error) {
+      const msg =
+        error instanceof Error ? error.message : JSON.stringify(error);
+      return rejectWithValue(msg);
+    }
+  }
+);
+
+export const updateIsOfficialThunk = createAsyncThunk(
+  "kanji/updateIsOfficial",
+  async (
+    { kanjiId, isOfficial }: { kanjiId: number; isOfficial: boolean },
+    { rejectWithValue }
+  ) => {
+    try {
+      const response = await updateIsOfficial(kanjiId, isOfficial);
       return response;
     } catch (error) {
       const msg =

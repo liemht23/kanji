@@ -20,4 +20,5 @@ export const defaultKanjiData: KanjiData = {
   meaning: "",
   example: [],
   example_images: [],
+  is_official: false,
 };

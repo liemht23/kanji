@@ -10,6 +10,7 @@ export interface KanjiData {
   meaning: string;
   example: SampleVocab[];
   example_images: string[];
+  is_official: boolean;
 }
 
 export interface KanjiCardState {

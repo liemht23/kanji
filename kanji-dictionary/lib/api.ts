@@ -61,3 +61,19 @@ export const searchKanji = async (character: string) => {
   if (error) throw error;
   return data;
 };
+
+export const updateIsOfficial = async (
+  kanjiId: number,
+  isOfficial: boolean
+) => {
+  const { data, error } = await supabase
+    .from("kanji")
+    .update({ is_official: isOfficial })
+    .eq("kanji_id", kanjiId)
+    .select("*")
+    .single();
+
+  if (error) throw error;
+
+  return data;
+};

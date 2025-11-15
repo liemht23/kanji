@@ -1,5 +1,9 @@
 import { createSlice } from "@reduxjs/toolkit";
-import { getKanjiThunk, searchKanjiThunk } from "./thunk";
+import {
+  getKanjiThunk,
+  searchKanjiThunk,
+  updateIsOfficialThunk,
+} from "./thunk";
 import kanjiInitialState from "./initial-state";
 import { defaultKanjiData } from "@/app/kanji/components/KanjiCard/const";
 
@@ -44,6 +48,19 @@ export const kanjiCardSlice = createSlice({
       .addCase(searchKanjiThunk.rejected, (state) => {
         state.loading = false;
         state.kanjiWord = defaultKanjiData;
+      })
+
+      .addCase(updateIsOfficialThunk.pending, (state) => {
+        state.loading = true;
+      })
+      .addCase(updateIsOfficialThunk.fulfilled, (state, action) => {
+        state.loading = false;
+        if (state.kanjiWord) {
+          state.kanjiWord.is_official = action.payload?.is_official;
+        }
+      })
+      .addCase(updateIsOfficialThunk.rejected, (state) => {
+        state.loading = false;
       });
   },
 });

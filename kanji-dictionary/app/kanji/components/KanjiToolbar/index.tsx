@@ -8,10 +8,12 @@ import { useAppDispatch, useAppSelector } from "@/store/hook";
 import {
   getKanjiThunk,
   searchKanjiThunk,
+  updateIsOfficialThunk,
 } from "@/store/slices/kanji-card/thunk";
 import { RootState } from "@/store/store";
 import { cn } from "@/utils/class-name";
 import {
+  CircleCheck,
   CircleChevronLeft,
   CircleChevronRight,
   CirclePlus,
@@ -39,7 +41,6 @@ const KanjiToolBar = () => {
     (state: RootState) => state.kanjiCard
   );
   const { isDocked, isModalOpen } = useLayout();
-
   const handleGetKanji = useCallback(
     (step: number) => {
       if (!kanjiWord?.kanji_id) return;
@@ -70,6 +71,16 @@ const KanjiToolBar = () => {
   const handleAddKanji = () => {
     dispatch(clearEditedKanji());
     setIsOpenAddKanjiModal(true);
+  };
+
+  const handleDeleteKanji = () => {
+    alert("Chưa có làm chức năng xoá kanji!");
+  };
+
+  const handleCheckOfficial = () => {
+    dispatch(
+      updateIsOfficialThunk({ kanjiId: kanjiWord.kanji_id, isOfficial: true })
+    ).unwrap();
   };
 
   const hasPrevious =
@@ -227,39 +238,55 @@ const KanjiToolBar = () => {
             </Tooltip>
           </div>
 
-          {(role === ADMIN_ROLE || role === SUPER_ADMIN_ROLE) && (
+          {role === ADMIN_ROLE && (
             <div className="flex items-center gap-4 border-l border-black-100 pl-4">
-              <Tooltip text="Edit">
-                <SquarePen
-                  className={cn(
-                    "w-8 h-8 cursor-pointer",
-                    role === SUPER_ADMIN_ROLE
-                      ? "text-black-400 hover:text-black-900"
-                      : "text-gray-300 cursor-not-allowed"
-                  )}
-                  onClick={
-                    role === SUPER_ADMIN_ROLE ? handleEditKanji : undefined
-                  }
-                />
-              </Tooltip>
               <Tooltip text="Add">
                 <CirclePlus
                   className="w-8 h-8 text-black-400 cursor-pointer hover:text-black-900"
                   onClick={handleAddKanji}
                 />
               </Tooltip>
-              <Tooltip text="Delete">
-                <Trash2
-                  className={cn(
-                    "w-8 h-8 cursor-pointer",
-                    role === SUPER_ADMIN_ROLE
-                      ? "text-black-400 hover:text-black-900"
-                      : "text-gray-300 cursor-not-allowed"
-                  )}
-                  onClick={role === SUPER_ADMIN_ROLE ? undefined : undefined}
-                />
-              </Tooltip>
             </div>
+          )}
+
+          {role === SUPER_ADMIN_ROLE && (
+            <>
+              <div className="flex items-center gap-4 border-l border-black-100 pl-4">
+                <Tooltip text="Edit">
+                  <SquarePen
+                    className="w-8 h-8 cursor-pointer text-black-400 hover:text-black-900"
+                    onClick={handleEditKanji}
+                  />
+                </Tooltip>
+                <Tooltip text="Add">
+                  <CirclePlus
+                    className="w-8 h-8 text-black-400 cursor-pointer hover:text-black-900"
+                    onClick={handleAddKanji}
+                  />
+                </Tooltip>
+                <Tooltip text="Delete">
+                  <Trash2
+                    className="w-8 h-8 cursor-pointer text-black-400 hover:text-black-900"
+                    onClick={handleDeleteKanji}
+                  />
+                </Tooltip>
+              </div>
+              <div className="flex items-center gap-4 border-l border-black-100 pl-4">
+                <Tooltip text="Official Kanji">
+                  <CircleCheck
+                    className={cn(
+                      "w-8 h-8 cursor-pointer",
+                      kanjiWord?.is_official
+                        ? "text-green-500 cursor-not-allowed"
+                        : "text-black-400 hover:text-black-900"
+                    )}
+                    onClick={
+                      !kanjiWord?.is_official ? handleCheckOfficial : undefined
+                    }
+                  />
+                </Tooltip>
+              </div>
+            </>
           )}
         </div>
       </div>
