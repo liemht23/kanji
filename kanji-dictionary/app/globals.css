@@ -54,3 +54,25 @@
   --color-purple-400: var(--color-purple-400);
   --color-orange-400: var(--color-orange-400);
 }
+
+.text-wrapper {
+    display: flex;
+    width: fit-content;
+}
+
+.hiragana {
+    visibility: hidden;
+}
+
+.text-wrapper:hover .character-wrapper > .hiragana {
+    visibility: visible;
+
+}
+
+.card-action {
+    visibility: hidden;
+}
+
+.kanji-wrapper:hover .card-action {
+    visibility: visible;
+}

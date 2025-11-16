@@ -47,7 +47,7 @@ const Navigation = ({
               )}
               onClick={handleNavClick("/kanji")}
             >
-              Kanji Dictionary
+              Học Kanji
             </Link>
             <Link
               href="/vocab"
@@ -59,7 +59,7 @@ const Navigation = ({
               )}
               onClick={handleNavClick("/vocab")}
             >
-              Vocab Dictionary
+              Học Từ Vựng
             </Link>
             <div className="flex-1" />
             <Link
@@ -94,15 +94,22 @@ const Navigation = ({
           {!isMobile && (
             <nav className="pl-4 pt-2 absolute flex items-center justify-between mb-4 z-50 transition-all duration-200">
               <div className="flex items-center gap-4 bg-black-0 p-4 border border-black-100 rounded-2xl shadow-sm">
-                <div className="relative w-8 h-8">
-                  <Image
-                    src="/logo/logo-0.png"
-                    alt="Logo"
-                    fill
-                    sizes="object-contain"
-                  />
-                </div>
-                <span className="text-xl font-bold">Kanji Dictionary</span>
+                <>
+                  <div className="relative w-8 h-8">
+                    <Image
+                      src="/logo/logo-0.png"
+                      alt="Logo"
+                      fill
+                      sizes="object-contain"
+                    />
+                  </div>
+                  {pathname === "/kanji" && (
+                    <span className="text-xl font-bold">Học Kanji</span>
+                  )}
+                  {pathname === "/vocab" && (
+                    <span className="text-xl font-bold">Học Từ Vựng</span>
+                  )}
+                </>
                 <Tooltip text="Collapse Navigation Bar">
                   <Minimize2Icon
                     className="w-6 h-6 text-black-400 cursor-pointer hover:scale-110 transition"

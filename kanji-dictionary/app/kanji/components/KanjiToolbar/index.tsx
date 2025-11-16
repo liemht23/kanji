@@ -33,10 +33,10 @@ const KanjiToolBar = () => {
   const dispatch = useAppDispatch();
   const [isOpenAddKanjiModal, setIsOpenAddKanjiModal] = useState(false);
   const [isSearchVisible, setIsSearchVisible] = useState(false);
+  const searchInputRef = useRef<HTMLInputElement | null>(null);
   const [searchCharacter, setSearchCharacter] = useState("");
   const [isComposing, setIsComposing] = useState(false);
   const { role } = useAuthGuard();
-  const searchInputRef = useRef<HTMLInputElement | null>(null);
   const { kanjiWord, maxKanjiId, minKanjiId, loading } = useAppSelector(
     (state: RootState) => state.kanjiCard
   );
@@ -144,18 +144,7 @@ const KanjiToolBar = () => {
 
   return (
     <>
-      <div
-        className={cn(
-          "flex items-center mb-4",
-          isDocked ? "justify-between" : "justify-end"
-        )}
-      >
-        {isDocked ? (
-          <div className="text-3xl font-bold">Kanji Dictionary</div>
-        ) : (
-          ""
-        )}
-
+      <div className="flex items-center mb-4 justify-end">
         <div className="flex items-center gap-4 bg-black-0 p-4 border border-black-100 rounded-2xl shadow-sm">
           <div className="flex items-center relative">
             <div
