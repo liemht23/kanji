@@ -5,7 +5,7 @@ import { RootState } from "@/store/store";
 import { READING_TYPE } from "@/enum/kanji-word";
 
 const WordPart = () => {
-  const { wordParts } = useAppSelector(
+  const { word_parts } = useAppSelector(
     (state: RootState) => state.sampleVocab.currentSampleVocab
   );
   const dispatch = useAppDispatch();
@@ -14,7 +14,7 @@ const WordPart = () => {
     e.preventDefault();
 
     const formData = new FormData(e.currentTarget);
-    const id = wordParts.length + 1;
+    const id = word_parts.length + 1;
     const word = formData.get("word") as string;
     const pronun = formData.get("pronun") as string;
     const reading_type = Number(formData.get("reading_type")) as READING_TYPE;

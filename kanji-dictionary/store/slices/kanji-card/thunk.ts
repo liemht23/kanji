@@ -4,7 +4,7 @@ import {
   searchKanji,
   updateIsOfficial,
   updateKanji,
-} from "@/lib/api";
+} from "@/app/kanji/apis";
 import { KanjiData } from "@/types/kanji-word";
 import { createAsyncThunk } from "@reduxjs/toolkit";
 

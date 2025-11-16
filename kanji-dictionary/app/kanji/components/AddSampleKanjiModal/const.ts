@@ -2,12 +2,12 @@ import {
   INITIAL_SAMPLE_KANJI_INDEX,
   INITIAL_SAMPLE_KANJI_LEVEL,
 } from "@/constants/const";
-import { SampleVocab } from "@/types/sample-vocab";
+import { Vocab } from "@/types/vocab";
 
-export const defaultSampleVocab: SampleVocab = {
+export const defaultSampleVocab: Vocab = {
   id: INITIAL_SAMPLE_KANJI_INDEX,
   level: INITIAL_SAMPLE_KANJI_LEVEL,
   meaning: "",
   vocab: "",
-  wordParts: [],
+  word_parts: [],
 };

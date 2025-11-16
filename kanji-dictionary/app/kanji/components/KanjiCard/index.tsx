@@ -141,14 +141,61 @@ const KanjiCard = () => {
               </div>
 
               <div className="py-4 flex items-start justify-between">
-                {exampleBatches.map((batch, batchIndex) => (
-                  <div key={batchIndex} className="w-1/2">
-                    {batch.map((item, index) => (
-                      <div key={index} className="text-wrapper cursor-pointer">
-                        {item.meaning && item.meaning !== "" ? (
-                          <Tooltip text={item.meaning} position="bottom">
+                {exampleBatches.length > 0 &&
+                  exampleBatches.map((batch, batchIndex) => (
+                    <div key={batchIndex} className="w-1/2">
+                      {batch.map((item, index) => (
+                        <div
+                          key={index}
+                          className="text-wrapper cursor-pointer"
+                        >
+                          {item.meaning && item.meaning !== "" ? (
+                            <Tooltip text={item.meaning} position="bottom">
+                              <div className="flex items-end">
+                                {item.word_parts?.map((part, index) => (
+                                  <div
+                                    key={index}
+                                    className="character-wrapper py-1"
+                                  >
+                                    <p
+                                      className={cn(
+                                        "text-md hiragana text-center",
+                                        part.reading_type === READING_TYPE.ON
+                                          ? "text-blue-300"
+                                          : part.reading_type ===
+                                            READING_TYPE.KUN
+                                          ? "text-red-500"
+                                          : part.reading_type ===
+                                            READING_TYPE.SPECIAL
+                                          ? "text-purple-400"
+                                          : ""
+                                      )}
+                                    >
+                                      {part.pronun}
+                                    </p>
+                                    <p
+                                      className={cn(
+                                        "text-5xl font-bold text-center",
+                                        part.reading_type === READING_TYPE.ON
+                                          ? "text-blue-300"
+                                          : part.reading_type ===
+                                            READING_TYPE.KUN
+                                          ? "text-red-500"
+                                          : part.reading_type ===
+                                            READING_TYPE.SPECIAL
+                                          ? "text-purple-400"
+                                          : ""
+                                      )}
+                                    >
+                                      {part.word}
+                                    </p>
+                                  </div>
+                                ))}
+                              </div>
+                            </Tooltip>
+                          ) : (
                             <div className="flex items-end">
-                              {item.wordParts.map((part, index) => (
+                              {item.word_parts.map((part, index) => (
                                 <div
                                   key={index}
                                   className="character-wrapper py-1"
@@ -186,52 +233,11 @@ const KanjiCard = () => {
                                 </div>
                               ))}
                             </div>
-                          </Tooltip>
-                        ) : (
-                          <div className="flex items-end">
-                            {item.wordParts.map((part, index) => (
-                              <div
-                                key={index}
-                                className="character-wrapper py-1"
-                              >
-                                <p
-                                  className={cn(
-                                    "text-md hiragana text-center",
-                                    part.reading_type === READING_TYPE.ON
-                                      ? "text-blue-300"
-                                      : part.reading_type === READING_TYPE.KUN
-                                      ? "text-red-500"
-                                      : part.reading_type ===
-                                        READING_TYPE.SPECIAL
-                                      ? "text-purple-400"
-                                      : ""
-                                  )}
-                                >
-                                  {part.pronun}
-                                </p>
-                                <p
-                                  className={cn(
-                                    "text-5xl font-bold text-center",
-                                    part.reading_type === READING_TYPE.ON
-                                      ? "text-blue-300"
-                                      : part.reading_type === READING_TYPE.KUN
-                                      ? "text-red-500"
-                                      : part.reading_type ===
-                                        READING_TYPE.SPECIAL
-                                      ? "text-purple-400"
-                                      : ""
-                                  )}
-                                >
-                                  {part.word}
-                                </p>
-                              </div>
-                            ))}
-                          </div>
-                        )}
-                      </div>
-                    ))}
-                  </div>
-                ))}
+                          )}
+                        </div>
+                      ))}
+                    </div>
+                  ))}
               </div>
             </div>
           </div>

@@ -39,7 +39,7 @@ const AddSampleKanjiModal = ({ isOpen, onClose }: AddSampleKanjiModalProps) => {
       alert("Nhập meaning");
       return;
     }
-    if (currentSampleVocab.wordParts?.length == 0) {
+    if (currentSampleVocab.word_parts?.length == 0) {
       alert("Nhập từ");
       return;
     }

@@ -1,5 +1,13 @@
 import { LEVEL, READING_TYPE } from "@/enum/kanji-word";
 
+export interface Vocab {
+  id: number;
+  level: LEVEL;
+  vocab: string;
+  meaning: string;
+  word_parts: WordPart[];
+}
+
 export interface WordPart {
   id: number;
   word: string;
@@ -7,15 +15,7 @@ export interface WordPart {
   reading_type: READING_TYPE;
 }
 
-export interface SampleVocab {
-  id: number;
-  level: LEVEL;
-  vocab: string;
-  meaning: string;
-  wordParts: WordPart[];
-}
-
 export interface SampleVocabState {
-  currentSampleVocab: SampleVocab;
-  listSampleVocab: SampleVocab[];
+  currentSampleVocab: Vocab;
+  listSampleVocab: Vocab[];
 }

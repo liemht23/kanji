@@ -7,18 +7,18 @@ export const sampleVocabSlice = createSlice({
   initialState: sampleVocabInitialState,
   reducers: {
     setWordPart: (state, action) => {
-      const parts = state.currentSampleVocab.wordParts;
+      const parts = state.currentSampleVocab.word_parts;
       const index = parts.findIndex((wp) => wp.id === action.payload.id);
       if (index >= 0) parts[index] = action.payload;
       else parts.push(action.payload);
     },
     removeWordPart: (state, action) => {
       const idToRemove = action.payload;
-      const updatedParts = state.currentSampleVocab.wordParts
+      const updatedParts = state.currentSampleVocab.word_parts
         .filter((wp) => wp.id !== idToRemove)
         .map((wp) => (wp.id > idToRemove ? { ...wp, id: wp.id - 1 } : wp));
 
-      state.currentSampleVocab.wordParts = updatedParts;
+      state.currentSampleVocab.word_parts = updatedParts;
     },
     setSampleVocab: (state, action) => {
       state.currentSampleVocab = action.payload;
@@ -36,8 +36,8 @@ export const sampleVocabSlice = createSlice({
       state.listSampleVocab = action.payload;
     },
     setSampleVocabToList: (state) => {
-      const wordParts = state.currentSampleVocab.wordParts;
-      const sortedWords = [...wordParts]
+      const word_parts = state.currentSampleVocab.word_parts;
+      const sortedWords = [...word_parts]
         .sort((a, b) => a.id - b.id)
         .map((item) => item.word);
       const vocab = sortedWords.join("");

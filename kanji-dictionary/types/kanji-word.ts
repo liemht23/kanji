@@ -1,4 +1,4 @@
-import { SampleVocab } from "./sample-vocab";
+import { Vocab } from "./vocab";
 
 export interface KanjiData {
   kanji_id: number;
@@ -8,7 +8,7 @@ export interface KanjiData {
   kun_reading: string;
   chinese_character: string;
   meaning: string;
-  example: SampleVocab[];
+  example: Vocab[];
   example_images: string[];
   is_official: boolean;
 }

@@ -5,7 +5,7 @@ import { useEffect, useState } from "react";
 import AddSampleKanjiModal from "../AddSampleKanjiModal";
 import { useAppDispatch, useAppSelector } from "@/store/hook";
 import { RootState } from "@/store/store";
-import { SampleVocab } from "@/types/sample-vocab";
+import { Vocab } from "@/types/vocab";
 import { KanjiData } from "@/types/kanji-word";
 import {
   getKanjiThunk,
@@ -121,7 +121,7 @@ const AddKanjiModal = ({ isOpen, onClose }: AddKanjiModalProps) => {
     setNewExampleFiles((prev) => prev.filter((_, i) => i !== idx));
   };
 
-  const handleEditSampleVocab = (sampleVocab: SampleVocab) => {
+  const handleEditSampleVocab = (sampleVocab: Vocab) => {
     dispatch(setSampleVocab(sampleVocab));
     setIsOpenAddSampleKanjiModal(true);
   };
@@ -699,7 +699,7 @@ const AddKanjiModal = ({ isOpen, onClose }: AddKanjiModalProps) => {
                         </tr>
                       ) : (
                         listSampleVocab.map(
-                          (sampleVocab: SampleVocab, index: number) => {
+                          (sampleVocab: Vocab, index: number) => {
                             return (
                               <tr
                                 key={index}

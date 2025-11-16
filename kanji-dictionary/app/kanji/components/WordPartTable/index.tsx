@@ -3,14 +3,14 @@ import { Pencil, Trash2, Check, X } from "lucide-react";
 import { READING_TYPE } from "@/enum/kanji-word";
 import { READING_TYPE_OPTION } from "./const";
 import { getLabel, Option } from "@/utils/select-option";
-import { WordPart } from "@/types/sample-vocab";
+import { WordPart } from "@/types/vocab";
 import { useAppDispatch, useAppSelector } from "@/store/hook";
 import { RootState } from "@/store/store";
 import { setWordPart, removeWordPart } from "@/store/slices/sample-vocab";
 
 const WordPartTable = () => {
   const dispatch = useAppDispatch();
-  const { wordParts } = useAppSelector(
+  const { word_parts } = useAppSelector(
     (state: RootState) => state.sampleVocab.currentSampleVocab
   );
   const [editData, setEditData] = useState<WordPart | null>(null);
@@ -57,7 +57,7 @@ const WordPartTable = () => {
             </tr>
           </thead>
           <tbody>
-            {wordParts.length === 0 ? (
+            {word_parts.length === 0 ? (
               <tr className="transition-colors duration-200 h-16">
                 <td
                   colSpan={5}
@@ -67,7 +67,7 @@ const WordPartTable = () => {
                 </td>
               </tr>
             ) : (
-              wordParts.map((wordPart) => (
+              word_parts.map((wordPart) => (
                 <tr
                   key={wordPart.id}
                   className="hover:bg-gray-100 transition-colors duration-200 h-16"
