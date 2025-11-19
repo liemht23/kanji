@@ -1,4 +1,4 @@
-import { LEVEL, READING_TYPE } from "@/enum/kanji-word";
+import { LEVEL, READING_TYPE } from "@/enum/common-enum";
 
 export interface Vocab {
   id: number;

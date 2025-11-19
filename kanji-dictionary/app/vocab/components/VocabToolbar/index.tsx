@@ -1,5 +1,5 @@
 import Tooltip from "@/components/common/Tooltip";
-import { NEXT_STEP_SIZE, PREVIOUS_STEP_SIZE } from "@/constants/const";
+import { NEXT_STEP_SIZE, PREVIOUS_STEP_SIZE } from "@/constants/common-const";
 import { useAppDispatch, useAppSelector } from "@/store/hook";
 import {
   setSelectedCollection,
@@ -16,7 +16,10 @@ import {
   Undo2,
 } from "lucide-react";
 import { useRef, useState } from "react";
-import { SEARCH_VOCAB, SEARCH_VOCAB_COLLECTION } from "./const";
+import {
+  SEARCH_VOCAB,
+  SEARCH_VOCAB_COLLECTION,
+} from "../../../../constants/vocab-const";
 
 interface VocabToolBarProps {
   isVocabFlashCard: boolean;

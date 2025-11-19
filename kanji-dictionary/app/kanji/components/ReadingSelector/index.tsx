@@ -1,4 +1,4 @@
-import { READING_TYPE } from "@/enum/kanji-word";
+import { READING_TYPE } from "@/enum/common-enum";
 
 const ReadingTypeSelector = () => {
   return (

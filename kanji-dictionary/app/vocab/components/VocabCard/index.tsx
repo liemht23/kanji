@@ -1,4 +1,4 @@
-import { READING_TYPE } from "@/enum/kanji-word";
+import { READING_TYPE } from "@/enum/common-enum";
 import { cn } from "@/utils/class-name";
 import React, { useState } from "react";
 import Image from "next/image";

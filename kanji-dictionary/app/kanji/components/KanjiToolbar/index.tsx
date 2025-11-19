@@ -1,9 +1,5 @@
 import Tooltip from "@/components/common/Tooltip";
-import {
-  INITIAL_KANJI_ID,
-  NEXT_STEP_SIZE,
-  PREVIOUS_STEP_SIZE,
-} from "@/constants/const";
+import { NEXT_STEP_SIZE, PREVIOUS_STEP_SIZE } from "@/constants/common-const";
 import { useAppDispatch, useAppSelector } from "@/store/hook";
 import {
   getKanjiThunk,
@@ -28,6 +24,7 @@ import AddKanjiModal from "../AddKanjiModal";
 import { useLayout } from "@/app/context/LayoutContext";
 import { clearEditedKanji, setEditedKanji } from "@/store/slices/kanji-card";
 import useAuthGuard from "@/hooks/useAuthGuard";
+import { INITIAL_KANJI_ID } from "@/constants/kanji-const";
 
 const KanjiToolBar = () => {
   const dispatch = useAppDispatch();

@@ -1,6 +1,6 @@
 import { createSlice } from "@reduxjs/toolkit";
 import sampleVocabInitialState from "./initial-state";
-import { defaultSampleVocab } from "@/app/kanji/components/AddSampleKanjiModal/const";
+import { DEFAULT_SAMPLE_VOCAB } from "@/constants/kanji-const";
 
 export const sampleVocabSlice = createSlice({
   name: "sample-vocab",
@@ -30,7 +30,7 @@ export const sampleVocabSlice = createSlice({
       state.currentSampleVocab.meaning = action.payload;
     },
     clearSampleVocab: (state) => {
-      state.currentSampleVocab = defaultSampleVocab;
+      state.currentSampleVocab = DEFAULT_SAMPLE_VOCAB;
     },
     setListSampleVocal: (state, action) => {
       state.listSampleVocab = action.payload;

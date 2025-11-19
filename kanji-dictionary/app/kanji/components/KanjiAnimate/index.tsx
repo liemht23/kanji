@@ -1,6 +1,6 @@
 "use client";
 import { useEffect, useState } from "react";
-import { BASE_DURATION, DELAY_BETWEEN } from "./const";
+import { BASE_DURATION, DELAY_BETWEEN } from "@/constants/kanji-const";
 
 interface KanjiAnimateProps {
   kanjiSvgUrl?: string;

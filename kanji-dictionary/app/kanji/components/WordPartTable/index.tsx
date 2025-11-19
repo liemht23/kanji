@@ -1,12 +1,12 @@
 import { useState } from "react";
 import { Pencil, Trash2, Check, X } from "lucide-react";
-import { READING_TYPE } from "@/enum/kanji-word";
-import { READING_TYPE_OPTION } from "./const";
+import { READING_TYPE } from "@/enum/common-enum";
 import { getLabel, Option } from "@/utils/select-option";
 import { WordPart } from "@/types/vocab";
 import { useAppDispatch, useAppSelector } from "@/store/hook";
 import { RootState } from "@/store/store";
 import { setWordPart, removeWordPart } from "@/store/slices/sample-vocab";
+import { READING_TYPE_OPTION } from "@/constants/common-const";
 
 const WordPartTable = () => {
   const dispatch = useAppDispatch();

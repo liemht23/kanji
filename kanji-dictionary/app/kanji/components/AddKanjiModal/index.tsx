@@ -18,10 +18,13 @@ import {
   setSampleVocab,
 } from "@/store/slices/sample-vocab";
 import { uploadImage } from "@/lib/upload";
-import { BUCKET_EXAMPLE_IMAGES, BUCKET_KANJI_IMAGES } from "./const";
-import { LEVEL_OPTION } from "../KanjiCard/const";
+import {
+  BUCKET_EXAMPLE_IMAGES,
+  BUCKET_KANJI_IMAGES,
+} from "@/constants/kanji-const";
 import { getLabel } from "@/utils/select-option";
 import { cn } from "@/utils/class-name";
+import { LEVEL_OPTION } from "@/constants/common-const";
 
 interface AddKanjiModalProps {
   isOpen: boolean;

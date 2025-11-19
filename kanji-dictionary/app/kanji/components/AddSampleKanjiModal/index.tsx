@@ -9,10 +9,10 @@ import {
   setLevel,
   setMeaning,
 } from "@/store/slices/sample-vocab";
-import { LEVEL_OPTION } from "../KanjiCard/const";
 import { Option } from "@/utils/select-option";
 import { RootState } from "@/store/store";
 import { useEffect } from "react";
+import { LEVEL_OPTION } from "@/constants/common-const";
 
 interface AddSampleKanjiModalProps {
   isOpen: boolean;

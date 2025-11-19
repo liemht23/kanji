@@ -8,8 +8,8 @@ import { useEffect, useMemo, useState } from "react";
 import { getKanjiThunk } from "@/store/slices/kanji-card/thunk";
 import { useAppDispatch, useAppSelector } from "@/store/hook";
 import Spinner from "@/components/common/Spinner";
-import { READING_TYPE } from "@/enum/kanji-word";
-import { SAMPLE_KANJI_BATCH_SIZE } from "./const";
+import { READING_TYPE } from "@/enum/common-enum";
+import { SAMPLE_KANJI_BATCH_SIZE } from "@/constants/kanji-const";
 import KanjiAnimate from "../KanjiAnimate";
 import ExampleImagePopup from "../ExampleImageModal";
 

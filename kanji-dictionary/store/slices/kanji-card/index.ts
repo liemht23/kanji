@@ -5,7 +5,7 @@ import {
   updateIsOfficialThunk,
 } from "./thunk";
 import kanjiInitialState from "./initial-state";
-import { defaultKanjiData } from "@/app/kanji/components/KanjiCard/const";
+import { DEFAULT_KANJI_DATA } from "@/constants/kanji-const";
 
 export const kanjiCardSlice = createSlice({
   name: "kanji-card",
@@ -34,7 +34,7 @@ export const kanjiCardSlice = createSlice({
         state.loading = false;
       })
       .addCase(getKanjiThunk.rejected, (state) => {
-        state.kanjiWord = defaultKanjiData;
+        state.kanjiWord = DEFAULT_KANJI_DATA;
         state.loading = false;
       })
 
@@ -47,7 +47,7 @@ export const kanjiCardSlice = createSlice({
       })
       .addCase(searchKanjiThunk.rejected, (state) => {
         state.loading = false;
-        state.kanjiWord = defaultKanjiData;
+        state.kanjiWord = DEFAULT_KANJI_DATA;
       })
 
       .addCase(updateIsOfficialThunk.pending, (state) => {

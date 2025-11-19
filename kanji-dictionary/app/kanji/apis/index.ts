@@ -1,7 +1,7 @@
 import axiosClient from "@/lib/axios-client";
 import { KanjiData } from "@/types/kanji-word";
-import { INITIAL_KANJI_ID } from "@/constants/const";
 import { supabase } from "@/lib/supabase-client";
+import { INITIAL_KANJI_ID } from "@/constants/kanji-const";
 
 export const getKanji = async (id: string) => {
   try {

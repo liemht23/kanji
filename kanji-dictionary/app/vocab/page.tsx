@@ -15,6 +15,8 @@ import {
   setSelectedCollection,
   setSelectedVocab,
 } from "@/store/slices/vocab-collection";
+import { LEVEL_OPTION } from "@/constants/common-const";
+import { getLabel } from "@/utils/select-option";
 
 const VocabPage = () => {
   const { isMobile } = useLayout();
@@ -80,7 +82,7 @@ const VocabPage = () => {
             >
               <div className="flex items-center gap-1 text-md font-bold">
                 <div className="bg-orange-400 text-black-0 px-2 py-1 rounded-sm">
-                  {collection.level}
+                  {getLabel(LEVEL_OPTION, collection.level)}
                 </div>
                 <div className="text-xl">{collection.title}</div>
               </div>

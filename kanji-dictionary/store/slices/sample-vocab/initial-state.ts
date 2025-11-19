@@ -1,8 +1,8 @@
-import { defaultSampleVocab } from "@/app/kanji/components/AddSampleKanjiModal/const";
+import { DEFAULT_SAMPLE_VOCAB } from "@/constants/kanji-const";
 import { SampleVocabState } from "@/types/vocab";
 
 export const sampleVocabInitialState: SampleVocabState = {
-  currentSampleVocab: defaultSampleVocab,
+  currentSampleVocab: DEFAULT_SAMPLE_VOCAB,
   listSampleVocab: [],
 };
 

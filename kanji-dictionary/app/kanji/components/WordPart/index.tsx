@@ -2,7 +2,7 @@ import { setWordPart } from "@/store/slices/sample-vocab";
 import ReadingTypeSelector from "../ReadingSelector";
 import { useAppDispatch, useAppSelector } from "@/store/hook";
 import { RootState } from "@/store/store";
-import { READING_TYPE } from "@/enum/kanji-word";
+import { READING_TYPE } from "@/enum/common-enum";
 
 const WordPart = () => {
   const { word_parts } = useAppSelector(
