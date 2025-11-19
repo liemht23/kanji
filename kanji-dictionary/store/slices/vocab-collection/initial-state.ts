@@ -4,6 +4,7 @@ export const vocabCollectionInitialState: VocabCollectionState = {
   listVocabCollections: [],
   selectedCollection: null,
   vocabCards: [],
+  selectedVocab: null,
   loading: false,
 };
 

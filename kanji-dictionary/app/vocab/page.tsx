@@ -11,18 +11,32 @@ import {
   getAllVocabCollectionThunk,
   getVocabByCollectionIdThunk,
 } from "@/store/slices/vocab-collection/thunk";
-import { setSelectedCollection } from "@/store/slices/vocab-collection";
+import {
+  setSelectedCollection,
+  setSelectedVocab,
+} from "@/store/slices/vocab-collection";
 
 const VocabPage = () => {
   const { isMobile } = useLayout();
   const { checking } = useAuthGuard();
   const dispatch = useAppDispatch();
-  const { listVocabCollections, selectedCollection, loading } = useAppSelector(
-    (state: RootState) => state.vocabCollection
-  );
+  const {
+    listVocabCollections,
+    selectedCollection,
+    vocabCards,
+    selectedVocab,
+    loading,
+  } = useAppSelector((state: RootState) => state.vocabCollection);
   useEffect(() => {
     dispatch(getAllVocabCollectionThunk()).unwrap();
   }, [dispatch]);
+
+  useEffect(() => {
+    // Automatically select the first vocab card when vocabCards are loaded
+    if (selectedVocab == null && vocabCards.length > 0) {
+      dispatch(setSelectedVocab(vocabCards[0]));
+    }
+  }, [selectedVocab, vocabCards, dispatch]);
 
   useEffect(() => {
     if (selectedCollection?.id) {

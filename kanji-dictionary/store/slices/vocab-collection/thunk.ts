@@ -1,6 +1,6 @@
 import {
   getAllVocabCollectionData,
-  getVocabByCollectionId,
+  getListVocabByCollectionId,
 } from "@/app/vocab/apis";
 import { createAsyncThunk } from "@reduxjs/toolkit";
 
@@ -19,10 +19,10 @@ export const getAllVocabCollectionThunk = createAsyncThunk(
 );
 
 export const getVocabByCollectionIdThunk = createAsyncThunk(
-  "vocabCollection/getVocabByCollectionId",
+  "vocabCollection/getListVocabByCollectionId",
   async (collectionId: string, { rejectWithValue }) => {
     try {
-      const response = await getVocabByCollectionId(collectionId);
+      const response = await getListVocabByCollectionId(collectionId);
       return response;
     } catch (error) {
       const msg =

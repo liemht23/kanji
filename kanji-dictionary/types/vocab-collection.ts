@@ -9,6 +9,7 @@ export interface VocabCollection {
 
 export interface VocabCard {
   collection_id: string;
+  id: string;
   word: Vocab;
   example_sentences: ExampleSentence[];
   image: string;
@@ -23,5 +24,6 @@ export interface VocabCollectionState {
   listVocabCollections: VocabCollection[];
   selectedCollection: VocabCollection | null;
   vocabCards: VocabCard[];
+  selectedVocab: VocabCard | null;
   loading: boolean;
 }

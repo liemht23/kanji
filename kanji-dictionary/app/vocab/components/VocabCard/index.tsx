@@ -5,45 +5,13 @@ import Image from "next/image";
 import { useAppDispatch, useAppSelector } from "@/store/hook";
 import { RootState } from "@/store/store";
 
-const vocabData = {
-  collection_id: 1,
-  word: {
-    id: 1,
-    level: "N5",
-    vocab: "送ります",
-    meaning: "Gửi, chuyển (gửi quà, gửi thư, v.v.)",
-    word_parts: [
-      {
-        id: 1,
-        word: "送",
-        pronun: "おく",
-        reading_type: READING_TYPE.KUN,
-        chinese_character: "TỐNG",
-      },
-      {
-        id: 2,
-        word: "ります",
-        pronun: "",
-        reading_type: READING_TYPE.NONE,
-        chinese_character: "",
-      },
-    ],
-  },
-  example_sentences: [
-    {
-      jp: "友達にプレゼントを送ります。",
-      vi: "Tôi gửi quà cho bạn.",
-    },
-  ],
-  image: "/example-images/sample-1.png",
-};
 const VocabCard = () => {
   const dispatch = useAppDispatch();
-  const { selectedCollection, vocabCards, loading } = useAppSelector(
+  const { selectedVocab, loading } = useAppSelector(
     (state: RootState) => state.vocabCollection
   );
   const [flipped, setFlipped] = useState(false);
-  console.log({ selectedCollection, vocabCards, loading });
+
   return (
     <div className="relative w-full max-w-4xl h-[80vh] mx-auto flex items-center justify-center select-none">
       <div
@@ -74,7 +42,7 @@ const VocabCard = () => {
                   {/* Vocab */}
                   <div className="text-wrapper cursor-pointer">
                     <div className="flex items-end">
-                      {vocabData.word.word_parts.map((part, index) => (
+                      {selectedVocab?.word.word_parts.map((part, index) => (
                         <div key={index} className="character-wrapper py-1">
                           <p
                             className={cn(
@@ -111,7 +79,7 @@ const VocabCard = () => {
 
                   {/* Kanji */}
                   <div className="text-2xl text-gray-700 italic ">
-                    {vocabData.word.word_parts
+                    {selectedVocab?.word.word_parts
                       .map((part) => part.chinese_character)
                       .filter((char) => !!char)
                       .map((char) => `[${char}]`)
@@ -122,7 +90,9 @@ const VocabCard = () => {
                 {/* Example */}
                 <div className="w-full pl-16 py-5">
                   <div className="text-lg text-gray-800 italic border-l-4 border-blue-300 pl-3">
-                    {vocabData.example_sentences[0].jp}
+                    {selectedVocab?.example_sentences.map((sentence, idx) => (
+                      <div key={idx}>{sentence.jp}</div>
+                    ))}
                   </div>
                 </div>
               </div>
@@ -131,13 +101,16 @@ const VocabCard = () => {
 
             {/* Right half */}
             <div className="w-1/2 flex items-center justify-center m-20 relative">
-              <Image
-                src={vocabData.image}
-                alt={vocabData.word.word_parts[0].word}
-                fill
-                className="object-contain"
-                draggable={false}
-              />
+              {selectedVocab?.image && (
+                <Image
+                  src={selectedVocab?.image}
+                  alt={selectedVocab?.word.word_parts[0].word}
+                  fill
+                  sizes="(max-width: 768px) 100vw, 50vw"
+                  className="object-contain"
+                  draggable={false}
+                />
+              )}
             </div>
             <div className="absolute bottom-8 left-1/2 -translate-x-1/2 text-xs text-gray-400">
               Nhấn để lật thẻ
@@ -151,10 +124,12 @@ const VocabCard = () => {
           >
             <div className="flex flex-col items-center justify-center h-full">
               <div className="text-4xl font-bold text-green-700 mb-4 text-center">
-                {vocabData.word.meaning}
+                {selectedVocab?.word.meaning}
               </div>
-              <div className="text-lg text-gray-800 italic text-center mb-2">
-                {vocabData.example_sentences[0].vi}
+              <div className="text-lg text-gray-800 italic border-l-4 border-blue-300 pl-3">
+                {selectedVocab?.example_sentences.map((sentence, idx) => (
+                  <div key={idx}>{sentence.vi}</div>
+                ))}
               </div>
             </div>
             <div className="absolute bottom-8 left-1/2 -translate-x-1/2 text-xs text-gray-400">

@@ -13,6 +13,7 @@ export interface WordPart {
   word: string;
   pronun: string;
   reading_type: READING_TYPE;
+  chinese_character: string;
 }
 
 export interface SampleVocabState {

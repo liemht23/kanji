@@ -7,12 +7,11 @@ export const getAllVocabCollectionData = async () => {
   return data;
 };
 
-export const getVocabByCollectionId = async (collectionId: string) => {
+export const getListVocabByCollectionId = async (collectionId: string) => {
   const { data, error } = await supabase
     .from("vocab")
     .select("*")
-    .eq("collection_id", collectionId)
-    .limit(1);
+    .eq("collection_id", collectionId);
 
   if (error) throw error;
   return data;
