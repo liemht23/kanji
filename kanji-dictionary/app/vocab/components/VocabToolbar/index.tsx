@@ -1,4 +1,11 @@
 import Tooltip from "@/components/common/Tooltip";
+import { NEXT_STEP_SIZE, PREVIOUS_STEP_SIZE } from "@/constants/const";
+import { useAppDispatch, useAppSelector } from "@/store/hook";
+import {
+  setSelectedCollection,
+  setSelectedVocab,
+} from "@/store/slices/vocab-collection";
+import { RootState } from "@/store/store";
 import { cn } from "@/utils/class-name";
 import {
   ArrowDownAZ,
@@ -9,6 +16,7 @@ import {
   Undo2,
 } from "lucide-react";
 import { useRef, useState } from "react";
+import { SEARCH_VOCAB, SEARCH_VOCAB_COLLECTION } from "./const";
 
 interface VocabToolBarProps {
   isVocabFlashCard: boolean;
@@ -16,8 +24,69 @@ interface VocabToolBarProps {
 }
 
 const VocabToolBar = ({ isVocabFlashCard, onBack }: VocabToolBarProps) => {
-  const [isSearchVisible, setIsSearchVisible] = useState(false);
   const searchInputRef = useRef<HTMLInputElement | null>(null);
+  const [isSearchVisible, setIsSearchVisible] = useState(false);
+  const [inputSearch, setInputSearch] = useState("");
+  const [isComposing, setIsComposing] = useState(false);
+  const dispatch = useAppDispatch();
+  const { listVocabCollections, vocabCards, selectedVocab } = useAppSelector(
+    (state: RootState) => state.vocabCollection
+  );
+
+  const selectedIndex = vocabCards.findIndex(
+    (item) => item.id === selectedVocab?.id
+  );
+  const hasPrevious = selectedIndex > 0;
+  const hasNext = selectedIndex < vocabCards.length - 1;
+  const searchInputName = isVocabFlashCard
+    ? SEARCH_VOCAB
+    : SEARCH_VOCAB_COLLECTION;
+
+  const handleGetVocab = (step: number) => {
+    const newIndex = selectedIndex + step;
+    if (newIndex >= 0 && newIndex < vocabCards.length) {
+      const newVocab = vocabCards[newIndex];
+      dispatch(setSelectedVocab(newVocab));
+    }
+  };
+
+  const handleSearch = () => {
+    if (inputSearch.trim().length === 0) return;
+
+    if (searchInputName === SEARCH_VOCAB_COLLECTION) {
+      handleSearchVocabCollection();
+    } else {
+      handleSearchVocab();
+    }
+  };
+
+  const handleSearchVocabCollection = () => {
+    const searchValue = inputSearch.trim().toLowerCase();
+    const foundCollection = listVocabCollections.find(
+      (item) =>
+        item.title.toLowerCase().includes(searchValue) ||
+        item.description.toLowerCase().includes(searchValue)
+    );
+
+    if (foundCollection) {
+      dispatch(setSelectedCollection(foundCollection));
+    } else {
+      alert("Vocab Collection not found!");
+    }
+  };
+
+  const handleSearchVocab = () => {
+    const searchValue = inputSearch.trim().toLowerCase();
+    const foundVocab = vocabCards.find((item) =>
+      item.word.vocab.toLowerCase().includes(searchValue)
+    );
+
+    if (foundVocab) {
+      dispatch(setSelectedVocab(foundVocab));
+    } else {
+      alert("Vocab not found!");
+    }
+  };
 
   return (
     <>
@@ -37,25 +106,25 @@ const VocabToolBar = ({ isVocabFlashCard, onBack }: VocabToolBarProps) => {
               <input
                 ref={searchInputRef}
                 type="text"
-                id="searchCharacter"
-                name="searchCharacter"
-                // value={searchCharacter}
-                // onChange={(e) => setSearchCharacter(e.target.value)}
-                // onCompositionStart={() => setIsComposing(true)}
-                // onCompositionEnd={() => setIsComposing(false)}
-                // onKeyDown={(e) => {
-                //   if (e.key === "Enter" && !isComposing) handleSearch();
-                // }}
+                id={searchInputName}
+                name={searchInputName}
+                value={inputSearch}
+                onChange={(e) => setInputSearch(e.target.value)}
+                onCompositionStart={() => setIsComposing(true)}
+                onCompositionEnd={() => setIsComposing(false)}
+                onKeyDown={(e) => {
+                  if (e.key === "Enter" && !isComposing) handleSearch();
+                }}
                 placeholder="Enter ONE kanji only..."
                 className="flex-1 text-md text-black-900 bg-transparent outline-none pl-7 pr-2"
               />
 
               <CircleX
                 className="w-5 h-5 text-black-400 hover:text-red-500 cursor-pointer transition ml-1"
-                // onClick={() => {
-                //   setIsSearchVisible(false);
-                //   setSearchCharacter("");
-                // }}
+                onClick={() => {
+                  setIsSearchVisible(false);
+                  setInputSearch("");
+                }}
               />
             </div>
 
@@ -89,15 +158,15 @@ const VocabToolBar = ({ isVocabFlashCard, onBack }: VocabToolBarProps) => {
                   <CircleChevronLeft
                     className={cn(
                       "w-8 h-8 cursor-pointer",
-                      true
+                      hasPrevious
                         ? "text-black-400 hover:text-black-900"
                         : "text-gray-300 cursor-not-allowed"
                     )}
-                    // onClick={
-                    //   hasPrevious
-                    //     ? () => handleGetKanji(PREVIOUS_STEP_SIZE)
-                    //     : undefined
-                    // }
+                    onClick={
+                      hasPrevious
+                        ? () => handleGetVocab(PREVIOUS_STEP_SIZE)
+                        : undefined
+                    }
                   />
                 </Tooltip>
 
@@ -105,13 +174,13 @@ const VocabToolBar = ({ isVocabFlashCard, onBack }: VocabToolBarProps) => {
                   <CircleChevronRight
                     className={cn(
                       "w-8 h-8 cursor-pointer",
-                      true
+                      hasNext
                         ? "text-black-400 hover:text-black-900"
                         : "text-gray-300 cursor-not-allowed"
                     )}
-                    // onClick={
-                    //   hasNext ? () => handleGetKanji(NEXT_STEP_SIZE) : undefined
-                    // }
+                    onClick={
+                      hasNext ? () => handleGetVocab(NEXT_STEP_SIZE) : undefined
+                    }
                   />
                 </Tooltip>
               </div>

@@ -27,6 +27,13 @@ const VocabPage = () => {
     selectedVocab,
     loading,
   } = useAppSelector((state: RootState) => state.vocabCollection);
+
+  const handleBack = () => {
+    // Clear selected collection and selected vocab when going back to collection list
+    dispatch(setSelectedCollection(null));
+    dispatch(setSelectedVocab(null));
+  };
+
   useEffect(() => {
     dispatch(getAllVocabCollectionThunk()).unwrap();
   }, [dispatch]);
@@ -60,7 +67,7 @@ const VocabPage = () => {
     <div className={isMobile ? "p-4" : "px-10 py-8"}>
       <VocabToolBar
         isVocabFlashCard={!!selectedCollection}
-        onBack={() => dispatch(setSelectedCollection(null))}
+        onBack={handleBack}
       />
       {!selectedCollection ? (
         <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-2 mt-8">

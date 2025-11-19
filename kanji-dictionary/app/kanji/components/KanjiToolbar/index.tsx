@@ -40,7 +40,7 @@ const KanjiToolBar = () => {
   const { kanjiWord, maxKanjiId, minKanjiId, loading } = useAppSelector(
     (state: RootState) => state.kanjiCard
   );
-  const { isDocked, isModalOpen } = useLayout();
+  const { isModalOpen } = useLayout();
   const handleGetKanji = useCallback(
     (step: number) => {
       if (!kanjiWord?.kanji_id) return;
@@ -52,15 +52,15 @@ const KanjiToolBar = () => {
   );
 
   const handleSearch = () => {
-    if (searchCharacter.trim()) {
-      dispatch(searchKanjiThunk(searchCharacter))
-        .unwrap()
-        .then(() => console.log("Tìm thấy Kanji"))
-        .catch(() => {
-          alert("Kanji not found!");
-          dispatch(getKanjiThunk(INITIAL_KANJI_ID));
-        });
-    }
+    if (searchCharacter.trim().length === 0) return;
+
+    dispatch(searchKanjiThunk(searchCharacter))
+      .unwrap()
+      .then(() => console.log("Tìm thấy Kanji"))
+      .catch(() => {
+        alert("Kanji not found!");
+        dispatch(getKanjiThunk(INITIAL_KANJI_ID));
+      });
   };
 
   const handleEditKanji = () => {
