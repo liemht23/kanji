@@ -74,7 +74,7 @@ const VocabPage = () => {
   return (
     <div className={isMobile ? "p-4" : "px-10 py-8"}>
       <VocabToolBar
-        isVocabFlashCard={!!selectedCollection}
+        selectedVocabCollection={!!selectedCollection}
         onBack={handleBack}
       />
       {!selectedCollection ? (

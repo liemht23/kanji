@@ -22,11 +22,14 @@ import {
 } from "../../../../constants/vocab-const";
 
 interface VocabToolBarProps {
-  isVocabFlashCard: boolean;
+  selectedVocabCollection: boolean;
   onBack: () => void;
 }
 
-const VocabToolBar = ({ isVocabFlashCard, onBack }: VocabToolBarProps) => {
+const VocabToolBar = ({
+  selectedVocabCollection,
+  onBack,
+}: VocabToolBarProps) => {
   const searchInputRef = useRef<HTMLInputElement | null>(null);
   const [isSearchVisible, setIsSearchVisible] = useState(false);
   const [inputSearch, setInputSearch] = useState("");
@@ -41,7 +44,7 @@ const VocabToolBar = ({ isVocabFlashCard, onBack }: VocabToolBarProps) => {
   );
   const hasPrevious = selectedIndex > 0;
   const hasNext = selectedIndex < vocabCards.length - 1;
-  const searchInputName = isVocabFlashCard
+  const searchInputName = selectedVocabCollection
     ? SEARCH_VOCAB
     : SEARCH_VOCAB_COLLECTION;
 
@@ -144,7 +147,7 @@ const VocabToolBar = ({ isVocabFlashCard, onBack }: VocabToolBarProps) => {
             )}
           </div>
 
-          {!isVocabFlashCard && (
+          {!selectedVocabCollection && (
             <div className="flex items-center gap-4 border-l border-black-100 pl-4">
               <Tooltip text="Tăng dần">
                 <ArrowDownAZ
@@ -154,7 +157,7 @@ const VocabToolBar = ({ isVocabFlashCard, onBack }: VocabToolBarProps) => {
               </Tooltip>
             </div>
           )}
-          {isVocabFlashCard && (
+          {selectedVocabCollection && (
             <>
               <div className="flex items-center gap-4 border-l border-black-100 pl-4">
                 <Tooltip text="Previous">
