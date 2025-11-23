@@ -18,6 +18,7 @@ export const vocabCollectionSlice = createSlice({
     setSelectedVocab: (state, action) => {
       state.selectedVocab = action.payload;
     },
+    resetVocabCollection: () => vocabCollectionInitialState,
   },
   extraReducers: (builder) => {
     builder
@@ -46,6 +47,6 @@ export const vocabCollectionSlice = createSlice({
   },
 });
 
-export const { setSelectedCollection, setSelectedVocab } =
+export const { setSelectedCollection, setSelectedVocab, resetVocabCollection } =
   vocabCollectionSlice.actions;
 export default vocabCollectionSlice.reducer;

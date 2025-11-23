@@ -14,12 +14,13 @@ export const kanjiCardSlice = createSlice({
     setCurrentKanjiId: (state, action) => {
       state.currentKanjiId = action.payload;
     },
-    setEditedKanji(state, action) {
+    setEditedKanji: (state, action) => {
       state.editedKanji = action.payload;
     },
-    clearEditedKanji(state) {
+    clearEditedKanji: (state) => {
       state.editedKanji = null;
     },
+    resetKanjiCard: () => kanjiInitialState,
   },
   extraReducers: (builder) => {
     builder
@@ -65,6 +66,10 @@ export const kanjiCardSlice = createSlice({
   },
 });
 
-export const { setCurrentKanjiId, setEditedKanji, clearEditedKanji } =
-  kanjiCardSlice.actions;
+export const {
+  setCurrentKanjiId,
+  setEditedKanji,
+  clearEditedKanji,
+  resetKanjiCard,
+} = kanjiCardSlice.actions;
 export default kanjiCardSlice.reducer;

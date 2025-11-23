@@ -12,12 +12,12 @@ import {
   getVocabByCollectionIdThunk,
 } from "@/store/slices/vocab-collection/thunk";
 import {
+  resetVocabCollection,
   setSelectedCollection,
   setSelectedVocab,
 } from "@/store/slices/vocab-collection";
 import { LEVEL_OPTION } from "@/constants/common-const";
 import { getLabel } from "@/utils/select-option";
-
 const VocabPage = () => {
   const { isMobile } = useLayout();
   const { checking } = useAuthGuard();
@@ -56,6 +56,12 @@ const VocabPage = () => {
         });
     }
   }, [dispatch, selectedCollection]);
+
+  useEffect(() => {
+    return () => {
+      dispatch(resetVocabCollection());
+    };
+  }, []);
 
   if (checking) {
     return (
