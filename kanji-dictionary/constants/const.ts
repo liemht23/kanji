@@ -1,4 +1,4 @@
-import { LEVEL } from "@/enum/kanji-word";
+import { LEVEL } from "@/enum/kanji-card";
 
 export const NEXT_STEP_SIZE = 1;
 export const PREVIOUS_STEP_SIZE = -1;

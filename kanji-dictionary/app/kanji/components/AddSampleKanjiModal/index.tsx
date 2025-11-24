@@ -3,16 +3,16 @@ import { CircleX } from "lucide-react";
 import WordPart from "../WordPart";
 import WordPartTable from "../WordPartTable";
 import { useAppDispatch, useAppSelector } from "@/store/hook";
-import {
-  clearSampleVocab,
-  setSampleVocabToList,
-  setLevel,
-  setMeaning,
-} from "@/store/slices/sample-vocab";
 import { Option } from "@/utils/select-option";
 import { RootState } from "@/store/store";
 import { useEffect } from "react";
 import { LEVEL_OPTION } from "@/constants/common-const";
+import {
+  clearSampleVocab,
+  setLevel,
+  setMeaning,
+  setSampleVocabToList,
+} from "@/store/slices/kanji-collection";
 
 interface AddSampleKanjiModalProps {
   isOpen: boolean;
@@ -20,8 +20,8 @@ interface AddSampleKanjiModalProps {
 }
 
 const AddSampleKanjiModal = ({ isOpen, onClose }: AddSampleKanjiModalProps) => {
-  const currentSampleVocab = useAppSelector(
-    (state: RootState) => state.sampleVocab.currentSampleVocab
+  const { currentSampleVocab } = useAppSelector(
+    (state: RootState) => state.kanji
   );
   const dispatch = useAppDispatch();
 

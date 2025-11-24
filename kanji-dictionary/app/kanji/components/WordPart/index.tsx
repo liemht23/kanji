@@ -1,12 +1,12 @@
-import { setWordPart } from "@/store/slices/sample-vocab";
 import ReadingTypeSelector from "../ReadingSelector";
 import { useAppDispatch, useAppSelector } from "@/store/hook";
 import { RootState } from "@/store/store";
 import { READING_TYPE } from "@/enum/common-enum";
+import { setWordPart } from "@/store/slices/kanji-collection";
 
 const WordPart = () => {
   const { word_parts } = useAppSelector(
-    (state: RootState) => state.sampleVocab.currentSampleVocab
+    (state: RootState) => state.kanji.currentSampleVocab
   );
   const dispatch = useAppDispatch();
 

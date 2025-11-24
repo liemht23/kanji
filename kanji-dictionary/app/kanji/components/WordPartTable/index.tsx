@@ -5,13 +5,13 @@ import { getLabel, Option } from "@/utils/select-option";
 import { WordPart } from "@/types/vocab";
 import { useAppDispatch, useAppSelector } from "@/store/hook";
 import { RootState } from "@/store/store";
-import { setWordPart, removeWordPart } from "@/store/slices/sample-vocab";
 import { READING_TYPE_OPTION } from "@/constants/common-const";
+import { removeWordPart, setWordPart } from "@/store/slices/kanji-collection";
 
 const WordPartTable = () => {
   const dispatch = useAppDispatch();
   const { word_parts } = useAppSelector(
-    (state: RootState) => state.sampleVocab.currentSampleVocab
+    (state: RootState) => state.kanji.currentSampleVocab
   );
   const [editData, setEditData] = useState<WordPart | null>(null);
 

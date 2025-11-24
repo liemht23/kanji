@@ -1,6 +1,6 @@
 import { Vocab } from "@/types/vocab";
 import { LEVEL } from "@/enum/common-enum";
-import { KanjiData } from "@/types/kanji-word";
+import { Kanji } from "@/types/kanji";
 
 export const BUCKET_KANJI_IMAGES = "kanji-images";
 export const BUCKET_EXAMPLE_IMAGES = "example-images";
@@ -21,7 +21,8 @@ export const DEFAULT_SAMPLE_VOCAB: Vocab = {
   word_parts: [],
 };
 
-export const DEFAULT_KANJI_DATA: KanjiData = {
+export const DEFAULT_KANJI_DATA: Kanji = {
+  id: "",
   kanji_id: 0,
   character: "",
   img_url: "/kanji/09054.svg",
@@ -31,5 +32,5 @@ export const DEFAULT_KANJI_DATA: KanjiData = {
   meaning: "",
   example: [],
   example_images: [],
-  is_official: false,
+  is_published: false,
 };

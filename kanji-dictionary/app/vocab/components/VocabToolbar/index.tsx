@@ -2,7 +2,7 @@ import Tooltip from "@/components/common/Tooltip";
 import { NEXT_STEP_SIZE, PREVIOUS_STEP_SIZE } from "@/constants/common-const";
 import { useAppDispatch, useAppSelector } from "@/store/hook";
 import {
-  setSelectedCollection,
+  setSelectedVocabCollection,
   setSelectedVocab,
 } from "@/store/slices/vocab-collection";
 import { RootState } from "@/store/store";
@@ -36,7 +36,7 @@ const VocabToolBar = ({
   const [isComposing, setIsComposing] = useState(false);
   const dispatch = useAppDispatch();
   const { listVocabCollections, vocabCards, selectedVocab } = useAppSelector(
-    (state: RootState) => state.vocabCollection
+    (state: RootState) => state.vocab
   );
 
   const selectedIndex = vocabCards.findIndex(
@@ -75,7 +75,7 @@ const VocabToolBar = ({
     );
 
     if (foundCollection) {
-      dispatch(setSelectedCollection(foundCollection));
+      dispatch(setSelectedVocabCollection(foundCollection));
     } else {
       alert("Vocab Collection not found!");
     }
@@ -157,6 +157,7 @@ const VocabToolBar = ({
               </Tooltip>
             </div>
           )}
+
           {selectedVocabCollection && (
             <>
               <div className="flex items-center gap-4 border-l border-black-100 pl-4">

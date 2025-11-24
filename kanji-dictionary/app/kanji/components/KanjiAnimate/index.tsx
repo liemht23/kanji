@@ -1,13 +1,15 @@
 "use client";
-import { useEffect, useState } from "react";
+import { useEffect, useLayoutEffect, useState } from "react";
 import { BASE_DURATION, DELAY_BETWEEN } from "@/constants/kanji-const";
 
 interface KanjiAnimateProps {
   kanjiSvgUrl?: string;
+  isActive?: boolean;
   onFinish?: () => void;
 }
 const KanjiAnimate = ({
   kanjiSvgUrl = "/kanji/09054.svg",
+  isActive = true,
   onFinish,
 }: KanjiAnimateProps) => {
   const [svgContent, setSvgContent] = useState<string | null>(null);
@@ -26,8 +28,8 @@ const KanjiAnimate = ({
       .catch(console.error);
   }, [kanjiSvgUrl]);
 
-  useEffect(() => {
-    if (!svgContent) return;
+  useLayoutEffect(() => {
+    if (!svgContent || !isActive) return;
     const container = document.getElementById("kanji-container");
     if (!container) return;
     const paths = container.querySelectorAll<SVGPathElement>("path[id*='-s']");
@@ -60,7 +62,7 @@ const KanjiAnimate = ({
     }, totalDuration);
 
     return () => clearTimeout(finishTimer);
-  }, [svgContent, onFinish]);
+  }, [svgContent, isActive, onFinish]);
 
   return (
     <div className="flex justify-center items-center w-full h-full">

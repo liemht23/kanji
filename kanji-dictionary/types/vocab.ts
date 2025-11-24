@@ -15,8 +15,3 @@ export interface WordPart {
   reading_type: READING_TYPE;
   chinese_character: string;
 }
-
-export interface SampleVocabState {
-  currentSampleVocab: Vocab;
-  listSampleVocab: Vocab[];
-}

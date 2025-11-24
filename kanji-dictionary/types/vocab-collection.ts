@@ -4,7 +4,7 @@ export interface VocabCollection {
   id: string;
   title: string;
   description: string;
-  level: string;
+  level: number;
 }
 
 export interface VocabCard {

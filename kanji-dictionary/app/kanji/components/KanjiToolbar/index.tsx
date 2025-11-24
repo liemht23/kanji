@@ -1,14 +1,10 @@
 import Tooltip from "@/components/common/Tooltip";
 import { NEXT_STEP_SIZE, PREVIOUS_STEP_SIZE } from "@/constants/common-const";
 import { useAppDispatch, useAppSelector } from "@/store/hook";
-import {
-  getKanjiThunk,
-  searchKanjiThunk,
-  updateIsOfficialThunk,
-} from "@/store/slices/kanji-card/thunk";
 import { RootState } from "@/store/store";
 import { cn } from "@/utils/class-name";
 import {
+  ArrowDownAZ,
   CircleCheck,
   CircleChevronLeft,
   CircleChevronRight,
@@ -17,16 +13,28 @@ import {
   Search,
   SquarePen,
   Trash2,
+  Undo2,
 } from "lucide-react";
 import { useCallback, useEffect, useRef, useState } from "react";
 import { ADMIN_ROLE, SUPER_ADMIN_ROLE } from "@/types/user-role";
 import AddKanjiModal from "../AddKanjiModal";
 import { useLayout } from "@/app/context/LayoutContext";
-import { clearEditedKanji, setEditedKanji } from "@/store/slices/kanji-card";
 import useAuthGuard from "@/hooks/useAuthGuard";
-import { INITIAL_KANJI_ID } from "@/constants/kanji-const";
+import {
+  setEditedKanji,
+  setSelectedKanji,
+} from "@/store/slices/kanji-collection";
+import { updateIsPublishedThunk } from "@/store/slices/kanji-collection/thunk";
 
-const KanjiToolBar = () => {
+interface VocabToolBarProps {
+  selectedKanjiCollection: boolean;
+  onBack: () => void;
+}
+
+const KanjiToolBar = ({
+  selectedKanjiCollection,
+  onBack,
+}: VocabToolBarProps) => {
   const dispatch = useAppDispatch();
   const [isOpenAddKanjiModal, setIsOpenAddKanjiModal] = useState(false);
   const [isSearchVisible, setIsSearchVisible] = useState(false);
@@ -34,39 +42,48 @@ const KanjiToolBar = () => {
   const [searchCharacter, setSearchCharacter] = useState("");
   const [isComposing, setIsComposing] = useState(false);
   const { role } = useAuthGuard();
-  const { kanjiWord, maxKanjiId, minKanjiId, loading } = useAppSelector(
-    (state: RootState) => state.kanjiCard
+  const { kanjiCards, selectedKanji, loading } = useAppSelector(
+    (state: RootState) => state.kanji
   );
   const { isModalOpen } = useLayout();
+  const kanjiIds = kanjiCards.map((kc) => kc.kanji_id);
+  const minKanjiId = Math.min(...kanjiIds);
+  const maxKanjiId = Math.max(...kanjiIds);
+
   const handleGetKanji = useCallback(
     (step: number) => {
-      if (!kanjiWord?.kanji_id) return;
-      const newId = kanjiWord.kanji_id + step;
+      if (!selectedKanji?.kanji_id) return;
+      const newId = selectedKanji.kanji_id + step;
+
       if (newId < minKanjiId || newId > maxKanjiId) return;
-      dispatch(getKanjiThunk(newId));
+      const selectedKanjiExists = kanjiCards.find(
+        (kc) => kc.kanji_id === newId
+      );
+      if (!selectedKanjiExists) return;
+      dispatch(setSelectedKanji(selectedKanjiExists));
     },
-    [kanjiWord, minKanjiId, maxKanjiId, dispatch]
+    [selectedKanji, minKanjiId, maxKanjiId, kanjiCards, dispatch]
   );
 
   const handleSearch = () => {
     if (searchCharacter.trim().length === 0) return;
 
-    dispatch(searchKanjiThunk(searchCharacter))
-      .unwrap()
-      .then(() => console.log("Tìm thấy Kanji"))
-      .catch(() => {
-        alert("Kanji not found!");
-        dispatch(getKanjiThunk(INITIAL_KANJI_ID));
-      });
+    const foundKanji = kanjiCards.find(
+      (kc) => kc.character === searchCharacter.trim()
+    );
+    if (foundKanji) {
+      dispatch(setSelectedKanji(foundKanji));
+    } else {
+      alert("Kanji not found in the current collection!");
+    }
   };
 
   const handleEditKanji = () => {
-    dispatch(setEditedKanji(kanjiWord));
+    dispatch(setEditedKanji(selectedKanji));
     setIsOpenAddKanjiModal(true);
   };
 
   const handleAddKanji = () => {
-    dispatch(clearEditedKanji());
     setIsOpenAddKanjiModal(true);
   };
 
@@ -74,20 +91,21 @@ const KanjiToolBar = () => {
     alert("Chưa có làm chức năng xoá kanji!");
   };
 
-  const handleCheckOfficial = () => {
+  const handlePublished = () => {
+    if (loading || !selectedKanji?.id) return;
     dispatch(
-      updateIsOfficialThunk({ kanjiId: kanjiWord.kanji_id, isOfficial: true })
+      updateIsPublishedThunk({ id: selectedKanji.id, isPublished: true })
     ).unwrap();
   };
 
   const hasPrevious =
-    kanjiWord?.kanji_id !== undefined && minKanjiId !== null
-      ? kanjiWord.kanji_id > minKanjiId
+    selectedKanji?.kanji_id !== undefined && minKanjiId !== null
+      ? selectedKanji.kanji_id > minKanjiId
       : false;
 
   const hasNext =
-    kanjiWord?.kanji_id !== undefined && maxKanjiId !== null
-      ? kanjiWord.kanji_id < maxKanjiId
+    selectedKanji?.kanji_id !== undefined && maxKanjiId !== null
+      ? selectedKanji.kanji_id < maxKanjiId
       : false;
 
   useEffect(() => {
@@ -192,83 +210,109 @@ const KanjiToolBar = () => {
             )}
           </div>
 
-          <div className="flex items-center gap-4 border-l border-black-100 pl-4">
-            <Tooltip text="Previous">
-              <CircleChevronLeft
-                className={cn(
-                  "w-8 h-8 cursor-pointer",
-                  hasPrevious
-                    ? "text-black-400 hover:text-black-900"
-                    : "text-gray-300 cursor-not-allowed"
-                )}
-                onClick={
-                  hasPrevious
-                    ? () => handleGetKanji(PREVIOUS_STEP_SIZE)
-                    : undefined
-                }
-              />
-            </Tooltip>
-
-            <Tooltip text="Next">
-              <CircleChevronRight
-                className={cn(
-                  "w-8 h-8 cursor-pointer",
-                  hasNext
-                    ? "text-black-400 hover:text-black-900"
-                    : "text-gray-300 cursor-not-allowed"
-                )}
-                onClick={
-                  hasNext ? () => handleGetKanji(NEXT_STEP_SIZE) : undefined
-                }
-              />
-            </Tooltip>
-          </div>
-
-          {role === ADMIN_ROLE && (
+          {!selectedKanjiCollection && (
             <div className="flex items-center gap-4 border-l border-black-100 pl-4">
-              <Tooltip text="Add">
-                <CirclePlus
-                  className="w-8 h-8 text-black-400 cursor-pointer hover:text-black-900"
-                  onClick={handleAddKanji}
+              <Tooltip text="Tăng dần">
+                <ArrowDownAZ
+                  className="w-8 h-8 text-black-400 cursor-pointer hover:text-black-900 transition"
+                  onClick={onBack}
                 />
               </Tooltip>
             </div>
           )}
 
-          {role === SUPER_ADMIN_ROLE && (
+          {selectedKanjiCollection && (
             <>
               <div className="flex items-center gap-4 border-l border-black-100 pl-4">
-                <Tooltip text="Edit">
-                  <SquarePen
-                    className="w-8 h-8 cursor-pointer text-black-400 hover:text-black-900"
-                    onClick={handleEditKanji}
+                <Tooltip text="Previous">
+                  <CircleChevronLeft
+                    className={cn(
+                      "w-8 h-8 cursor-pointer",
+                      hasPrevious
+                        ? "text-black-400 hover:text-black-900"
+                        : "text-gray-300 cursor-not-allowed"
+                    )}
+                    onClick={
+                      hasPrevious
+                        ? () => handleGetKanji(PREVIOUS_STEP_SIZE)
+                        : undefined
+                    }
                   />
                 </Tooltip>
-                <Tooltip text="Add">
-                  <CirclePlus
-                    className="w-8 h-8 text-black-400 cursor-pointer hover:text-black-900"
-                    onClick={handleAddKanji}
-                  />
-                </Tooltip>
-                <Tooltip text="Delete">
-                  <Trash2
-                    className="w-8 h-8 cursor-pointer text-black-400 hover:text-black-900"
-                    onClick={handleDeleteKanji}
+
+                <Tooltip text="Next">
+                  <CircleChevronRight
+                    className={cn(
+                      "w-8 h-8 cursor-pointer",
+                      hasNext
+                        ? "text-black-400 hover:text-black-900"
+                        : "text-gray-300 cursor-not-allowed"
+                    )}
+                    onClick={
+                      hasNext ? () => handleGetKanji(NEXT_STEP_SIZE) : undefined
+                    }
                   />
                 </Tooltip>
               </div>
+
+              {role === ADMIN_ROLE && (
+                <div className="flex items-center gap-4 border-l border-black-100 pl-4">
+                  <Tooltip text="Add">
+                    <CirclePlus
+                      className="w-8 h-8 text-black-400 cursor-pointer hover:text-black-900"
+                      onClick={handleAddKanji}
+                    />
+                  </Tooltip>
+                </div>
+              )}
+
+              {role === SUPER_ADMIN_ROLE && (
+                <>
+                  <div className="flex items-center gap-4 border-l border-black-100 pl-4">
+                    <Tooltip text="Edit">
+                      <SquarePen
+                        className="w-8 h-8 cursor-pointer text-black-400 hover:text-black-900"
+                        onClick={handleEditKanji}
+                      />
+                    </Tooltip>
+                    <Tooltip text="Add">
+                      <CirclePlus
+                        className="w-8 h-8 text-black-400 cursor-pointer hover:text-black-900"
+                        onClick={handleAddKanji}
+                      />
+                    </Tooltip>
+                    <Tooltip text="Delete">
+                      <Trash2
+                        className="w-8 h-8 cursor-pointer text-black-400 hover:text-black-900"
+                        onClick={handleDeleteKanji}
+                      />
+                    </Tooltip>
+                  </div>
+                  <div className="flex items-center gap-4 border-l border-black-100 pl-4">
+                    <Tooltip text="Official Kanji">
+                      <CircleCheck
+                        className={cn(
+                          "w-8 h-8 cursor-pointer",
+                          selectedKanji?.is_published
+                            ? "text-green-500 cursor-not-allowed"
+                            : "text-black-400 hover:text-black-900"
+                        )}
+                        onClick={
+                          !selectedKanji?.is_published
+                            ? handlePublished
+                            : undefined
+                        }
+                      />
+                    </Tooltip>
+                  </div>
+                </>
+              )}
+
               <div className="flex items-center gap-4 border-l border-black-100 pl-4">
-                <Tooltip text="Official Kanji">
-                  <CircleCheck
-                    className={cn(
-                      "w-8 h-8 cursor-pointer",
-                      kanjiWord?.is_official
-                        ? "text-green-500 cursor-not-allowed"
-                        : "text-black-400 hover:text-black-900"
-                    )}
-                    onClick={
-                      !kanjiWord?.is_official ? handleCheckOfficial : undefined
-                    }
+                <Tooltip text="Back to list">
+                  <Undo2
+                    className="w-8 h-8 cursor-pointer text-black-400 hover:text-black-900"
+                    onClick={onBack}
                   />
                 </Tooltip>
               </div>

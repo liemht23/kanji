@@ -9,7 +9,7 @@ export const vocabCollectionSlice = createSlice({
   name: "vocab-collection",
   initialState: vocabCollectionInitialState,
   reducers: {
-    setSelectedCollection: (state, action) => {
+    setSelectedVocabCollection: (state, action) => {
       state.selectedCollection = action.payload;
       if (action.payload === null) {
         state.vocabCards = [];
@@ -40,6 +40,7 @@ export const vocabCollectionSlice = createSlice({
       .addCase(getVocabByCollectionIdThunk.fulfilled, (state, action) => {
         state.loading = false;
         state.vocabCards = action.payload;
+        state.selectedVocab = state.vocabCards[0] || null;
       })
       .addCase(getVocabByCollectionIdThunk.rejected, (state) => {
         state.loading = false;
@@ -47,6 +48,9 @@ export const vocabCollectionSlice = createSlice({
   },
 });
 
-export const { setSelectedCollection, setSelectedVocab, resetVocabCollection } =
-  vocabCollectionSlice.actions;
+export const {
+  setSelectedVocabCollection,
+  setSelectedVocab,
+  resetVocabCollection,
+} = vocabCollectionSlice.actions;
 export default vocabCollectionSlice.reducer;

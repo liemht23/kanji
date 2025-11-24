@@ -5,7 +5,7 @@ import {
 import { createAsyncThunk } from "@reduxjs/toolkit";
 
 export const getAllVocabCollectionThunk = createAsyncThunk(
-  "vocabCollection/getAllVocabCollection",
+  "vocab/getAllVocabCollection",
   async (_, { rejectWithValue }) => {
     try {
       const response = await getAllVocabCollectionData();
@@ -19,7 +19,7 @@ export const getAllVocabCollectionThunk = createAsyncThunk(
 );
 
 export const getVocabByCollectionIdThunk = createAsyncThunk(
-  "vocabCollection/getListVocabByCollectionId",
+  "vocab/getListVocabByCollectionId",
   async (collectionId: string, { rejectWithValue }) => {
     try {
       const response = await getListVocabByCollectionId(collectionId);

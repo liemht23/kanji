@@ -6,17 +6,7 @@ import AddSampleKanjiModal from "../AddSampleKanjiModal";
 import { useAppDispatch, useAppSelector } from "@/store/hook";
 import { RootState } from "@/store/store";
 import { Vocab } from "@/types/vocab";
-import { KanjiData } from "@/types/kanji-word";
-import {
-  getKanjiThunk,
-  upsertKanjiThunk,
-} from "@/store/slices/kanji-card/thunk";
-import {
-  clearListSampleVocab,
-  removeSampleVocabFromList,
-  setListSampleVocal,
-  setSampleVocab,
-} from "@/store/slices/sample-vocab";
+import { Kanji } from "@/types/kanji";
 import { uploadImage } from "@/lib/upload";
 import {
   BUCKET_EXAMPLE_IMAGES,
@@ -25,6 +15,14 @@ import {
 import { getLabel } from "@/utils/select-option";
 import { cn } from "@/utils/class-name";
 import { LEVEL_OPTION } from "@/constants/common-const";
+import {
+  clearListSampleVocab,
+  removeSampleVocabFromList,
+  setListSampleVocab,
+  setSampleVocab,
+  setSelectedKanji,
+} from "@/store/slices/kanji-collection";
+import { upsertKanjiThunk } from "@/store/slices/kanji-collection/thunk";
 
 interface AddKanjiModalProps {
   isOpen: boolean;
@@ -34,10 +32,9 @@ interface AddKanjiModalProps {
 const AddKanjiModal = ({ isOpen, onClose }: AddKanjiModalProps) => {
   const [isOpenAddSampleKanjiModal, setIsOpenAddSampleKanjiModal] =
     useState(false);
-  const { listSampleVocab } = useAppSelector(
-    (state: RootState) => state.sampleVocab
+  const { editedKanji, listSampleVocab } = useAppSelector(
+    (state: RootState) => state.kanji
   );
-  const { editedKanji } = useAppSelector((state: RootState) => state.kanjiCard);
   const isEditMode = Boolean(editedKanji);
 
   // ------- Form Fields (controlled) -------
@@ -176,8 +173,9 @@ const AddKanjiModal = ({ isOpen, onClose }: AddKanjiModalProps) => {
         }
       }
 
-      // --- Build KanjiData ---
-      const kanjiData: KanjiData = {
+      // --- Build Kanji ---
+      const kanjiData: Kanji = {
+        id: isEditMode && editedKanji ? editedKanji.id : undefined,
         kanji_id: Number(kanjiId),
         character,
         on_reading: onReading,
@@ -187,7 +185,7 @@ const AddKanjiModal = ({ isOpen, onClose }: AddKanjiModalProps) => {
         img_url,
         example: listSampleVocab,
         example_images,
-        is_official: false,
+        is_published: false,
       };
 
       // --- Dispatch insert or update thunk ---
@@ -196,7 +194,7 @@ const AddKanjiModal = ({ isOpen, onClose }: AddKanjiModalProps) => {
       ).unwrap();
 
       dispatch(clearListSampleVocab());
-      dispatch(getKanjiThunk(Number(kanjiId)));
+      dispatch(setSelectedKanji(Number(kanjiId)));
       onClose();
     } catch (error) {
       const msg =
@@ -255,7 +253,7 @@ const AddKanjiModal = ({ isOpen, onClose }: AddKanjiModalProps) => {
 
         // Prefill vocab list
         dispatch(clearListSampleVocab());
-        dispatch(setListSampleVocal(editedKanji.example || []));
+        dispatch(setListSampleVocab(editedKanji.example || []));
       }, 0);
     } else {
       // Add mode → reset everything

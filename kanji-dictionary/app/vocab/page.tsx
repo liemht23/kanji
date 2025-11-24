@@ -13,7 +13,7 @@ import {
 } from "@/store/slices/vocab-collection/thunk";
 import {
   resetVocabCollection,
-  setSelectedCollection,
+  setSelectedVocabCollection,
   setSelectedVocab,
 } from "@/store/slices/vocab-collection";
 import { LEVEL_OPTION } from "@/constants/common-const";
@@ -22,30 +22,19 @@ const VocabPage = () => {
   const { isMobile } = useLayout();
   const { checking } = useAuthGuard();
   const dispatch = useAppDispatch();
-  const {
-    listVocabCollections,
-    selectedCollection,
-    vocabCards,
-    selectedVocab,
-    loading,
-  } = useAppSelector((state: RootState) => state.vocabCollection);
+  const { listVocabCollections, selectedCollection, loading } = useAppSelector(
+    (state: RootState) => state.vocab
+  );
 
   const handleBack = () => {
     // Clear selected collection and selected vocab when going back to collection list
-    dispatch(setSelectedCollection(null));
+    dispatch(setSelectedVocabCollection(null));
     dispatch(setSelectedVocab(null));
   };
 
   useEffect(() => {
     dispatch(getAllVocabCollectionThunk()).unwrap();
   }, [dispatch]);
-
-  useEffect(() => {
-    // Automatically select the first vocab card when vocabCards are loaded
-    if (selectedVocab == null && vocabCards.length > 0) {
-      dispatch(setSelectedVocab(vocabCards[0]));
-    }
-  }, [selectedVocab, vocabCards, dispatch]);
 
   useEffect(() => {
     if (selectedCollection?.id) {
@@ -84,7 +73,7 @@ const VocabPage = () => {
               key={collection.id}
               className={`flex flex-col items-start justify-center p-8 bg-white border border-black-100 rounded-2xl shadow 
                 hover:shadow-lg hover:bg-gray-50 transition cursor-pointer min-h-[140px] group`}
-              onClick={() => dispatch(setSelectedCollection(collection))}
+              onClick={() => dispatch(setSelectedVocabCollection(collection))}
             >
               <div className="flex items-center gap-1 text-md font-bold">
                 <div className="bg-orange-400 text-black-0 px-2 py-1 rounded-sm">

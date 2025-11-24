@@ -1,14 +1,12 @@
 import { configureStore } from "@reduxjs/toolkit";
-import kanjiCardWordReducer from "./slices/kanji-card";
-import sampleVocabReducer from "./slices/sample-vocab";
-import vocabCollectionReducer from "./slices/vocab-collection";
+import vocabReducer from "./slices/vocab-collection";
+import kanjiReducer from "./slices/kanji-collection";
 
 const makeStore = () => {
   return configureStore({
     reducer: {
-      kanjiCard: kanjiCardWordReducer,
-      sampleVocab: sampleVocabReducer,
-      vocabCollection: vocabCollectionReducer,
+      kanji: kanjiReducer,
+      vocab: vocabReducer,
     },
   });
 };

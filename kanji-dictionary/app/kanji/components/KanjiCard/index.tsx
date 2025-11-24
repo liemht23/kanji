@@ -4,9 +4,8 @@ import "./kanji-card.css";
 import Tooltip from "@/components/common/Tooltip";
 import { RootState } from "@/store/store";
 import { cn } from "@/utils/class-name";
-import { useEffect, useMemo, useState } from "react";
-import { getKanjiThunk } from "@/store/slices/kanji-card/thunk";
-import { useAppDispatch, useAppSelector } from "@/store/hook";
+import { startTransition, useEffect, useMemo, useState } from "react";
+import { useAppSelector } from "@/store/hook";
 import Spinner from "@/components/common/Spinner";
 import { READING_TYPE } from "@/enum/common-enum";
 import { SAMPLE_KANJI_BATCH_SIZE } from "@/constants/kanji-const";
@@ -16,44 +15,37 @@ import ExampleImagePopup from "../ExampleImageModal";
 const KanjiCard = () => {
   const [showKanjiAnimation, setShowKanjiAnimation] = useState(false);
   const [showImagePopup, setShowImagePopup] = useState(false);
-  const dispatch = useAppDispatch();
-  const { kanjiWord, currentKanjiId, loading } = useAppSelector(
-    (state: RootState) => state.kanjiCard
+  const [isImgLoading, setIsImgLoading] = useState(true);
+  const { selectedKanji, loading } = useAppSelector(
+    (state: RootState) => state.kanji
   );
 
   const exampleBatches = useMemo(() => {
-    const examples = kanjiWord?.example ?? [];
+    const examples = selectedKanji?.example ?? [];
     const chunks = [];
     for (let i = 0; i < examples.length; i += SAMPLE_KANJI_BATCH_SIZE) {
       chunks.push(examples.slice(i, i + SAMPLE_KANJI_BATCH_SIZE));
     }
     return chunks;
-  }, [kanjiWord]);
+  }, [selectedKanji]);
 
   const hasExampleImages =
-    kanjiWord?.example_images !== undefined &&
-    kanjiWord?.example_images !== null &&
-    kanjiWord?.example_images.length > 0
+    selectedKanji?.example_images !== undefined &&
+    selectedKanji?.example_images !== null &&
+    selectedKanji?.example_images.length > 0
       ? true
       : false;
 
   useEffect(() => {
-    if (typeof currentKanjiId === "number" && !isNaN(currentKanjiId)) {
-      dispatch(getKanjiThunk(currentKanjiId)).unwrap();
-    }
-  }, [dispatch, currentKanjiId]);
-
-  useEffect(() => {
-    if (!loading && kanjiWord && showKanjiAnimation) {
-      const timeout = setTimeout(() => setShowKanjiAnimation(false), 0);
-      return () => clearTimeout(timeout);
-    }
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [kanjiWord?.kanji_id, loading]);
+    startTransition(() => {
+      setIsImgLoading(true);
+      setShowKanjiAnimation(false);
+    });
+  }, [selectedKanji?.img_url]);
 
   return (
     <div className="bg-black-0 p-4 border border-black-100 rounded-2xl shadow-sm h-[80vh]">
-      {loading || !kanjiWord ? (
+      {loading || !selectedKanji ? (
         <Spinner />
       ) : (
         <>
@@ -61,7 +53,7 @@ const KanjiCard = () => {
             <div className="bg-orange-400 text-black-0 px-2 py-1 rounded-sm">
               N5
             </div>
-            <div className="text-2xl">漢字{kanjiWord?.kanji_id}</div>
+            <div className="text-2xl">漢字{selectedKanji?.kanji_id}</div>
           </div>
 
           <div className="grid grid-cols-12">
@@ -79,7 +71,10 @@ const KanjiCard = () => {
                           ? "text-blue-300"
                           : "text-black-300 hover:text-black-900"
                       )}
-                      onClick={() => setShowKanjiAnimation((prev) => !prev)}
+                      onClick={() => {
+                        const isActive = !showKanjiAnimation;
+                        setShowKanjiAnimation(isActive);
+                      }}
                     />
                   </Tooltip>
                   <div
@@ -99,25 +94,42 @@ const KanjiCard = () => {
                 <div className="relative w-full h-84">
                   {showKanjiAnimation ? (
                     <KanjiAnimate
-                      kanjiSvgUrl={kanjiWord?.img_url}
-                      onFinish={() => setShowKanjiAnimation(false)}
+                      key={selectedKanji?.img_url}
+                      kanjiSvgUrl={selectedKanji?.img_url}
+                      isActive={showKanjiAnimation}
+                      onFinish={() =>
+                        setShowKanjiAnimation(!showKanjiAnimation)
+                      }
                     />
                   ) : (
-                    <Image
-                      src={kanjiWord?.img_url}
-                      alt={kanjiWord?.character}
-                      fill
-                      className="object-contain"
-                    />
+                    <>
+                      {isImgLoading && <Spinner />}
+                      {!showKanjiAnimation && (
+                        <Image
+                          key={selectedKanji?.img_url}
+                          src={selectedKanji?.img_url}
+                          alt={selectedKanji?.character}
+                          fill
+                          className={cn(
+                            "object-contain transition-opacity duration-500",
+                            isImgLoading ? "opacity-0" : "opacity-100"
+                          )}
+                          onLoad={() => {
+                            if (showKanjiAnimation) return;
+                            setIsImgLoading(false);
+                          }}
+                        />
+                      )}
+                    </>
                   )}
                 </div>
               </div>
               <div className="text-4xl font-bold p-4 text-center">
-                <p>{kanjiWord?.chinese_character}</p>
-                {kanjiWord?.meaning && (
-                  <Tooltip position="right" text={kanjiWord?.meaning}>
+                <p>{selectedKanji?.chinese_character}</p>
+                {selectedKanji?.meaning && (
+                  <Tooltip position="right" text={selectedKanji?.meaning}>
                     <p className="text-3xl font-medium py-1 truncate max-w-[300px] mx-auto">
-                      {kanjiWord?.meaning}
+                      {selectedKanji?.meaning}
                     </p>
                   </Tooltip>
                 )}
@@ -129,13 +141,13 @@ const KanjiCard = () => {
                 <p className="py-2">
                   音読み:
                   <span className="text-4xl text-blue-300 pl-10">
-                    {kanjiWord?.on_reading}
+                    {selectedKanji?.on_reading}
                   </span>
                 </p>
                 <p className="py-2">
                   訓読み:
                   <span className="text-4xl text-red-500 pl-10">
-                    {kanjiWord?.kun_reading}
+                    {selectedKanji?.kun_reading}
                   </span>
                 </p>
               </div>
@@ -243,7 +255,7 @@ const KanjiCard = () => {
           </div>
           {showImagePopup && (
             <ExampleImagePopup
-              images={kanjiWord?.example_images}
+              images={selectedKanji?.example_images}
               onClose={() => setShowImagePopup(false)}
             />
           )}

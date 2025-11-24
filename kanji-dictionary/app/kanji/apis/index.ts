@@ -1,7 +1,25 @@
 import axiosClient from "@/lib/axios-client";
-import { KanjiData } from "@/types/kanji-word";
 import { supabase } from "@/lib/supabase-client";
 import { INITIAL_KANJI_ID } from "@/constants/kanji-const";
+import { Kanji } from "@/types/kanji";
+
+export const getAllKanjiCollectionData = async () => {
+  const { data, error } = await supabase.from("kanji_collection").select("*");
+
+  if (error) throw error;
+  return data;
+};
+
+export const getListKanjiByCollectionId = async (collectionId: string) => {
+  const { data, error } = await supabase
+    .from("kanji")
+    .select("*")
+    .eq("collection_id", collectionId)
+    .order("kanji_id", { ascending: true });
+
+  if (error) throw error;
+  return data;
+};
 
 export const getKanji = async (id: string) => {
   try {
@@ -39,24 +57,24 @@ export const getKanjiFullData = async (id: number) => {
   };
 };
 
-export const insertKanji = async (kanjiWord: KanjiData) => {
+export const insertKanji = async (kanjiWord: Kanji) => {
   const { data, error } = await supabase.from("kanji").insert(kanjiWord);
 
   if (error) throw error;
   return data;
 };
 
-export const updateKanji = async (kanjiWord: KanjiData) => {
-  if (!kanjiWord.kanji_id) {
-    throw new Error("Missing kanji_id for update");
+export const updateKanji = async (kanjiWord: Kanji) => {
+  if (!kanjiWord.id) {
+    throw new Error("Missing id for update");
   }
 
-  const { kanji_id, ...updateFields } = kanjiWord;
+  const { id, ...updateFields } = kanjiWord;
 
   const { data, error } = await supabase
     .from("kanji")
     .update(updateFields)
-    .eq("kanji_id", kanji_id);
+    .eq("id", id);
 
   if (error) throw error;
   return data;
@@ -73,14 +91,11 @@ export const searchKanji = async (character: string) => {
   return data;
 };
 
-export const updateIsOfficial = async (
-  kanjiId: number,
-  isOfficial: boolean
-) => {
+export const updateIsPublished = async (id: string, isPublished: boolean) => {
   const { data, error } = await supabase
     .from("kanji")
-    .update({ is_official: isOfficial })
-    .eq("kanji_id", kanjiId)
+    .update({ is_published: isPublished })
+    .eq("id", id)
     .select("*")
     .single();
 

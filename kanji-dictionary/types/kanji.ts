@@ -1,6 +1,7 @@
 import { Vocab } from "./vocab";
 
-export interface KanjiData {
+export interface Kanji {
+  id: string | undefined;
   kanji_id: number;
   character: string;
   img_url: string;
@@ -10,14 +11,5 @@ export interface KanjiData {
   meaning: string;
   example: Vocab[];
   example_images: string[];
-  is_official: boolean;
-}
-
-export interface KanjiCardState {
-  kanjiWord: KanjiData;
-  editedKanji: KanjiData | null;
-  loading: boolean;
-  currentKanjiId: number;
-  maxKanjiId: number;
-  minKanjiId: number;
+  is_published: boolean;
 }

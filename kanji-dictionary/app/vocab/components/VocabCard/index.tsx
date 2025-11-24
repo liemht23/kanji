@@ -8,7 +8,7 @@ import { RootState } from "@/store/store";
 const VocabCard = () => {
   const dispatch = useAppDispatch();
   const { selectedVocab, loading } = useAppSelector(
-    (state: RootState) => state.vocabCollection
+    (state: RootState) => state.vocab
   );
   const [flipped, setFlipped] = useState(false);
 
