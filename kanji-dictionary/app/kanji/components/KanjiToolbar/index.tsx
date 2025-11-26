@@ -9,6 +9,7 @@ import {
   CircleChevronRight,
   CirclePlus,
   CircleX,
+  ListTree,
   Search,
   SquarePen,
   Trash2,
@@ -25,7 +26,7 @@ import {
   setSelectedKanji,
 } from "@/store/slices/kanji-collection";
 import { updateIsPublishedThunk } from "@/store/slices/kanji-collection/thunk";
-import KanjiList from "../KanjiList";
+import KanjiListModal from "../KanjiListModal";
 
 interface VocabToolBarProps {
   selectedKanjiCollection: boolean;
@@ -39,6 +40,7 @@ const KanjiToolBar = ({
   const dispatch = useAppDispatch();
   const [isOpenAddKanjiModal, setIsOpenAddKanjiModal] = useState(false);
   const [isSearchVisible, setIsSearchVisible] = useState(false);
+  const [isOpenSearchInListModal, setIsOpenSearchInListModal] = useState(false);
   const searchInputRef = useRef<HTMLInputElement | null>(null);
   const [searchCharacter, setSearchCharacter] = useState("");
   const [isComposing, setIsComposing] = useState(false);
@@ -47,6 +49,9 @@ const KanjiToolBar = ({
     (state: RootState) => state.kanji
   );
   const { isModalOpen } = useLayout();
+  const iconRef = useRef<SVGSVGElement | null>(null);
+  const modalRef = useRef<HTMLDivElement | null>(null);
+
   const kanjiIds = kanjiCards.map((kc) => kc.kanji_id);
   const minKanjiId = Math.min(...kanjiIds);
   const maxKanjiId = Math.max(...kanjiIds);
@@ -158,6 +163,25 @@ const KanjiToolBar = ({
     return () => window.removeEventListener("keydown", handleKeyDown);
   }, [hasPrevious, hasNext, handleGetKanji, isSearchVisible, isModalOpen]);
 
+  useEffect(() => {
+    const handleClickOutside = (e: MouseEvent) => {
+      const target = e.target as Node;
+      if (
+        modalRef.current &&
+        !modalRef.current.contains(target) &&
+        iconRef.current &&
+        !iconRef.current.contains(target)
+      ) {
+        setIsOpenSearchInListModal(false);
+      }
+    };
+
+    if (isOpenSearchInListModal) {
+      document.addEventListener("mousedown", handleClickOutside);
+    }
+    return () => document.removeEventListener("mousedown", handleClickOutside);
+  }, [isOpenSearchInListModal]);
+
   return (
     <>
       <div className="flex items-center mb-4 justify-end gap-10">
@@ -224,6 +248,23 @@ const KanjiToolBar = ({
 
           {selectedKanjiCollection && (
             <>
+              <>
+                <Tooltip text="Search In List">
+                  <ListTree
+                    ref={iconRef}
+                    className="w-8 h-8 cursor-pointer text-black-400 hover:text-black-900"
+                    onClick={() => setIsOpenSearchInListModal((prev) => !prev)}
+                  />
+                </Tooltip>
+                {isOpenSearchInListModal && (
+                  <div className="fixed inset-0 z-[99] pointer-events-none">
+                    <div ref={modalRef} className="pointer-events-auto">
+                      <KanjiListModal />
+                    </div>
+                  </div>
+                )}
+              </>
+
               <div className="flex items-center gap-4 border-l border-black-100 pl-4">
                 <Tooltip text="Previous">
                   <CircleChevronLeft
