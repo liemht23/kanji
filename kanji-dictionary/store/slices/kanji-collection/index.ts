@@ -104,6 +104,20 @@ export const kanjiCollectionSlice = createSlice({
 
       state.currentSampleVocab.word_parts = updatedParts;
     },
+
+    removeBookmarkedKanji: (state, action) => {
+      const kanjiIdToRemove = action.payload;
+      state.listBookmarkedKanji = state.listBookmarkedKanji.filter(
+        (kanjiId) => kanjiId !== kanjiIdToRemove
+      );
+    },
+    addBookmarkedKanji: (state, action) => {
+      const kanjiIdToAdd = action.payload;
+      if (!state.listBookmarkedKanji.includes(kanjiIdToAdd)) {
+        state.listBookmarkedKanji.push(kanjiIdToAdd);
+      }
+    },
+
     resetKanjiCollection: () => kanjiCollectionInitialState,
   },
   extraReducers: (builder) => {
@@ -165,6 +179,8 @@ export const {
   setMeaning,
   setWordPart,
   removeWordPart,
+  removeBookmarkedKanji,
+  addBookmarkedKanji,
   resetKanjiCollection,
 } = kanjiCollectionSlice.actions;
 export default kanjiCollectionSlice.reducer;

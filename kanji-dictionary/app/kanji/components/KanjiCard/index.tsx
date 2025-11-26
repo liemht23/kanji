@@ -5,20 +5,29 @@ import Tooltip from "@/components/common/Tooltip";
 import { RootState } from "@/store/store";
 import { cn } from "@/utils/class-name";
 import { startTransition, useEffect, useMemo, useState } from "react";
-import { useAppSelector } from "@/store/hook";
+import { useAppDispatch, useAppSelector } from "@/store/hook";
 import Spinner from "@/components/common/Spinner";
 import { READING_TYPE } from "@/enum/common-enum";
 import { SAMPLE_KANJI_BATCH_SIZE } from "@/constants/kanji-const";
 import KanjiAnimate from "../KanjiAnimate";
 import ExampleImagePopup from "../ExampleImageModal";
+import {
+  addBookmarkedKanji,
+  removeBookmarkedKanji,
+} from "@/store/slices/kanji-collection";
 
 const KanjiCard = () => {
+  const dispatch = useAppDispatch();
   const [showKanjiAnimation, setShowKanjiAnimation] = useState(false);
   const [showImagePopup, setShowImagePopup] = useState(false);
   const [isImgLoading, setIsImgLoading] = useState(true);
-  const { selectedKanji, loading } = useAppSelector(
+  const { selectedKanji, listBookmarkedKanji, loading } = useAppSelector(
     (state: RootState) => state.kanji
   );
+  const isBookmarked = useMemo(() => {
+    if (!selectedKanji) return false;
+    return listBookmarkedKanji?.includes(selectedKanji.id || "") ? true : false;
+  }, [listBookmarkedKanji, selectedKanji]);
 
   const exampleBatches = useMemo(() => {
     const examples = selectedKanji?.example ?? [];
@@ -35,6 +44,20 @@ const KanjiCard = () => {
     selectedKanji?.example_images.length > 0
       ? true
       : false;
+
+  const handleBookmarkedKanji = () => {
+    if (!selectedKanji) return;
+    const isAlreadyBookmarked = listBookmarkedKanji?.includes(
+      selectedKanji.id || ""
+    );
+    if (isAlreadyBookmarked) {
+      // Remove from bookmarked
+      dispatch(removeBookmarkedKanji(selectedKanji.id || ""));
+    } else {
+      // Add to bookmarked
+      dispatch(addBookmarkedKanji(selectedKanji.id || ""));
+    }
+  };
 
   useEffect(() => {
     startTransition(() => {
@@ -60,10 +83,7 @@ const KanjiCard = () => {
             <div className="col-span-5 px-20">
               <div className="kanji-wrapper bg-black-100 rounded-2xl px-8 py-4">
                 <div className="card-action flex items-center justify-end gap-2 p-2">
-                  <Tooltip text="Save Kanji">
-                    <BookmarkIcon className="w-6 h-6 text-black-300 cursor-pointer hover:text-black-900" />
-                  </Tooltip>
-                  <Tooltip text={showKanjiAnimation ? "Stop" : "Draw Kanji"}>
+                  <Tooltip text={showKanjiAnimation ? "Stop" : "Animate"}>
                     <SquarePlayIcon
                       className={cn(
                         "w-6 h-6 cursor-pointer transition-colors",
@@ -75,6 +95,17 @@ const KanjiCard = () => {
                         const isActive = !showKanjiAnimation;
                         setShowKanjiAnimation(isActive);
                       }}
+                    />
+                  </Tooltip>
+                  <Tooltip text={isBookmarked ? "Unbookmark" : "Bookmark"}>
+                    <BookmarkIcon
+                      className={cn(
+                        "w-6 h-6 cursor-pointer transition-colors",
+                        isBookmarked
+                          ? "text-yellow-400 !visible"
+                          : "text-black-300 hover:text-black-900"
+                      )}
+                      onClick={handleBookmarkedKanji}
                     />
                   </Tooltip>
                   <div

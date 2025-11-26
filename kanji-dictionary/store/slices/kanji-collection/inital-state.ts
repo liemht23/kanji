@@ -9,6 +9,7 @@ export const kanjiCollectionInitialState: KanjiCollectionState = {
   editedKanji: null,
   currentSampleVocab: DEFAULT_SAMPLE_VOCAB,
   listSampleVocab: [],
+  listBookmarkedKanji: [],
   loading: false,
 };
 

@@ -15,12 +15,6 @@ const KanjiListModal = () => {
   const [scrollLeft, setScrollLeft] = useState(0);
   const [isVisible, setIsVisible] = useState(false);
 
-  // Fade-in animation
-  useEffect(() => {
-    const timer = setTimeout(() => setIsVisible(true), 10);
-    return () => clearTimeout(timer);
-  }, []);
-
   const handleMouseDown = (e: React.MouseEvent<HTMLDivElement>) => {
     if (!scrollRef.current) return;
     setIsDragging(true);
@@ -42,6 +36,36 @@ const KanjiListModal = () => {
   const handleSelectKanji = (kanji: (typeof kanjiCards)[number]) => {
     dispatch(setSelectedKanji(kanji));
   };
+
+  // Fade-in animation
+  useEffect(() => {
+    const timer = setTimeout(() => setIsVisible(true), 10);
+    return () => clearTimeout(timer);
+  }, []);
+
+  useEffect(() => {
+    if (!scrollRef.current || !selectedKanji) return;
+
+    const listItems = scrollRef.current.querySelectorAll("li");
+    const selectedIndex = kanjiCards.findIndex(
+      (k) => k.id === selectedKanji.id
+    );
+
+    if (selectedIndex === -1) return;
+
+    const selectedItem = listItems[selectedIndex] as HTMLElement;
+    if (selectedItem) {
+      const scrollLeft =
+        selectedItem.offsetLeft -
+        scrollRef.current.clientWidth / 2 +
+        selectedItem.clientWidth / 2;
+
+      scrollRef.current.scrollTo({
+        left: scrollLeft,
+        behavior: "smooth",
+      });
+    }
+  }, [selectedKanji, kanjiCards]);
 
   return (
     <div
