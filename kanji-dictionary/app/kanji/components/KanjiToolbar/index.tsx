@@ -5,7 +5,6 @@ import { RootState } from "@/store/store";
 import { cn } from "@/utils/class-name";
 import {
   ArrowDownAZ,
-  CircleCheck,
   CircleChevronLeft,
   CircleChevronRight,
   CirclePlus,
@@ -14,6 +13,7 @@ import {
   SquarePen,
   Trash2,
   Undo2,
+  Upload,
 } from "lucide-react";
 import { useCallback, useEffect, useRef, useState } from "react";
 import { ADMIN_ROLE, SUPER_ADMIN_ROLE } from "@/types/user-role";
@@ -25,6 +25,7 @@ import {
   setSelectedKanji,
 } from "@/store/slices/kanji-collection";
 import { updateIsPublishedThunk } from "@/store/slices/kanji-collection/thunk";
+import KanjiList from "../KanjiList";
 
 interface VocabToolBarProps {
   selectedKanjiCollection: boolean;
@@ -88,7 +89,7 @@ const KanjiToolBar = ({
   };
 
   const handleDeleteKanji = () => {
-    alert("Chưa có làm chức năng xoá kanji!");
+    alert("Chưa có làm tính năng xoá kanji!");
   };
 
   const handlePublished = () => {
@@ -159,7 +160,7 @@ const KanjiToolBar = ({
 
   return (
     <>
-      <div className="flex items-center mb-4 justify-end">
+      <div className="flex items-center mb-4 justify-end gap-10">
         <div className="flex items-center gap-4 bg-black-0 p-4 border border-black-100 rounded-2xl shadow-sm">
           <div className="flex items-center relative">
             <div
@@ -184,12 +185,12 @@ const KanjiToolBar = ({
                 onKeyDown={(e) => {
                   if (e.key === "Enter" && !isComposing) handleSearch();
                 }}
-                placeholder="Enter ONE kanji only..."
+                placeholder="Enter one kanji only..."
                 className="flex-1 text-md text-black-900 bg-transparent outline-none pl-7 pr-2"
               />
 
               <CircleX
-                className="w-5 h-5 text-black-400 hover:text-red-500 cursor-pointer transition ml-1"
+                className="w-5 h-5 text-black-400 hover:text-black-900 cursor-pointer transition ml-1"
                 onClick={() => {
                   setIsSearchVisible(false);
                   setSearchCharacter("");
@@ -198,7 +199,7 @@ const KanjiToolBar = ({
             </div>
 
             {!isSearchVisible && (
-              <Tooltip text="Search Kanji">
+              <Tooltip text="Search">
                 <Search
                   className="w-8 h-8 text-black-400 cursor-pointer hover:text-black-900 transition"
                   onClick={() => {
@@ -283,14 +284,14 @@ const KanjiToolBar = ({
                     </Tooltip>
                     <Tooltip text="Delete">
                       <Trash2
-                        className="w-8 h-8 cursor-pointer text-black-400 hover:text-black-900"
+                        className="w-8 h-8 cursor-pointer text-black-400 hover:text-red-500"
                         onClick={handleDeleteKanji}
                       />
                     </Tooltip>
                   </div>
                   <div className="flex items-center gap-4 border-l border-black-100 pl-4">
-                    <Tooltip text="Official Kanji">
-                      <CircleCheck
+                    <Tooltip text="Published">
+                      <Upload
                         className={cn(
                           "w-8 h-8 cursor-pointer",
                           selectedKanji?.is_published
@@ -309,7 +310,7 @@ const KanjiToolBar = ({
               )}
 
               <div className="flex items-center gap-4 border-l border-black-100 pl-4">
-                <Tooltip text="Back to list">
+                <Tooltip text="Back">
                   <Undo2
                     className="w-8 h-8 cursor-pointer text-black-400 hover:text-black-900"
                     onClick={onBack}

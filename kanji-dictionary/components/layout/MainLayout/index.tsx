@@ -20,7 +20,7 @@ const MainLayout = ({ children }: { children: ReactNode }) => {
             "transition-all duration-300",
             isDocked
               ? "col-span-2 relative"
-              : "absolute top-5 left-5 right-5 z-50"
+              : "absolute top-8 left-10 right-0 z-50"
           )}
         >
           <Navigation
