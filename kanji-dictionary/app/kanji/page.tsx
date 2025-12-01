@@ -15,6 +15,7 @@ import {
   setSelectedKanjiCollection,
 } from "@/store/slices/kanji-collection";
 import {
+  getAllBookmarkedKanjiThunk,
   getAllKanjiCollectionThunk,
   getKanjiByCollectionIdThunk,
 } from "@/store/slices/kanji-collection/thunk";
@@ -50,8 +51,14 @@ const KanjiPage = () => {
         .catch((err) => {
           console.error("Failed to load kanji:", err);
         });
+
+      dispatch(getAllBookmarkedKanjiThunk(selectedCollection.id))
+        .unwrap()
+        .catch((err) => {
+          console.error("Failed to load bookmarked kanji:", err);
+        });
     }
-  }, [dispatch, selectedCollection]);
+  }, [dispatch, selectedCollection?.id]);
 
   if (checking) {
     return (
@@ -62,10 +69,7 @@ const KanjiPage = () => {
   }
   return (
     <div className={isMobile ? "p-4" : "px-10 py-8"}>
-      <KanjiToolBar
-        selectedKanjiCollection={!!selectedCollection}
-        onBack={handleBack}
-      />
+      <KanjiToolBar onBack={handleBack} />
       {!selectedCollection ? (
         <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-2 mt-8">
           {listKanjiCollections.map((collection) => (

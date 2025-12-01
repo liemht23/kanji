@@ -1,6 +1,7 @@
 import { createSlice } from "@reduxjs/toolkit";
 import kanjiCollectionInitialState from "./inital-state";
 import {
+  getAllBookmarkedKanjiThunk,
   getAllKanjiCollectionThunk,
   getKanjiByCollectionIdThunk,
   updateIsPublishedThunk,
@@ -143,6 +144,18 @@ export const kanjiCollectionSlice = createSlice({
         state.selectedKanji = state.kanjiCards[0] || null;
       })
       .addCase(getKanjiByCollectionIdThunk.rejected, (state) => {
+        state.loading = false;
+      });
+
+    builder
+      .addCase(getAllBookmarkedKanjiThunk.pending, (state) => {
+        state.loading = true;
+      })
+      .addCase(getAllBookmarkedKanjiThunk.fulfilled, (state, action) => {
+        state.loading = false;
+        state.listBookmarkedKanji = action.payload;
+      })
+      .addCase(getAllBookmarkedKanjiThunk.rejected, (state) => {
         state.loading = false;
       });
 

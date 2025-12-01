@@ -10,6 +10,7 @@ import {
   CirclePlus,
   CircleX,
   ListTree,
+  Save,
   Search,
   SquarePen,
   Trash2,
@@ -25,18 +26,17 @@ import {
   setEditedKanji,
   setSelectedKanji,
 } from "@/store/slices/kanji-collection";
-import { updateIsPublishedThunk } from "@/store/slices/kanji-collection/thunk";
+import {
+  updateIsPublishedThunk,
+  upsertBookmarkedKanjiThunk,
+} from "@/store/slices/kanji-collection/thunk";
 import KanjiListModal from "../KanjiListModal";
 
-interface VocabToolBarProps {
-  selectedKanjiCollection: boolean;
+interface KanjiToolBarProps {
   onBack: () => void;
 }
 
-const KanjiToolBar = ({
-  selectedKanjiCollection,
-  onBack,
-}: VocabToolBarProps) => {
+const KanjiToolBar = ({ onBack }: KanjiToolBarProps) => {
   const dispatch = useAppDispatch();
   const [isOpenAddKanjiModal, setIsOpenAddKanjiModal] = useState(false);
   const [isSearchVisible, setIsSearchVisible] = useState(false);
@@ -44,10 +44,14 @@ const KanjiToolBar = ({
   const searchInputRef = useRef<HTMLInputElement | null>(null);
   const [searchCharacter, setSearchCharacter] = useState("");
   const [isComposing, setIsComposing] = useState(false);
-  const { role } = useAuthGuard();
-  const { kanjiCards, selectedKanji, loading } = useAppSelector(
-    (state: RootState) => state.kanji
-  );
+  const { role, userId } = useAuthGuard();
+  const {
+    selectedCollection,
+    listBookmarkedKanji,
+    kanjiCards,
+    selectedKanji,
+    loading,
+  } = useAppSelector((state: RootState) => state.kanji);
   const { isModalOpen } = useLayout();
   const iconRef = useRef<SVGSVGElement | null>(null);
   const modalRef = useRef<HTMLDivElement | null>(null);
@@ -95,6 +99,18 @@ const KanjiToolBar = ({
 
   const handleDeleteKanji = () => {
     alert("Chưa có làm tính năng xoá kanji!");
+  };
+
+  const saveBookmark = () => {
+    if (!userId || !selectedCollection) return;
+
+    dispatch(
+      upsertBookmarkedKanjiThunk({
+        userId: userId!,
+        collectionId: selectedCollection.id,
+        kanjiIds: listBookmarkedKanji,
+      })
+    ).unwrap();
   };
 
   const handlePublished = () => {
@@ -235,7 +251,7 @@ const KanjiToolBar = ({
             )}
           </div>
 
-          {!selectedKanjiCollection && (
+          {!selectedCollection && (
             <div className="flex items-center gap-4 border-l border-black-100 pl-4">
               <Tooltip text="Tăng dần">
                 <ArrowDownAZ
@@ -246,7 +262,7 @@ const KanjiToolBar = ({
             </div>
           )}
 
-          {selectedKanjiCollection && (
+          {selectedCollection && (
             <>
               <>
                 <Tooltip text="Search In List">
@@ -264,6 +280,15 @@ const KanjiToolBar = ({
                   </div>
                 )}
               </>
+
+              <div className="flex items-center gap-4 border-l border-black-100 pl-4">
+                <Tooltip text="Save Bookmark">
+                  <Save
+                    className="w-8 h-8 cursor-pointer text-black-400 hover:text-black-900"
+                    onClick={saveBookmark}
+                  />
+                </Tooltip>
+              </div>
 
               <div className="flex items-center gap-4 border-l border-black-100 pl-4">
                 <Tooltip text="Previous">

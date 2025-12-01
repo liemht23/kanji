@@ -1,3 +1,4 @@
+import { BOOKMARK_TYPE } from "@/enum/bookmark-enum";
 import { supabase } from "@/lib/supabase-client";
 import { Kanji } from "@/types/kanji";
 
@@ -48,9 +49,42 @@ export const updateIsPublished = async (id: string, isPublished: boolean) => {
     .update({ is_published: isPublished })
     .eq("id", id)
     .select("*")
-    .single();
+    .maybeSingle();
 
   if (error) throw error;
 
   return data;
+};
+
+export const getAllBookmarkedKanji = async (
+  userId: string,
+  collectionId: string
+) => {
+  const { data, error } = await supabase
+    .from("bookmark")
+    .select("*")
+    .eq("user_id", userId)
+    .eq("type", BOOKMARK_TYPE.KANJI)
+    .eq("collection_id", collectionId)
+    .maybeSingle();
+
+  if (error) throw error;
+  return data?.alias_ids || [];
+};
+
+export const upsertBookmarkedKanji = async (data: {
+  user_id: string;
+  type: BOOKMARK_TYPE;
+  collection_id: string;
+  alias_ids: string[];
+}) => {
+  const { data: responseData, error } = await supabase
+    .from("bookmark")
+    .upsert(data)
+    .select("*")
+    .maybeSingle();
+
+  if (error) throw error;
+
+  return responseData;
 };

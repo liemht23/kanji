@@ -6,6 +6,7 @@ export default function useAuthGuard() {
   const router = useRouter();
   const [checking, setChecking] = useState(true);
   const [role, setRole] = useState<string | null>(null);
+  const [userId, setUserId] = useState<string | null>(null);
 
   useEffect(() => {
     const checkSession = async () => {
@@ -19,11 +20,12 @@ export default function useAuthGuard() {
       }
 
       const userId = session.user.id;
+      setUserId(userId);
       const { data: profile, error } = await supabase
         .from("profiles")
         .select("role")
         .eq("id", userId)
-        .single();
+        .maybeSingle();
 
       if (error) {
         console.error("Error loading profile:", error.message);
@@ -37,5 +39,5 @@ export default function useAuthGuard() {
     checkSession();
   }, [router]);
 
-  return { checking, role };
+  return { checking, role, userId };
 }
