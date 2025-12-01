@@ -2,7 +2,6 @@ import {
   getAllKanjiCollectionData,
   getListKanjiByCollectionId,
   insertKanji,
-  searchKanji,
   updateIsPublished,
   updateKanji,
 } from "@/app/kanji/apis";
