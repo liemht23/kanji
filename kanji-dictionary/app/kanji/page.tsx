@@ -19,6 +19,7 @@ import {
   getAllKanjiCollectionThunk,
   getKanjiByCollectionIdThunk,
 } from "@/store/slices/kanji-collection/thunk";
+import KanjiListPane from "./components/KanjiListPane";
 
 const KanjiPage = () => {
   const { isMobile } = useLayout();
@@ -95,7 +96,10 @@ const KanjiPage = () => {
           ))}
         </div>
       ) : (
-        <KanjiCard />
+        <>
+          <KanjiCard />
+          <KanjiListPane />
+        </>
       )}
     </div>
   );
