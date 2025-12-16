@@ -1,4 +1,4 @@
-import { BOOKMARK_TYPE } from "@/enum/bookmark-enum";
+import { PROGRESS_TYPE } from "@/enum/progress-enum";
 import { supabase } from "@/lib/supabase-client";
 import { Kanji } from "@/types/kanji";
 
@@ -56,15 +56,15 @@ export const updateIsPublished = async (id: string, isPublished: boolean) => {
   return data;
 };
 
-export const getAllBookmarkedKanji = async (
+export const getAllMemorizedKanji = async (
   userId: string,
   collectionId: string
 ) => {
   const { data, error } = await supabase
-    .from("bookmark")
+    .from("progress")
     .select("*")
     .eq("user_id", userId)
-    .eq("type", BOOKMARK_TYPE.KANJI)
+    .eq("type", PROGRESS_TYPE.KANJI)
     .eq("collection_id", collectionId)
     .maybeSingle();
 
@@ -72,14 +72,14 @@ export const getAllBookmarkedKanji = async (
   return data?.alias_ids || [];
 };
 
-export const upsertBookmarkedKanji = async (data: {
+export const upsertMemorizedKanji = async (data: {
   user_id: string;
-  type: BOOKMARK_TYPE;
+  type: PROGRESS_TYPE;
   collection_id: string;
   alias_ids: string[];
 }) => {
   const { data: responseData, error } = await supabase
-    .from("bookmark")
+    .from("progress")
     .upsert(data)
     .select("*")
     .maybeSingle();

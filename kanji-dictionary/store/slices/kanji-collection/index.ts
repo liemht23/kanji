@@ -1,7 +1,7 @@
 import { createSlice } from "@reduxjs/toolkit";
 import kanjiCollectionInitialState from "./inital-state";
 import {
-  getAllBookmarkedKanjiThunk,
+  getAllMemorizedKanjiThunk,
   getAllKanjiCollectionThunk,
   getKanjiByCollectionIdThunk,
   updateIsPublishedThunk,
@@ -106,16 +106,16 @@ export const kanjiCollectionSlice = createSlice({
       state.currentSampleVocab.word_parts = updatedParts;
     },
 
-    removeBookmarkedKanji: (state, action) => {
+    removeMemorizedKanji: (state, action) => {
       const kanjiIdToRemove = action.payload;
-      state.listBookmarkedKanji = state.listBookmarkedKanji.filter(
+      state.listMemorizedKanji = state.listMemorizedKanji.filter(
         (kanjiId) => kanjiId !== kanjiIdToRemove
       );
     },
-    addBookmarkedKanji: (state, action) => {
+    addMemorizedKanji: (state, action) => {
       const kanjiIdToAdd = action.payload;
-      if (!state.listBookmarkedKanji.includes(kanjiIdToAdd)) {
-        state.listBookmarkedKanji.push(kanjiIdToAdd);
+      if (!state.listMemorizedKanji.includes(kanjiIdToAdd)) {
+        state.listMemorizedKanji.push(kanjiIdToAdd);
       }
     },
 
@@ -148,14 +148,14 @@ export const kanjiCollectionSlice = createSlice({
       });
 
     builder
-      .addCase(getAllBookmarkedKanjiThunk.pending, (state) => {
+      .addCase(getAllMemorizedKanjiThunk.pending, (state) => {
         state.loading = true;
       })
-      .addCase(getAllBookmarkedKanjiThunk.fulfilled, (state, action) => {
+      .addCase(getAllMemorizedKanjiThunk.fulfilled, (state, action) => {
         state.loading = false;
-        state.listBookmarkedKanji = action.payload;
+        state.listMemorizedKanji = action.payload;
       })
-      .addCase(getAllBookmarkedKanjiThunk.rejected, (state) => {
+      .addCase(getAllMemorizedKanjiThunk.rejected, (state) => {
         state.loading = false;
       });
 
@@ -192,8 +192,8 @@ export const {
   setMeaning,
   setWordPart,
   removeWordPart,
-  removeBookmarkedKanji,
-  addBookmarkedKanji,
+  removeMemorizedKanji,
+  addMemorizedKanji,
   resetKanjiCollection,
 } = kanjiCollectionSlice.actions;
 export default kanjiCollectionSlice.reducer;

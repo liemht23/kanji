@@ -28,7 +28,7 @@ import {
 } from "@/store/slices/kanji-collection";
 import {
   updateIsPublishedThunk,
-  upsertBookmarkedKanjiThunk,
+  upsertMemorizedKanjiThunk,
 } from "@/store/slices/kanji-collection/thunk";
 import KanjiListModal from "../KanjiListModal";
 
@@ -47,7 +47,7 @@ const KanjiToolBar = ({ onBack }: KanjiToolBarProps) => {
   const { role, userId } = useAuthGuard();
   const {
     selectedCollection,
-    listBookmarkedKanji,
+    listMemorizedKanji,
     kanjiCards,
     selectedKanji,
     loading,
@@ -101,16 +101,23 @@ const KanjiToolBar = ({ onBack }: KanjiToolBarProps) => {
     alert("Chưa có làm tính năng xoá kanji!");
   };
 
-  const saveBookmark = () => {
+  const saveMemorizedKanjiProgress = () => {
     if (!userId || !selectedCollection) return;
 
     dispatch(
-      upsertBookmarkedKanjiThunk({
+      upsertMemorizedKanjiThunk({
         userId: userId!,
         collectionId: selectedCollection.id,
-        kanjiIds: listBookmarkedKanji,
+        kanjiIds: listMemorizedKanji,
       })
-    ).unwrap();
+    )
+      .unwrap()
+      .then(() => {
+        alert("Progress saved successfully!");
+      })
+      .catch(() => {
+        alert("Failed to save progress. Please try again.");
+      });
   };
 
   const handlePublished = () => {
@@ -282,10 +289,10 @@ const KanjiToolBar = ({ onBack }: KanjiToolBarProps) => {
               </>
 
               <div className="flex items-center gap-4 border-l border-black-100 pl-4">
-                <Tooltip text="Save Bookmark">
+                <Tooltip text="Save progress">
                   <Save
                     className="w-8 h-8 cursor-pointer text-black-400 hover:text-black-900"
-                    onClick={saveBookmark}
+                    onClick={saveMemorizedKanjiProgress}
                   />
                 </Tooltip>
               </div>

@@ -25,6 +25,6 @@ export interface KanjiCollectionState {
   editedKanji: Kanji | null;
   currentSampleVocab: Vocab;
   listSampleVocab: Vocab[];
-  listBookmarkedKanji: string[];
+  listMemorizedKanji: string[];
   loading: boolean;
 }

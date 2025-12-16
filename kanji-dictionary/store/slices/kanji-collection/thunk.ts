@@ -1,13 +1,13 @@
 import {
-  getAllBookmarkedKanji,
+  getAllMemorizedKanji,
   getAllKanjiCollectionData,
   getListKanjiByCollectionId,
   insertKanji,
   updateIsPublished,
   updateKanji,
-  upsertBookmarkedKanji,
+  upsertMemorizedKanji,
 } from "@/app/kanji/apis";
-import { BOOKMARK_TYPE } from "@/enum/bookmark-enum";
+import { PROGRESS_TYPE } from "@/enum/progress-enum";
 import { supabase } from "@/lib/supabase-client";
 import { Kanji } from "@/types/kanji";
 import { createAsyncThunk } from "@reduxjs/toolkit";
@@ -76,8 +76,8 @@ export const updateIsPublishedThunk = createAsyncThunk(
   }
 );
 
-export const getAllBookmarkedKanjiThunk = createAsyncThunk(
-  "kanji/getAllBookmarkedKanji",
+export const getAllMemorizedKanjiThunk = createAsyncThunk(
+  "kanji/getAllMemorizedKanji",
   async (collectionId: string, { rejectWithValue }) => {
     try {
       const {
@@ -88,7 +88,7 @@ export const getAllBookmarkedKanjiThunk = createAsyncThunk(
         return [];
       }
 
-      const response = await getAllBookmarkedKanji(
+      const response = await getAllMemorizedKanji(
         session.user.id,
         collectionId
       );
@@ -101,8 +101,8 @@ export const getAllBookmarkedKanjiThunk = createAsyncThunk(
   }
 );
 
-export const upsertBookmarkedKanjiThunk = createAsyncThunk(
-  "kanji/upsertBookmarkedKanji",
+export const upsertMemorizedKanjiThunk = createAsyncThunk(
+  "kanji/upsertMemorizedKanji",
   async (
     {
       userId,
@@ -114,11 +114,11 @@ export const upsertBookmarkedKanjiThunk = createAsyncThunk(
     try {
       const data = {
         user_id: userId,
-        type: BOOKMARK_TYPE.KANJI,
+        type: PROGRESS_TYPE.KANJI,
         collection_id: collectionId,
         alias_ids: kanjiIds,
       };
-      const response = await upsertBookmarkedKanji(data);
+      const response = await upsertMemorizedKanji(data);
       return response;
     } catch (error) {
       const msg =

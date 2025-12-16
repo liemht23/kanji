@@ -1,4 +1,4 @@
-import { BookmarkIcon, SquarePlayIcon, ImageIcon } from "lucide-react";
+import { SquarePlayIcon, ImageIcon, Book, BookCheck } from "lucide-react";
 import Image from "next/image";
 import "./kanji-card.css";
 import Tooltip from "@/components/common/Tooltip";
@@ -12,8 +12,8 @@ import { SAMPLE_KANJI_BATCH_SIZE } from "@/constants/kanji-const";
 import KanjiAnimate from "../KanjiAnimate";
 import ExampleImagePopup from "../ExampleImageModal";
 import {
-  addBookmarkedKanji,
-  removeBookmarkedKanji,
+  addMemorizedKanji,
+  removeMemorizedKanji,
 } from "@/store/slices/kanji-collection";
 
 const KanjiCard = () => {
@@ -21,13 +21,13 @@ const KanjiCard = () => {
   const [showKanjiAnimation, setShowKanjiAnimation] = useState(false);
   const [showImagePopup, setShowImagePopup] = useState(false);
   const [isImgLoading, setIsImgLoading] = useState(true);
-  const { selectedKanji, listBookmarkedKanji, loading } = useAppSelector(
+  const { selectedKanji, listMemorizedKanji, loading } = useAppSelector(
     (state: RootState) => state.kanji
   );
-  const isBookmarked = useMemo(() => {
+  const isMemorized = useMemo(() => {
     if (!selectedKanji) return false;
-    return listBookmarkedKanji?.includes(selectedKanji.id || "") ? true : false;
-  }, [listBookmarkedKanji, selectedKanji]);
+    return listMemorizedKanji?.includes(selectedKanji.id || "") ? true : false;
+  }, [listMemorizedKanji, selectedKanji]);
 
   const exampleBatches = useMemo(() => {
     const examples = selectedKanji?.example ?? [];
@@ -45,17 +45,17 @@ const KanjiCard = () => {
       ? true
       : false;
 
-  const handleBookmarkedKanji = () => {
+  const handleMemorizedKanji = () => {
     if (!selectedKanji) return;
-    const isAlreadyBookmarked = listBookmarkedKanji?.includes(
+    const isAlreadyMemorized = listMemorizedKanji?.includes(
       selectedKanji.id || ""
     );
-    if (isAlreadyBookmarked) {
-      // Remove from bookmarked
-      dispatch(removeBookmarkedKanji(selectedKanji.id || ""));
+    if (isAlreadyMemorized) {
+      // Remove from memorized
+      dispatch(removeMemorizedKanji(selectedKanji.id || ""));
     } else {
-      // Add to bookmarked
-      dispatch(addBookmarkedKanji(selectedKanji.id || ""));
+      // Add to memorized
+      dispatch(addMemorizedKanji(selectedKanji.id || ""));
     }
   };
 
@@ -97,16 +97,18 @@ const KanjiCard = () => {
                       }}
                     />
                   </Tooltip>
-                  <Tooltip text={isBookmarked ? "Unbookmark" : "Bookmark"}>
-                    <BookmarkIcon
-                      className={cn(
-                        "w-6 h-6 cursor-pointer transition-colors",
-                        isBookmarked
-                          ? "text-yellow-400 !visible"
-                          : "text-black-300 hover:text-black-900"
-                      )}
-                      onClick={handleBookmarkedKanji}
-                    />
+                  <Tooltip text={isMemorized ? "Not memorized" : "Memorized"}>
+                    {isMemorized ? (
+                      <BookCheck
+                        className="w-6 h-6 cursor-pointer transition-colors text-green-400 !visible"
+                        onClick={handleMemorizedKanji}
+                      />
+                    ) : (
+                      <Book
+                        className="w-6 h-6 cursor-pointer transition-colors text-black-300 hover:text-black-90"
+                        onClick={handleMemorizedKanji}
+                      />
+                    )}
                   </Tooltip>
                   <div
                     className={cn(
@@ -171,13 +173,13 @@ const KanjiCard = () => {
               <div className="text-5xl font-bold">
                 <p className="py-2">
                   音読み:
-                  <span className="text-4xl text-blue-300 pl-10">
+                  <span className="text-4xl text-red-500 pl-10">
                     {selectedKanji?.on_reading}
                   </span>
                 </p>
                 <p className="py-2">
                   訓読み:
-                  <span className="text-4xl text-red-500 pl-10">
+                  <span className="text-4xl text-blue-300 pl-10">
                     {selectedKanji?.kun_reading}
                   </span>
                 </p>
@@ -204,10 +206,10 @@ const KanjiCard = () => {
                                       className={cn(
                                         "text-md hiragana text-center",
                                         part.reading_type === READING_TYPE.ON
-                                          ? "text-blue-300"
+                                          ? "text-red-500"
                                           : part.reading_type ===
                                             READING_TYPE.KUN
-                                          ? "text-red-500"
+                                          ? "text-blue-300"
                                           : part.reading_type ===
                                             READING_TYPE.SPECIAL
                                           ? "text-purple-400"
@@ -220,10 +222,10 @@ const KanjiCard = () => {
                                       className={cn(
                                         "text-5xl font-bold text-center",
                                         part.reading_type === READING_TYPE.ON
-                                          ? "text-blue-300"
+                                          ? "text-red-500"
                                           : part.reading_type ===
                                             READING_TYPE.KUN
-                                          ? "text-red-500"
+                                          ? "text-blue-300"
                                           : part.reading_type ===
                                             READING_TYPE.SPECIAL
                                           ? "text-purple-400"
@@ -247,9 +249,9 @@ const KanjiCard = () => {
                                     className={cn(
                                       "text-md hiragana text-center",
                                       part.reading_type === READING_TYPE.ON
-                                        ? "text-blue-300"
-                                        : part.reading_type === READING_TYPE.KUN
                                         ? "text-red-500"
+                                        : part.reading_type === READING_TYPE.KUN
+                                        ? "text-blue-300"
                                         : part.reading_type ===
                                           READING_TYPE.SPECIAL
                                         ? "text-purple-400"
@@ -262,9 +264,9 @@ const KanjiCard = () => {
                                     className={cn(
                                       "text-5xl font-bold text-center",
                                       part.reading_type === READING_TYPE.ON
-                                        ? "text-blue-300"
-                                        : part.reading_type === READING_TYPE.KUN
                                         ? "text-red-500"
+                                        : part.reading_type === READING_TYPE.KUN
+                                        ? "text-blue-300"
                                         : part.reading_type ===
                                           READING_TYPE.SPECIAL
                                         ? "text-purple-400"

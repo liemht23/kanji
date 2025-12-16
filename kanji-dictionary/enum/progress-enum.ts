@@ -1,4 +1,4 @@
-export enum BOOKMARK_TYPE {
+export enum PROGRESS_TYPE {
   KANJI = 0,
   VOCAB = 1,
 }

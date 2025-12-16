@@ -15,7 +15,7 @@ import {
   setSelectedKanjiCollection,
 } from "@/store/slices/kanji-collection";
 import {
-  getAllBookmarkedKanjiThunk,
+  getAllMemorizedKanjiThunk,
   getAllKanjiCollectionThunk,
   getKanjiByCollectionIdThunk,
 } from "@/store/slices/kanji-collection/thunk";
@@ -53,10 +53,10 @@ const KanjiPage = () => {
           console.error("Failed to load kanji:", err);
         });
 
-      dispatch(getAllBookmarkedKanjiThunk(selectedCollection.id))
+      dispatch(getAllMemorizedKanjiThunk(selectedCollection.id))
         .unwrap()
         .catch((err) => {
-          console.error("Failed to load bookmarked kanji:", err);
+          console.error("Failed to load memorized kanji:", err);
         });
     }
   }, [dispatch, selectedCollection?.id]);
