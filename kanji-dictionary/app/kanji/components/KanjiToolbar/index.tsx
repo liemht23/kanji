@@ -10,7 +10,7 @@ import {
   CirclePlus,
   CircleX,
   ListTree,
-  Save,
+  SaveAll,
   Search,
   SquarePen,
   Trash2,
@@ -290,7 +290,7 @@ const KanjiToolBar = ({ onBack }: KanjiToolBarProps) => {
 
               <div className="flex items-center gap-4 border-l border-black-100 pl-4">
                 <Tooltip text="Save progress">
-                  <Save
+                  <SaveAll
                     className="w-8 h-8 cursor-pointer text-black-400 hover:text-black-900"
                     onClick={saveMemorizedKanjiProgress}
                   />
