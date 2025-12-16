@@ -9,6 +9,7 @@ import {
   CircleChevronRight,
   CirclePlus,
   CircleX,
+  ListTodo,
   ListTree,
   SaveAll,
   Search,
@@ -289,10 +290,16 @@ const KanjiToolBar = ({ onBack }: KanjiToolBarProps) => {
               </>
 
               <div className="flex items-center gap-4 border-l border-black-100 pl-4">
-                <Tooltip text="Save progress">
+                <Tooltip text="Save Progress">
                   <SaveAll
                     className="w-8 h-8 cursor-pointer text-black-400 hover:text-black-900"
                     onClick={saveMemorizedKanjiProgress}
+                  />
+                </Tooltip>
+                <Tooltip text="Quizz">
+                  <ListTodo
+                    className="w-8 h-8 cursor-pointer text-black-400 hover:text-black-900"
+                    // onClick={() => setIsOpenQuizz(true)}
                   />
                 </Tooltip>
               </div>
