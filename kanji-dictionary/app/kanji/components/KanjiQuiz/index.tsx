@@ -23,20 +23,37 @@ const KanjiQuiz = () => {
   const [totalCorrect, setTotalCorrect] = useState(0);
   const [totalIncorrect, setTotalIncorrect] = useState(0);
 
+  // Redux data
+  const { listCurrentQuiz, currentQuiz, timePerQuestion, numQuestions } =
+    useAppSelector((state: RootState) => state.kanji);
+
+  // Find index of current quiz, default to 0 if not found
+  const currentQuizIndex = currentQuiz
+    ? listCurrentQuiz.findIndex(
+        (quiz) => quiz.quizIndex === currentQuiz.quizIndex
+      )
+    : 0;
+
+  // If currentQuiz is not in listCurrentQuiz, automatically switch to the first quiz
+  useEffect(() => {
+    if (
+      currentQuiz &&
+      listCurrentQuiz.length > 0 &&
+      !listCurrentQuiz.some((quiz) => quiz.id === currentQuiz.id)
+    ) {
+      dispatch(setCurrentQuiz(listCurrentQuiz[0]));
+    }
+  }, [currentQuiz, listCurrentQuiz, dispatch]);
   // Timer references
-  const totalTime = 300;
+  const totalTime = timePerQuestion;
   const startTime = useRef(0);
   const rafRef = useRef<number | null>(null);
   const isTimerActiveRef = useRef<boolean>(false); // controls whether timer should tick
 
-  // Redux data
-  const { listQuiz, currentQuiz } = useAppSelector(
-    (state: RootState) => state.kanji
-  );
-  const currentQuizIndex = listQuiz.findIndex(
-    (quiz) => quiz.id === currentQuiz?.id
-  );
-  const pronun = currentQuiz?.word_parts.map((p) => p.pronun).join("");
+  // Derive correct answer from current quiz
+  const pronun = currentQuiz?.word_parts
+    .map((p) => (p.pronun && p.pronun.trim() !== "" ? p.pronun : p.word))
+    .join("");
 
   // Correct answer animation timeout
   const correctAnimTimeout = useRef<NodeJS.Timeout | null>(null);
@@ -158,13 +175,24 @@ const KanjiQuiz = () => {
     }
   };
 
+  const handleNext = () => {
+    setInput("");
+
+    if (
+      currentQuizIndex >= 0 &&
+      currentQuizIndex + 1 < listCurrentQuiz.length
+    ) {
+      dispatch(setCurrentQuiz(listCurrentQuiz[currentQuizIndex + 1]));
+    }
+  };
+
   // Global key listener for Enter when answer is shown
   useEffect(() => {
     const handleGlobalKey = (e: KeyboardEvent) => {
       if (e.key === "Enter" && showAnswer) {
         // Go to next quiz
-        if (currentQuizIndex + 1 < listQuiz.length) {
-          dispatch(setCurrentQuiz(listQuiz[currentQuizIndex + 1]));
+        if (currentQuizIndex + 1 < listCurrentQuiz.length) {
+          dispatch(setCurrentQuiz(listCurrentQuiz[currentQuizIndex + 1]));
         }
       }
     };
@@ -174,7 +202,7 @@ const KanjiQuiz = () => {
     return () => {
       window.removeEventListener("keydown", handleGlobalKey);
     };
-  }, [showAnswer, currentQuizIndex, listQuiz, dispatch]);
+  }, [showAnswer, currentQuiz, listCurrentQuiz, dispatch, currentQuizIndex]);
 
   // Cleanup correct animation timeout on unmount
   useEffect(() => {
@@ -186,11 +214,11 @@ const KanjiQuiz = () => {
   }, []);
 
   return (
-    <div className="bg-black-0 border border-black-100 rounded-3xl shadow-lg max-w-2xl mx-auto mt-16 relative overflow-hidden">
+    <div className="bg-black-0 border border-black-100 rounded-3xl shadow-lg max-w-3xl mx-auto mt-16 relative overflow-hidden">
       {/* Title & Timer */}
       <div className="flex justify-between items-center mb-6 pt-8 px-8">
         <span className="text-xl font-extrabold tracking-wide text-blue-700">
-          Question {currentQuizIndex + 1}/{listQuiz.length}
+          Question {currentQuizIndex + 1}/{numQuestions}
         </span>
 
         {/* Hide timer when the answer is revealed, show stats instead */}
@@ -301,15 +329,7 @@ const KanjiQuiz = () => {
             <div
               className="w-full flex items-center justify-center mt-8 p-4 gap-4
               text-blue-700 font-bold hover:text-white hover:bg-blue-700 cursor-pointer"
-              onClick={() => {
-                setInput("");
-                if (
-                  currentQuizIndex >= 0 &&
-                  currentQuizIndex + 1 < listQuiz.length
-                ) {
-                  dispatch(setCurrentQuiz(listQuiz[currentQuizIndex + 1]));
-                }
-              }}
+              onClick={handleNext}
             >
               <span className="text-2xl">NEXT</span>
               <ChevronRight className="w-8 h-8" />

@@ -16,9 +16,9 @@ const KanjiQuizFilterModal = ({
   onClose,
 }: KanjiQuizFilterModalProps) => {
   const dispatch = useAppDispatch();
-  const { listQuiz } = useAppSelector((state) => state.kanji);
+  const { listAllQuiz } = useAppSelector((state) => state.kanji);
   const [timePerQuestion, setTimePerQuestion] = useState(30);
-  const [numQuestions, setNumQuestions] = useState(listQuiz.length);
+  const [numQuestions, setNumQuestions] = useState(listAllQuiz.length);
 
   const [isVisible, setIsVisible] = useState(false);
   const modalRef = useRef<HTMLDivElement>(null);
@@ -100,7 +100,7 @@ const KanjiQuizFilterModal = ({
             <div className="flex-1">
               <GradientSlider
                 min={1}
-                max={listQuiz.length}
+                max={listAllQuiz.length}
                 value={numQuestions}
                 onChange={setNumQuestions}
                 startColor="#86efac"
@@ -108,7 +108,7 @@ const KanjiQuizFilterModal = ({
               />
             </div>
             <span className="text-xs text-gray-400 min-w-[28px] text-right text-center">
-              {listQuiz.length}
+              {listAllQuiz.length}
             </span>
             <span className="ml-2 px-2 py-1 rounded-full font-bold text-base w-[56px] text-center border border-green-200 shadow-sm bg-green-50 text-green-700 border-green-300">
               {numQuestions}

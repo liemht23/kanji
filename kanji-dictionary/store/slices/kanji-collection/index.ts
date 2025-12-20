@@ -26,8 +26,10 @@ export const kanjiCollectionSlice = createSlice({
         state.currentSampleVocab = DEFAULT_SAMPLE_VOCAB;
         state.listSampleVocab = [];
         state.listMemorizedKanji = [];
+        state.listAllQuiz = [];
         state.currentQuiz = null;
-        state.listQuiz = [];
+        state.timePerQuestion = 30;
+        state.numQuestions = 100;
       }
     },
 
@@ -134,19 +136,47 @@ export const kanjiCollectionSlice = createSlice({
     setOpenQuizFilter: (state, action) => {
       state.toolbarState.isOpenQuizFilter = action.payload;
       const data = state.kanjiCards.flatMap((card) => card.example);
-      state.listQuiz = data;
+
+      // Add index to each quiz item
+      const quizData = data.map((quiz, index) => ({
+        ...quiz,
+        quizIndex: index,
+      }));
+
+      state.listAllQuiz = quizData;
     },
     setOpenQuiz: (state, action) => {
-      state.toolbarState.isOpenQuiz = action.payload;
-      if (state.toolbarState.isOpenQuiz === false) {
+      if (action.payload === undefined) return;
+
+      const isOpenQuiz = action.payload.isOpenQuiz;
+      const timePerQuestion = action.payload.timePerQuestion;
+      const numQuestions = action.payload.numQuestions;
+
+      state.toolbarState.isOpenQuiz = isOpenQuiz;
+      if (isOpenQuiz === false) {
         state.currentQuiz = null;
+        state.listCurrentQuiz = [];
         return;
       }
       // Prepare quiz data
-      const data = state.kanjiCards.flatMap((card) => card.example);
+      const allQuiz = state.kanjiCards.flatMap((card) => card.example);
 
-      state.listQuiz = data;
-      state.currentQuiz = data[0] || null;
+      // Shuffle (Fisher–Yates)
+      for (let i = allQuiz.length - 1; i > 0; i--) {
+        const j = Math.floor(Math.random() * (i + 1));
+        [allQuiz[i], allQuiz[j]] = [allQuiz[j], allQuiz[i]];
+      }
+
+      // Take N elements + add index
+      const quizData = allQuiz.slice(0, numQuestions).map((quiz, index) => ({
+        ...quiz,
+        quizIndex: index,
+      }));
+
+      state.listCurrentQuiz = quizData;
+      state.currentQuiz = quizData[0] || null;
+      state.timePerQuestion = timePerQuestion;
+      state.numQuestions = numQuestions;
     },
     setCurrentQuiz: (state, action) => {
       state.currentQuiz = action.payload;

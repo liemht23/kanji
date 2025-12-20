@@ -14,8 +14,11 @@ export const kanjiCollectionInitialState: KanjiCollectionState = {
   currentSampleVocab: DEFAULT_SAMPLE_VOCAB,
   listSampleVocab: [],
   listMemorizedKanji: [],
+  timePerQuestion: 30,
+  numQuestions: 100,
   currentQuiz: null,
-  listQuiz: [],
+  listCurrentQuiz: [],
+  listAllQuiz: [],
   loading: false,
 };
 
