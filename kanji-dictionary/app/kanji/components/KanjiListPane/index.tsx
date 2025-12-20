@@ -105,10 +105,10 @@ const KanjiListPane = () => {
           {/* Scrollable content */}
           <div className="flex-1 overflow-y-auto mt-4 flex flex-col items-center">
             {groupedKanji.map((group, groupIdx) => (
-              <div key={groupIdx} className="mb-16 flex flex-col items-center">
+              <div key={groupIdx} className="mb-10 flex flex-col items-center">
                 {Array.from({ length: Math.ceil(group.length / 10) }).map(
                   (_, rowIdx) => (
-                    <div key={rowIdx} className="flex gap-2 mb-1">
+                    <div key={rowIdx} className="flex gap-2 m-2">
                       {group
                         .slice(rowIdx * 10, rowIdx * 10 + 10)
                         .map((kanji, idx) => (
@@ -117,7 +117,7 @@ const KanjiListPane = () => {
                             onClick={() => handleSelectKanji(kanji)}
                             className={cn(
                               `text-2xl cursor-pointer px-2 py-1 rounded-md select-none
-                     transition-all duration-200 ease-out transform`,
+                            transition-all duration-200 ease-out transform`,
                               kanji.id === selectedKanji?.id
                                 ? "bg-blue-300 text-white scale-110 shadow-sm"
                                 : "hover:scale-125 hover:bg-gray-100 hover:shadow-sm active:scale-95"
