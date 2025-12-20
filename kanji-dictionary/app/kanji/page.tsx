@@ -7,11 +7,7 @@ import Spinner from "@/components/common/Spinner";
 import { useEffect } from "react";
 import { useAppDispatch, useAppSelector } from "@/store/hook";
 import { RootState } from "@/store/store";
-import {
-  resetKanjiCollection,
-  setSelectedKanji,
-  setSelectedKanjiCollection,
-} from "@/store/slices/kanji-collection";
+import { resetKanjiCollection } from "@/store/slices/kanji-collection";
 import {
   getAllMemorizedKanjiThunk,
   getAllKanjiCollectionThunk,
@@ -19,12 +15,14 @@ import {
 } from "@/store/slices/kanji-collection/thunk";
 import KanjiListPane from "./components/KanjiListPane";
 import ListKanjiCollection from "./components/ListKanjiCollection";
+import KanjiQuiz from "./components/KanjiQuiz";
+import { cn } from "@/utils/class-name";
 
 const KanjiPage = () => {
   const { isMobile } = useLayout();
   const { checking } = useAuthGuard();
   const dispatch = useAppDispatch();
-  const { selectedCollection, loading } = useAppSelector(
+  const { selectedCollection, toolbarState, loading } = useAppSelector(
     (state: RootState) => state.kanji
   );
 
@@ -32,17 +30,11 @@ const KanjiPage = () => {
     return () => {
       dispatch(resetKanjiCollection());
     };
-  }, []);
+  }, [dispatch]);
 
   useEffect(() => {
     dispatch(getAllKanjiCollectionThunk()).unwrap();
   }, [dispatch]);
-
-  const handleBack = () => {
-    // Clear selected collection and selected kanji when going back to collection list
-    dispatch(setSelectedKanjiCollection(null));
-    dispatch(setSelectedKanji(null));
-  };
 
   useEffect(() => {
     if (selectedCollection?.id) {
@@ -68,14 +60,20 @@ const KanjiPage = () => {
     );
   }
   return (
-    <div className={isMobile ? "p-4" : "px-10 py-8"}>
-      <KanjiToolBar onBack={handleBack} />
+    <div className={cn("h-full", isMobile ? "p-4" : "px-10 py-8")}>
+      <KanjiToolBar />
       {!selectedCollection ? (
         <ListKanjiCollection />
       ) : (
         <>
-          <KanjiCard />
-          <KanjiListPane />
+          {toolbarState.isOpenQuiz ? (
+            <KanjiQuiz />
+          ) : (
+            <>
+              <KanjiCard />
+              <KanjiListPane />
+            </>
+          )}
         </>
       )}
     </div>

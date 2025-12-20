@@ -15,7 +15,19 @@ export const kanjiCollectionSlice = createSlice({
     setSelectedKanjiCollection: (state, action) => {
       state.selectedCollection = action.payload;
       if (action.payload === null) {
+        // Clear kanji cards
+        state.toolbarState = {
+          isOpenQuizFilter: false,
+          isOpenQuiz: false,
+        };
         state.kanjiCards = [];
+        state.selectedKanji = null;
+        state.editedKanji = null;
+        state.currentSampleVocab = DEFAULT_SAMPLE_VOCAB;
+        state.listSampleVocab = [];
+        state.listMemorizedKanji = [];
+        state.currentQuiz = null;
+        state.listQuiz = [];
       }
     },
 
@@ -119,6 +131,27 @@ export const kanjiCollectionSlice = createSlice({
       }
     },
 
+    setOpenQuizFilter: (state, action) => {
+      state.toolbarState.isOpenQuizFilter = action.payload;
+      const data = state.kanjiCards.flatMap((card) => card.example);
+      state.listQuiz = data;
+    },
+    setOpenQuiz: (state, action) => {
+      state.toolbarState.isOpenQuiz = action.payload;
+      if (state.toolbarState.isOpenQuiz === false) {
+        state.currentQuiz = null;
+        return;
+      }
+      // Prepare quiz data
+      const data = state.kanjiCards.flatMap((card) => card.example);
+
+      state.listQuiz = data;
+      state.currentQuiz = data[0] || null;
+    },
+    setCurrentQuiz: (state, action) => {
+      state.currentQuiz = action.payload;
+    },
+
     resetKanjiCollection: () => kanjiCollectionInitialState,
   },
   extraReducers: (builder) => {
@@ -194,6 +227,9 @@ export const {
   removeWordPart,
   removeMemorizedKanji,
   addMemorizedKanji,
+  setOpenQuizFilter,
+  setOpenQuiz,
+  setCurrentQuiz,
   resetKanjiCollection,
 } = kanjiCollectionSlice.actions;
 export default kanjiCollectionSlice.reducer;

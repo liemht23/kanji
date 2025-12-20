@@ -1,6 +1,6 @@
 import { SquarePlayIcon, ImageIcon, Book, BookCheck } from "lucide-react";
 import Image from "next/image";
-import "./kanji-card.css";
+import "./index.css";
 import Tooltip from "@/components/common/Tooltip";
 import { RootState } from "@/store/store";
 import { cn } from "@/utils/class-name";

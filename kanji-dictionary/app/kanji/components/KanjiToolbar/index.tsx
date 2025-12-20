@@ -25,19 +25,18 @@ import { useLayout } from "@/app/context/LayoutContext";
 import useAuthGuard from "@/hooks/useAuthGuard";
 import {
   setEditedKanji,
+  setOpenQuizFilter,
   setSelectedKanji,
+  setSelectedKanjiCollection,
 } from "@/store/slices/kanji-collection";
 import {
   updateIsPublishedThunk,
   upsertMemorizedKanjiThunk,
 } from "@/store/slices/kanji-collection/thunk";
 import KanjiListModal from "../KanjiListModal";
+import KanjiQuizFilterModal from "../KanjiQuizFilterModal";
 
-interface KanjiToolBarProps {
-  onBack: () => void;
-}
-
-const KanjiToolBar = ({ onBack }: KanjiToolBarProps) => {
+const KanjiToolBar = () => {
   const dispatch = useAppDispatch();
   const [isOpenAddKanjiModal, setIsOpenAddKanjiModal] = useState(false);
   const [isSearchVisible, setIsSearchVisible] = useState(false);
@@ -51,6 +50,7 @@ const KanjiToolBar = ({ onBack }: KanjiToolBarProps) => {
     listMemorizedKanji,
     kanjiCards,
     selectedKanji,
+    toolbarState,
     loading,
   } = useAppSelector((state: RootState) => state.kanji);
   const { isModalOpen } = useLayout();
@@ -137,6 +137,14 @@ const KanjiToolBar = ({ onBack }: KanjiToolBarProps) => {
     selectedKanji?.kanji_id !== undefined && maxKanjiId !== null
       ? selectedKanji.kanji_id < maxKanjiId
       : false;
+
+  const handleBack = () => {
+    dispatch(setSelectedKanjiCollection(null));
+  };
+
+  const handleOpenQuiz = () => {
+    dispatch(setOpenQuizFilter(true));
+  };
 
   useEffect(() => {
     let lastFPress = 0;
@@ -264,7 +272,7 @@ const KanjiToolBar = ({ onBack }: KanjiToolBarProps) => {
               <Tooltip text="Tăng dần">
                 <ArrowDownAZ
                   className="w-8 h-8 text-black-400 cursor-pointer hover:text-black-900 transition"
-                  onClick={onBack}
+                  // onClick={onBack}
                 />
               </Tooltip>
             </div>
@@ -296,10 +304,10 @@ const KanjiToolBar = ({ onBack }: KanjiToolBarProps) => {
                     onClick={saveMemorizedKanjiProgress}
                   />
                 </Tooltip>
-                <Tooltip text="Quizz">
+                <Tooltip text="Quiz">
                   <ListTodo
                     className="w-8 h-8 cursor-pointer text-black-400 hover:text-black-900"
-                    // onClick={() => setIsOpenQuizz(true)}
+                    onClick={handleOpenQuiz}
                   />
                 </Tooltip>
               </div>
@@ -393,7 +401,7 @@ const KanjiToolBar = ({ onBack }: KanjiToolBarProps) => {
                 <Tooltip text="Back">
                   <Undo2
                     className="w-8 h-8 cursor-pointer text-black-400 hover:text-black-900"
-                    onClick={onBack}
+                    onClick={handleBack}
                   />
                 </Tooltip>
               </div>
@@ -405,6 +413,14 @@ const KanjiToolBar = ({ onBack }: KanjiToolBarProps) => {
         isOpen={isOpenAddKanjiModal}
         onClose={() => setIsOpenAddKanjiModal(false)}
       />
+      {toolbarState.isOpenQuizFilter && (
+        <KanjiQuizFilterModal
+          isOpen={toolbarState.isOpenQuizFilter}
+          onClose={() => {
+            dispatch(setOpenQuizFilter(false));
+          }}
+        />
+      )}
     </>
   );
 };

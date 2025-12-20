@@ -17,7 +17,13 @@ export interface SampleVocab {
   word_parts: WordPart[];
 }
 
+export interface ToolbarState {
+  isOpenQuizFilter: boolean;
+  isOpenQuiz: boolean;
+}
+
 export interface KanjiCollectionState {
+  toolbarState: ToolbarState;
   listKanjiCollections: KanjiCollection[];
   selectedCollection: KanjiCollection | null;
   kanjiCards: Kanji[];
@@ -26,5 +32,7 @@ export interface KanjiCollectionState {
   currentSampleVocab: Vocab;
   listSampleVocab: Vocab[];
   listMemorizedKanji: string[];
+  currentQuiz: SampleVocab | null;
+  listQuiz: SampleVocab[];
   loading: boolean;
 }
