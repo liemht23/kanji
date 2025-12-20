@@ -2,8 +2,6 @@
 
 import { useAppDispatch, useAppSelector } from "@/store/hook";
 import {
-  setListAllQuiz,
-  setListCurrentQuiz,
   setOpenQuiz,
   setSelectedKanji,
   setSelectedKanjiRange,
@@ -113,7 +111,7 @@ const KanjiListPane = () => {
 
   const handleDoQuiz = () => {
     // If selectedKanji is an array with more than 2 items, do something
-    if (Array.isArray(selectedKanjiRange) && selectedKanjiRange.length > 2) {
+    if (Array.isArray(selectedKanjiRange) && selectedKanjiRange.length >= 2) {
       const timePerQuestion = 30; // As default
       const numQuestions = selectedKanjiRange.length;
       // Prepare quiz data
@@ -128,14 +126,12 @@ const KanjiListPane = () => {
         ...quiz,
         quizIndex: index,
       }));
-
-      dispatch(setListAllQuiz(quizData));
-      dispatch(setListCurrentQuiz(quizData));
       dispatch(
         setOpenQuiz({
           isOpenQuiz: true,
           timePerQuestion,
           numQuestions,
+          listCurrentQuiz: quizData,
         })
       );
       dispatch(setSelectedKanjiRange(null));
@@ -256,7 +252,7 @@ const KanjiListPane = () => {
                 "ml-4 px-4 py-2 bg-[#8f5cf7] text-white rounded-md shadow hover:bg-[#7a3ee6] transition-colors",
                 !(
                   Array.isArray(selectedKanjiRange) &&
-                  selectedKanjiRange.length > 2
+                  selectedKanjiRange.length >= 2
                 ) && "invisible"
               )}
               onMouseDown={(e) => e.stopPropagation()}

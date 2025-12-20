@@ -37,6 +37,7 @@ const KanjiQuizFilterModal = ({
         isOpenQuiz: true,
         timePerQuestion,
         numQuestions,
+        listCurrentQuiz: listAllQuiz,
       })
     );
     onClose();

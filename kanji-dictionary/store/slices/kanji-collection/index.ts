@@ -147,46 +147,52 @@ export const kanjiCollectionSlice = createSlice({
         quizIndex: index,
       }));
 
-      state.listAllQuiz = quizData;
-    },
-    setListAllQuiz: (state, action) => {
-      state.listAllQuiz = action.payload;
-    },
-    setOpenQuiz: (state, action) => {
-      if (action.payload === undefined) return;
-
-      const isOpenQuiz = action.payload.isOpenQuiz;
-      const timePerQuestion = action.payload.timePerQuestion;
-      const numQuestions = action.payload.numQuestions;
-
-      state.toolbarState.isOpenQuiz = isOpenQuiz;
-      if (isOpenQuiz === false) {
-        state.currentQuiz = null;
-        state.listCurrentQuiz = [];
-        return;
-      }
-      // Prepare quiz data
-      const allQuiz = state.kanjiCards.flatMap((card) => card.example);
+      const shuffled = [...quizData];
 
       // Shuffle (Fisher–Yates)
-      for (let i = allQuiz.length - 1; i > 0; i--) {
+      for (let i = shuffled.length - 1; i > 0; i--) {
         const j = Math.floor(Math.random() * (i + 1));
-        [allQuiz[i], allQuiz[j]] = [allQuiz[j], allQuiz[i]];
+        [shuffled[i], shuffled[j]] = [shuffled[j], shuffled[i]];
       }
 
-      // Take N elements + add index
-      const quizData = allQuiz.slice(0, numQuestions).map((quiz, index) => ({
-        ...quiz,
-        quizIndex: index,
-      }));
-
-      state.listCurrentQuiz = quizData;
-      state.currentQuiz = quizData[0] || null;
-      state.timePerQuestion = timePerQuestion;
-      state.numQuestions = numQuestions;
+      state.listAllQuiz = shuffled;
     },
-    setListCurrentQuiz: (state, action) => {
-      state.listCurrentQuiz = action.payload;
+    setOpenQuiz: (state, action) => {
+      if (!action.payload) return;
+
+      const { isOpenQuiz, timePerQuestion, numQuestions, listCurrentQuiz } =
+        action.payload;
+
+      state.toolbarState.isOpenQuiz = isOpenQuiz;
+
+      // Close quiz
+      if (isOpenQuiz === false) {
+        state.timePerQuestion = 30;
+        state.numQuestions = 50;
+        state.currentQuiz = null;
+        state.listCurrentQuiz = [];
+        state.listAllQuiz = [];
+        return;
+      }
+
+      if (listCurrentQuiz?.length) {
+        // Clone before shuffling
+        const shuffled = [...listCurrentQuiz];
+
+        // Fisher–Yates shuffle
+        for (let i = shuffled.length - 1; i > 0; i--) {
+          const j = Math.floor(Math.random() * (i + 1));
+          [shuffled[i], shuffled[j]] = [shuffled[j], shuffled[i]];
+        }
+
+        // Take only numQuestions
+        const quizData = shuffled.slice(0, numQuestions);
+
+        state.listCurrentQuiz = quizData;
+        state.currentQuiz = quizData[0] ?? null;
+        state.timePerQuestion = timePerQuestion;
+        state.numQuestions = numQuestions;
+      }
     },
     setCurrentQuiz: (state, action) => {
       state.currentQuiz = action.payload;
@@ -269,10 +275,8 @@ export const {
   removeMemorizedKanji,
   addMemorizedKanji,
   setOpenQuizFilter,
-  setListAllQuiz,
   setOpenQuiz,
   setCurrentQuiz,
-  setListCurrentQuiz,
   resetKanjiCollection,
 } = kanjiCollectionSlice.actions;
 export default kanjiCollectionSlice.reducer;
