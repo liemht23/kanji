@@ -1,6 +1,7 @@
-import React, { useState, useRef, useEffect } from "react";
+import React, { useState, useRef, useEffect, useCallback } from "react";
 import "./index.css";
 import { ChevronRight, CircleCheck, Lightbulb, XCircle } from "lucide-react";
+import KanjiQuizResult from "../KanjiQuizResult";
 import { useAppDispatch, useAppSelector } from "@/store/hook";
 import { RootState } from "@/store/store";
 import { setCurrentQuiz } from "@/store/slices/kanji-collection";
@@ -19,9 +20,18 @@ const KanjiQuiz = () => {
   const [showIncorrectAnim, setShowIncorrectAnim] = useState(false);
   const [isComposing, setIsComposing] = useState(false);
   const [isCorrect, setIsCorrect] = useState<boolean | null>(null);
-  // Track total correct/incorrect answers
+  // Track total correct/incorrect answers and incorrect details
   const [totalCorrect, setTotalCorrect] = useState(0);
   const [totalIncorrect, setTotalIncorrect] = useState(0);
+  const [incorrectAnswers, setIncorrectAnswers] = useState<
+    {
+      question: string;
+      userAnswer: string;
+      correctAnswer: string;
+      meaning: string;
+    }[]
+  >([]);
+  const [showSummary, setShowSummary] = useState(false);
 
   // Redux data
   const { listCurrentQuiz, currentQuiz, timePerQuestion, numQuestions } =
@@ -138,23 +148,18 @@ const KanjiQuiz = () => {
     if (e.key === "Enter") {
       e.stopPropagation();
       e.preventDefault();
-
       if (!showAnswer && !isComposing) {
         const value = input.trim();
-
         // Stop timer when user answers
         isTimerActiveRef.current = false;
-
         // Correct answer
         if (pronun && value === pronun) {
           setIsCorrect(true);
           setShowCorrectAnim(true);
           setTotalCorrect((prev) => prev + 1);
-
           if (correctAnimTimeout.current) {
             clearTimeout(correctAnimTimeout.current);
           }
-
           // After short animation, show final answer panel
           correctAnimTimeout.current = setTimeout(() => {
             setShowCorrectAnim(false);
@@ -165,7 +170,16 @@ const KanjiQuiz = () => {
           setIsCorrect(false);
           setShowIncorrectAnim(true);
           setTotalIncorrect((prev) => prev + 1);
-
+          // Save incorrect answer detail
+          setIncorrectAnswers((prev) => [
+            ...prev,
+            {
+              question: currentQuiz?.vocab || "",
+              userAnswer: value,
+              correctAnswer: pronun || "",
+              meaning: currentQuiz?.meaning || "",
+            },
+          ]);
           setTimeout(() => {
             setShowIncorrectAnim(false);
             setShowAnswer(true);
@@ -175,34 +189,28 @@ const KanjiQuiz = () => {
     }
   };
 
-  const handleNext = () => {
+  const handleNext = useCallback(() => {
     setInput("");
-
-    if (
-      currentQuizIndex >= 0 &&
-      currentQuizIndex + 1 < listCurrentQuiz.length
-    ) {
+    // If last quiz, show summary
+    if (currentQuizIndex + 1 >= listCurrentQuiz.length) {
+      setShowSummary(true);
+    } else {
       dispatch(setCurrentQuiz(listCurrentQuiz[currentQuizIndex + 1]));
     }
-  };
+  }, [currentQuizIndex, listCurrentQuiz, dispatch]);
 
   // Global key listener for Enter when answer is shown
   useEffect(() => {
     const handleGlobalKey = (e: KeyboardEvent) => {
       if (e.key === "Enter" && showAnswer) {
-        // Go to next quiz
-        if (currentQuizIndex + 1 < listCurrentQuiz.length) {
-          dispatch(setCurrentQuiz(listCurrentQuiz[currentQuizIndex + 1]));
-        }
+        handleNext();
       }
     };
-
     window.addEventListener("keydown", handleGlobalKey);
-
     return () => {
       window.removeEventListener("keydown", handleGlobalKey);
     };
-  }, [showAnswer, currentQuiz, listCurrentQuiz, dispatch, currentQuizIndex]);
+  }, [showAnswer, handleNext]);
 
   // Cleanup correct animation timeout on unmount
   useEffect(() => {
@@ -212,6 +220,16 @@ const KanjiQuiz = () => {
       }
     };
   }, []);
+
+  if (showSummary) {
+    return (
+      <KanjiQuizResult
+        totalCorrect={totalCorrect}
+        totalIncorrect={totalIncorrect}
+        incorrectAnswers={incorrectAnswers}
+      />
+    );
+  }
 
   return (
     <div className="bg-black-0 border border-black-100 rounded-3xl shadow-lg max-w-3xl mx-auto mt-16 relative overflow-hidden">
@@ -331,7 +349,11 @@ const KanjiQuiz = () => {
               text-blue-700 font-bold hover:text-white hover:bg-blue-700 cursor-pointer"
               onClick={handleNext}
             >
-              <span className="text-2xl">NEXT</span>
+              <span className="text-2xl">
+                {currentQuizIndex + 1 >= listCurrentQuiz.length
+                  ? "XEM KẾT QUẢ"
+                  : "NEXT"}
+              </span>
               <ChevronRight className="w-8 h-8" />
             </div>
           )}
