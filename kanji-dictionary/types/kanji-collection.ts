@@ -33,6 +33,7 @@ export interface KanjiCollectionState {
   kanjiCards: Kanji[];
   selectedKanji: Kanji | null;
   editedKanji: Kanji | null;
+  selectedKanjiRange: Kanji[] | null;
   currentSampleVocab: Vocab;
   listSampleVocab: Vocab[];
   listMemorizedKanji: string[];

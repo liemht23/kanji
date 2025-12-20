@@ -40,6 +40,10 @@ export const kanjiCollectionSlice = createSlice({
       state.editedKanji = action.payload;
     },
 
+    setSelectedKanjiRange: (state, action) => {
+      state.selectedKanjiRange = action.payload;
+    },
+
     setSampleVocab: (state, action) => {
       state.currentSampleVocab = action.payload;
     },
@@ -145,6 +149,9 @@ export const kanjiCollectionSlice = createSlice({
 
       state.listAllQuiz = quizData;
     },
+    setListAllQuiz: (state, action) => {
+      state.listAllQuiz = action.payload;
+    },
     setOpenQuiz: (state, action) => {
       if (action.payload === undefined) return;
 
@@ -177,6 +184,9 @@ export const kanjiCollectionSlice = createSlice({
       state.currentQuiz = quizData[0] || null;
       state.timePerQuestion = timePerQuestion;
       state.numQuestions = numQuestions;
+    },
+    setListCurrentQuiz: (state, action) => {
+      state.listCurrentQuiz = action.payload;
     },
     setCurrentQuiz: (state, action) => {
       state.currentQuiz = action.payload;
@@ -245,6 +255,7 @@ export const {
   setSelectedKanjiCollection,
   setSelectedKanji,
   setEditedKanji,
+  setSelectedKanjiRange,
   setSampleVocab,
   clearSampleVocab,
   setListSampleVocab,
@@ -258,8 +269,10 @@ export const {
   removeMemorizedKanji,
   addMemorizedKanji,
   setOpenQuizFilter,
+  setListAllQuiz,
   setOpenQuiz,
   setCurrentQuiz,
+  setListCurrentQuiz,
   resetKanjiCollection,
 } = kanjiCollectionSlice.actions;
 export default kanjiCollectionSlice.reducer;
