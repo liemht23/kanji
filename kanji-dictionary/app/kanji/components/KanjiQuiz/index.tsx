@@ -10,6 +10,7 @@ import Incorrect from "@/components/common/Incorrect";
 
 const KanjiQuiz = () => {
   const dispatch = useAppDispatch();
+  const hasAnsweredRef = useRef(false);
 
   // Local UI states
   const [input, setInput] = useState("");
@@ -32,6 +33,8 @@ const KanjiQuiz = () => {
     }[]
   >([]);
   const [showSummary, setShowSummary] = useState(false);
+  // Track if answer has been submitted (for disabling input)
+  const [hasSubmitted, setHasSubmitted] = useState(false);
 
   // Redux data
   const { listCurrentQuiz, currentQuiz, timePerQuestion, numQuestions } =
@@ -81,6 +84,8 @@ const KanjiQuiz = () => {
       setIsCorrect(null);
       setInput("");
       setTimeLeft(totalTime);
+      hasAnsweredRef.current = false;
+      setHasSubmitted(false);
     });
 
     // Start timer for new quiz
@@ -95,12 +100,13 @@ const KanjiQuiz = () => {
       const remaining = totalTime - elapsed;
 
       // Time is up
-      if (remaining <= 0) {
+      if (remaining <= 0 && !hasAnsweredRef.current) {
+        hasAnsweredRef.current = true;
+
         isTimerActiveRef.current = false;
         setTimeLeft(0);
-        // Show hint (meaning) and final answer when time is up
         setShowMeaning(true);
-        setIsCorrect(false); // treat as incorrect if user did not answer in time
+        setIsCorrect(false);
         setTotalIncorrect((prev) => prev + 1);
         setShowAnswer(true);
         return;
@@ -145,7 +151,14 @@ const KanjiQuiz = () => {
 
   // Handle Enter key -> user submits answer
   const handleInputKeyDown = (e: React.KeyboardEvent<HTMLInputElement>) => {
-    if (e.key === "Enter") {
+    if (
+      e.key === "Enter" &&
+      !showAnswer &&
+      !isComposing &&
+      !hasAnsweredRef.current
+    ) {
+      hasAnsweredRef.current = true;
+      setHasSubmitted(true);
       e.stopPropagation();
       e.preventDefault();
       if (!showAnswer && !isComposing) {
@@ -314,6 +327,7 @@ const KanjiQuiz = () => {
                 onCompositionEnd={handleCompositionEnd}
                 placeholder="Enter the answer..."
                 autoFocus
+                disabled={hasSubmitted}
               />
             </div>
           )}

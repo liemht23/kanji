@@ -112,8 +112,6 @@ const KanjiListPane = () => {
   const handleDoQuiz = () => {
     // If selectedKanji is an array with more than 2 items, do something
     if (Array.isArray(selectedKanjiRange) && selectedKanjiRange.length >= 2) {
-      const timePerQuestion = 30; // As default
-      const numQuestions = selectedKanjiRange.length;
       // Prepare quiz data
       const allQuiz = selectedKanjiRange.flatMap((card) => card.example);
       // Shuffle (Fisher–Yates)
@@ -126,6 +124,8 @@ const KanjiListPane = () => {
         ...quiz,
         quizIndex: index,
       }));
+      const timePerQuestion = 30; // As default
+      const numQuestions = quizData.length;
       dispatch(
         setOpenQuiz({
           isOpenQuiz: true,
