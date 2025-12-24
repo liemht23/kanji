@@ -12,4 +12,5 @@ export interface Kanji {
   example: Vocab[];
   example_images: string[];
   is_published: boolean;
+  collection_id: string;
 }

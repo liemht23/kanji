@@ -32,7 +32,7 @@ interface AddKanjiModalProps {
 const AddKanjiModal = ({ isOpen, onClose }: AddKanjiModalProps) => {
   const [isOpenAddSampleKanjiModal, setIsOpenAddSampleKanjiModal] =
     useState(false);
-  const { editedKanji, listSampleVocab } = useAppSelector(
+  const { editedKanji, listSampleVocab, selectedCollection } = useAppSelector(
     (state: RootState) => state.kanji
   );
   const isEditMode = Boolean(editedKanji);
@@ -173,6 +173,9 @@ const AddKanjiModal = ({ isOpen, onClose }: AddKanjiModalProps) => {
         }
       }
 
+      if (!selectedCollection) {
+        return;
+      }
       // --- Build Kanji ---
       const kanjiData: Kanji = {
         id: isEditMode && editedKanji ? editedKanji.id : undefined,
@@ -186,6 +189,7 @@ const AddKanjiModal = ({ isOpen, onClose }: AddKanjiModalProps) => {
         example: listSampleVocab,
         example_images,
         is_published: false,
+        collection_id: selectedCollection?.id,
       };
 
       // --- Dispatch insert or update thunk ---

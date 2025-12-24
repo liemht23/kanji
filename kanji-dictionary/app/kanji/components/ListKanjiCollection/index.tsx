@@ -20,9 +20,11 @@ const ListKanjiCollection = () => {
           onClick={() => dispatch(setSelectedKanjiCollection(collection))}
         >
           <div className="flex items-center gap-1 text-md font-bold">
-            <div className="bg-orange-400 text-black-0 px-2 py-1 rounded-sm">
-              {getLabel(LEVEL_OPTION, collection.level)}
-            </div>
+            {!!collection.level && (
+              <div className="bg-orange-400 text-black-0 px-2 py-1 rounded-sm">
+                {getLabel(LEVEL_OPTION, collection.level)}
+              </div>
+            )}
             <div className="text-xl">{collection.title}</div>
           </div>
           <div className="text-base text-left text-gray-700 mt-4">

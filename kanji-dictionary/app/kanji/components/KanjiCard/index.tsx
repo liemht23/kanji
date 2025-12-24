@@ -83,20 +83,22 @@ const KanjiCard = () => {
             <div className="col-span-5 px-20">
               <div className="kanji-wrapper bg-black-100 rounded-2xl px-8 py-4">
                 <div className="card-action flex items-center justify-end gap-2 p-2">
-                  <Tooltip text={showKanjiAnimation ? "Stop" : "Animate"}>
-                    <SquarePlayIcon
-                      className={cn(
-                        "w-6 h-6 cursor-pointer transition-colors",
-                        showKanjiAnimation
-                          ? "text-blue-300"
-                          : "text-black-300 hover:text-black-900"
-                      )}
-                      onClick={() => {
-                        const isActive = !showKanjiAnimation;
-                        setShowKanjiAnimation(isActive);
-                      }}
-                    />
-                  </Tooltip>
+                  {selectedKanji?.img_url && (
+                    <Tooltip text={showKanjiAnimation ? "Stop" : "Animate"}>
+                      <SquarePlayIcon
+                        className={cn(
+                          "w-6 h-6 cursor-pointer transition-colors",
+                          showKanjiAnimation
+                            ? "text-blue-300"
+                            : "text-black-300 hover:text-black-900"
+                        )}
+                        onClick={() => {
+                          const isActive = !showKanjiAnimation;
+                          setShowKanjiAnimation(isActive);
+                        }}
+                      />
+                    </Tooltip>
+                  )}
                   <Tooltip text={isMemorized ? "Not memorized" : "Memorized"}>
                     {isMemorized ? (
                       <BookCheck
@@ -136,22 +138,33 @@ const KanjiCard = () => {
                     />
                   ) : (
                     <>
-                      {isImgLoading && <Spinner />}
-                      {!showKanjiAnimation && (
-                        <Image
-                          key={selectedKanji?.img_url}
-                          src={selectedKanji?.img_url}
-                          alt={selectedKanji?.character}
-                          fill
-                          className={cn(
-                            "object-contain transition-opacity duration-500",
-                            isImgLoading ? "opacity-0" : "opacity-100"
-                          )}
-                          onLoad={() => {
-                            if (showKanjiAnimation) return;
-                            setIsImgLoading(false);
-                          }}
-                        />
+                      {!showKanjiAnimation && selectedKanji?.img_url ? (
+                        <>
+                          {isImgLoading && <Spinner />}
+                          <Image
+                            key={selectedKanji?.img_url}
+                            src={selectedKanji?.img_url}
+                            alt={selectedKanji?.character}
+                            fill
+                            className={cn(
+                              "object-contain transition-opacity duration-500",
+                              isImgLoading ? "opacity-0" : "opacity-100"
+                            )}
+                            onLoad={() => {
+                              if (showKanjiAnimation) return;
+                              setIsImgLoading(false);
+                            }}
+                          />
+                        </>
+                      ) : (
+                        !showKanjiAnimation &&
+                        !selectedKanji?.img_url && (
+                          <div className="flex items-center justify-center h-full">
+                            <span className="text-gray-400">
+                              No kanji image found
+                            </span>
+                          </div>
+                        )
                       )}
                     </>
                   )}
