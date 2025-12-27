@@ -33,4 +33,5 @@ export const DEFAULT_KANJI_DATA: Kanji = {
   example: [],
   example_images: [],
   is_published: false,
+  collection_id: "",
 };
