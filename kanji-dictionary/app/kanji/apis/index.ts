@@ -22,8 +22,12 @@ export const getListKanjiByCollectionId = async (collectionId: string) => {
 };
 
 export const insertKanji = async (kanjiWord: Kanji) => {
-  const { data, error } = await supabase.from("kanji").insert(kanjiWord);
-
+  const { data, error } = await supabase
+    .from("kanji")
+    .insert(kanjiWord)
+    .select()
+    .single();
+  console.log("Inserted kanji:", data, error);
   if (error) throw error;
   return data;
 };
@@ -38,7 +42,9 @@ export const updateKanji = async (kanjiWord: Kanji) => {
   const { data, error } = await supabase
     .from("kanji")
     .update(updateFields)
-    .eq("id", id);
+    .eq("id", id)
+    .select()
+    .single();
 
   if (error) throw error;
   return data;

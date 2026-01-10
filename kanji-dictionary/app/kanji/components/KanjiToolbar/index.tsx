@@ -31,7 +31,7 @@ import {
 } from "@/store/slices/kanji-collection";
 import {
   deleteKanjiThunk,
-  getAllKanjiCollectionThunk,
+  getKanjiByCollectionIdThunk,
   updateIsPublishedThunk,
   upsertMemorizedKanjiThunk,
 } from "@/store/slices/kanji-collection/thunk";
@@ -135,14 +135,24 @@ const KanjiToolBar = () => {
         dispatch(deleteKanjiThunk(selectedKanji))
           .unwrap()
           .then(() => {
+            // Current index
+            const currentIndex = kanjiCards.findIndex(
+              (kc) => kc.kanji_id === selectedKanji.kanji_id
+            );
+            // Select previous kanji if exists, otherwise select next kanji
+            const nextIndex =
+              currentIndex > 0 ? currentIndex - 1 : currentIndex + 1;
+            dispatch(setSelectedKanji(kanjiCards[nextIndex]));
+            // Refresh the kanji list
+            if (selectedCollection) {
+              dispatch(getKanjiByCollectionIdThunk(selectedCollection.id));
+            }
+
             Swal.fire({
               title: "Deleted!",
               text: "The kanji has been deleted.",
               icon: "success",
             });
-
-            // Refresh the kanji list or perform any other necessary actions
-            dispatch(getAllKanjiCollectionThunk());
           });
       }
     });

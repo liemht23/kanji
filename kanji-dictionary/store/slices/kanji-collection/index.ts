@@ -5,7 +5,6 @@ import {
   getAllKanjiCollectionThunk,
   getKanjiByCollectionIdThunk,
   updateIsPublishedThunk,
-  getKanjiImageUrlThunk,
 } from "./thunk";
 import { DEFAULT_SAMPLE_VOCAB } from "@/constants/kanji-const";
 

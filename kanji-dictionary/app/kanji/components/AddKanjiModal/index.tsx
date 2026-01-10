@@ -224,14 +224,19 @@ const AddKanjiModal = ({ isOpen, onClose }: AddKanjiModalProps) => {
       };
 
       // --- Dispatch insert or update thunk ---
-      await dispatch(
-        upsertKanjiThunk({ data: kanjiData, isEdit: isEditMode })
-      ).unwrap();
+      await dispatch(upsertKanjiThunk({ data: kanjiData, isEdit: isEditMode }))
+        .unwrap()
+        .then((res) => {
+          // Clear list sample vocab
+          dispatch(clearListSampleVocab());
+          // Refresh the kanji list
+          if (selectedCollection) {
+            dispatch(getKanjiByCollectionIdThunk(selectedCollection.id));
+          }
+          dispatch(setSelectedKanji(res));
+          dispatch(setEditedKanji(null));
+        });
 
-      dispatch(clearListSampleVocab());
-      dispatch(getKanjiByCollectionIdThunk(selectedCollection.id));
-      dispatch(setSelectedKanji(kanjiData));
-      dispatch(setEditedKanji(null));
       onClose();
     } catch (error) {
       const msg =
