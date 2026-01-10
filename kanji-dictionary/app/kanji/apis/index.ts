@@ -1,6 +1,7 @@
 import { PROGRESS_TYPE } from "@/enum/progress-enum";
 import { supabase } from "@/lib/supabase-client";
 import { Kanji } from "@/types/kanji";
+import { KanjiImages } from "@/types/kanji-images";
 
 export const getAllKanjiCollectionData = async () => {
   const { data, error } = await supabase.from("kanji_collection").select("*");
@@ -87,4 +88,24 @@ export const upsertMemorizedKanji = async (data: {
   if (error) throw error;
 
   return responseData;
+};
+
+export const getKanjiImageUrl = async (kanji: string) => {
+  const { data, error } = await supabase
+    .from("kanji_images")
+    .select("url")
+    .eq("kanji", kanji)
+    .maybeSingle();
+
+  if (error) throw error;
+  return data?.url;
+};
+
+export const insertKanjiImage = async (kanjiImage: KanjiImages) => {
+  const { data, error } = await supabase
+    .from("kanji_images")
+    .insert(kanjiImage);
+
+  if (error) throw error;
+  return data;
 };

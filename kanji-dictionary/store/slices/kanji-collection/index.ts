@@ -5,6 +5,7 @@ import {
   getAllKanjiCollectionThunk,
   getKanjiByCollectionIdThunk,
   updateIsPublishedThunk,
+  getKanjiImageUrlThunk,
 } from "./thunk";
 import { DEFAULT_SAMPLE_VOCAB } from "@/constants/kanji-const";
 
@@ -252,6 +253,19 @@ export const kanjiCollectionSlice = createSlice({
         }
       })
       .addCase(updateIsPublishedThunk.rejected, (state) => {
+        state.loading = false;
+      });
+
+    builder
+      .addCase(getKanjiImageUrlThunk.pending, (state) => {
+        state.loading = true;
+      })
+      .addCase(getKanjiImageUrlThunk.fulfilled, (state, action) => {
+        state.loading = false;
+        const kanjiImg = action.payload;
+        state.kanji_img = kanjiImg?.url;
+      })
+      .addCase(getKanjiImageUrlThunk.rejected, (state) => {
         state.loading = false;
       });
   },

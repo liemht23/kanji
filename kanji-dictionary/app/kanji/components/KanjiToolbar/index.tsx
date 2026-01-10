@@ -53,7 +53,7 @@ const KanjiToolBar = () => {
     toolbarState,
     loading,
   } = useAppSelector((state: RootState) => state.kanji);
-  const { isModalOpen } = useLayout();
+  const { isModalOpen, setIsModalOpen } = useLayout();
   const iconRef = useRef<SVGSVGElement | null>(null);
   const modalRef = useRef<HTMLDivElement | null>(null);
 
@@ -92,10 +92,12 @@ const KanjiToolBar = () => {
   const handleEditKanji = () => {
     dispatch(setEditedKanji(selectedKanji));
     setIsOpenAddKanjiModal(true);
+    setIsModalOpen(true);
   };
 
   const handleAddKanji = () => {
     setIsOpenAddKanjiModal(true);
+    setIsModalOpen(true);
   };
 
   const handleDeleteKanji = () => {
@@ -146,6 +148,10 @@ const KanjiToolBar = () => {
     dispatch(setOpenQuizFilter(true));
   };
 
+  const handleCloseAddKanjiModal = () => {
+    setIsOpenAddKanjiModal(false);
+    setIsModalOpen(false);
+  };
   useEffect(() => {
     let lastFPress = 0;
 
@@ -234,7 +240,7 @@ const KanjiToolBar = () => {
                 type="text"
                 id="searchCharacter"
                 name="searchCharacter"
-                value={searchCharacter}
+                value={searchCharacter ?? ""}
                 onChange={(e) => setSearchCharacter(e.target.value)}
                 onCompositionStart={() => setIsComposing(true)}
                 onCompositionEnd={() => setIsComposing(false)}
@@ -411,7 +417,7 @@ const KanjiToolBar = () => {
       </div>
       <AddKanjiModal
         isOpen={isOpenAddKanjiModal}
-        onClose={() => setIsOpenAddKanjiModal(false)}
+        onClose={handleCloseAddKanjiModal}
       />
       {toolbarState.isOpenQuizFilter && (
         <KanjiQuizFilterModal

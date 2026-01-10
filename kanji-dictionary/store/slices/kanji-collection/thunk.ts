@@ -6,10 +6,13 @@ import {
   updateIsPublished,
   updateKanji,
   upsertMemorizedKanji,
+  getKanjiImageUrl,
+  insertKanjiImage,
 } from "@/app/kanji/apis";
 import { PROGRESS_TYPE } from "@/enum/progress-enum";
 import { supabase } from "@/lib/supabase-client";
 import { Kanji } from "@/types/kanji";
+import { KanjiImages } from "@/types/kanji-images";
 import { createAsyncThunk } from "@reduxjs/toolkit";
 
 export const getAllKanjiCollectionThunk = createAsyncThunk(
@@ -119,6 +122,34 @@ export const upsertMemorizedKanjiThunk = createAsyncThunk(
         alias_ids: kanjiIds,
       };
       const response = await upsertMemorizedKanji(data);
+      return response;
+    } catch (error) {
+      const msg =
+        error instanceof Error ? error.message : JSON.stringify(error);
+      return rejectWithValue(msg);
+    }
+  }
+);
+
+export const getKanjiImageUrlThunk = createAsyncThunk(
+  "kanji/getKanjiImageUrl",
+  async (kanjiId: string, { rejectWithValue }) => {
+    try {
+      const response = await getKanjiImageUrl(kanjiId);
+      return response;
+    } catch (error) {
+      const msg =
+        error instanceof Error ? error.message : JSON.stringify(error);
+      return rejectWithValue(msg);
+    }
+  }
+);
+
+export const insertKanjiImageThunk = createAsyncThunk(
+  "kanji/insertKanjiImage",
+  async (kanjiImage: KanjiImages, { rejectWithValue }) => {
+    try {
+      const response = await insertKanjiImage(kanjiImage);
       return response;
     } catch (error) {
       const msg =

@@ -64,7 +64,7 @@ const KanjiCard = () => {
       setIsImgLoading(true);
       setShowKanjiAnimation(false);
     });
-  }, [selectedKanji?.img_url]);
+  }, [selectedKanji, selectedKanji?.img_url]);
 
   return (
     <div className="bg-black-0 p-4 border border-black-100 rounded-2xl shadow-sm h-[80vh]">

@@ -1,6 +1,13 @@
 "use client";
 import Tooltip from "@/components/common/Tooltip";
-import { CircleX, Pencil, SquarePlus, Trash2 } from "lucide-react";
+import {
+  CircleX,
+  FileSearch,
+  FileUp,
+  Pencil,
+  SquarePlus,
+  Trash2,
+} from "lucide-react";
 import { useEffect, useState } from "react";
 import AddSampleKanjiModal from "../AddSampleKanjiModal";
 import { useAppDispatch, useAppSelector } from "@/store/hook";
@@ -22,7 +29,12 @@ import {
   setSampleVocab,
   setSelectedKanji,
 } from "@/store/slices/kanji-collection";
-import { upsertKanjiThunk } from "@/store/slices/kanji-collection/thunk";
+import {
+  getKanjiImageUrlThunk,
+  insertKanjiImageThunk,
+  upsertKanjiThunk,
+} from "@/store/slices/kanji-collection/thunk";
+import { KanjiImages } from "@/types/kanji-images";
 
 interface AddKanjiModalProps {
   isOpen: boolean;
@@ -32,6 +44,10 @@ interface AddKanjiModalProps {
 const AddKanjiModal = ({ isOpen, onClose }: AddKanjiModalProps) => {
   const [isOpenAddSampleKanjiModal, setIsOpenAddSampleKanjiModal] =
     useState(false);
+  // Find kanji image
+  const [searchKanji, setSearchKanji] = useState("");
+  const [searchLoading, setSearchLoading] = useState(false);
+  const [isAllowUpload, setIsAllowUpload] = useState(false);
   const { editedKanji, listSampleVocab, selectedCollection } = useAppSelector(
     (state: RootState) => state.kanji
   );
@@ -71,10 +87,10 @@ const AddKanjiModal = ({ isOpen, onClose }: AddKanjiModalProps) => {
     // Save the selected file and create a preview URL
     setNewMainFile(file);
     setNewMainPreview(URL.createObjectURL(file));
-
-    // When a new file is selected, the existing server image is visually replaced,
-    // but we don't actually remove `existingImgUrl` until the form is submitted
-    // (so that we can still cancel and revert safely).
+    // Disable upload button
+    setIsAllowUpload(false);
+    // Clear search
+    setSearchKanji("");
   };
 
   const onPickExampleImages = (files: File[]) => {
@@ -96,14 +112,17 @@ const AddKanjiModal = ({ isOpen, onClose }: AddKanjiModalProps) => {
     // Clear the selected file and its preview
     setNewMainFile(null);
     setNewMainPreview(null);
-
-    // Do not touch `existingImgUrl` — the server image remains intact
+    setIsAllowUpload(false);
+    // Reset input file to allow re-upload
+    const input = document.getElementById(
+      "kanjiImage-upload"
+    ) as HTMLInputElement | null;
+    if (input) input.value = "";
   };
 
   const removeExistingMainImage = () => {
-    // Mark the existing server image as removed
-    // (so if no new image is selected before submitting, img_url will be set to "")
     setExistingImgUrl(null);
+    setIsAllowUpload(false);
   };
 
   const removeExistingExampleAt = (idx: number) => {
@@ -133,17 +152,28 @@ const AddKanjiModal = ({ isOpen, onClose }: AddKanjiModalProps) => {
   const handleSaveKanji = async () => {
     try {
       // --- Upload main kanji image ---
-      let img_url = existingImgUrl || "";
+      let img_url = "";
       if (newMainFile) {
+        // If user uploads a new file, upload it to the bucket
         try {
           img_url = await uploadImage(newMainFile, BUCKET_KANJI_IMAGES);
+          // Then insert into table kanji_images
+          const kanjiImg: KanjiImages = {
+            id: "", // Generate or assign an ID as needed
+            kanji: character,
+            url: img_url,
+          };
+          await dispatch(insertKanjiImageThunk(kanjiImg)).unwrap();
         } catch (err) {
           const msg = err instanceof Error ? err.message : JSON.stringify(err);
           console.error(msg);
           alert(`Upload kanji image failed: ${msg}`);
         }
-      } else if (existingImgUrl === null) {
-        // User removed existing image and didn't add a new one
+      } else if (existingImgUrl) {
+        // If using image from DB (found or already exists)
+        img_url = existingImgUrl;
+      } else {
+        // No image available
         img_url = "";
       }
 
@@ -198,7 +228,7 @@ const AddKanjiModal = ({ isOpen, onClose }: AddKanjiModalProps) => {
       ).unwrap();
 
       dispatch(clearListSampleVocab());
-      dispatch(setSelectedKanji(Number(kanjiId)));
+      dispatch(setSelectedKanji(kanjiData));
       onClose();
     } catch (error) {
       const msg =
@@ -209,8 +239,32 @@ const AddKanjiModal = ({ isOpen, onClose }: AddKanjiModalProps) => {
   };
 
   const handleCancel = () => {
-    onClose();
     dispatch(clearListSampleVocab());
+    onClose();
+  };
+
+  const handleSearchKanjiImg = async () => {
+    setSearchLoading(true);
+    try {
+      const url = await dispatch(getKanjiImageUrlThunk(searchKanji)).unwrap();
+      if (url) {
+        setExistingImgUrl(url);
+        setIsAllowUpload(false);
+      } else {
+        alert("Kanji image not found! Please upload a new image.");
+        setIsAllowUpload(true);
+      }
+    } catch (err) {
+      alert("Error searching for image!");
+      setIsAllowUpload(true);
+    }
+    setSearchLoading(false);
+  };
+
+  const handleUploadKanjiImg = () => {
+    // focus input file
+    const input = document.getElementById("kanjiImage-upload");
+    if (input) input.click();
   };
 
   // Cleanup previews and temporary files when modal closes
@@ -225,6 +279,8 @@ const AddKanjiModal = ({ isOpen, onClose }: AddKanjiModalProps) => {
         setNewExamplePreviews([]);
         setNewMainFile(null);
         setNewExampleFiles([]);
+        setSearchKanji("");
+        setIsAllowUpload(false);
       }, 0);
     }
     // Add dependencies since we reference them
@@ -258,6 +314,8 @@ const AddKanjiModal = ({ isOpen, onClose }: AddKanjiModalProps) => {
         // Prefill vocab list
         dispatch(clearListSampleVocab());
         dispatch(setListSampleVocab(editedKanji.example || []));
+        setSearchKanji("");
+        setIsAllowUpload(false);
       }, 0);
     } else {
       // Add mode → reset everything
@@ -278,6 +336,8 @@ const AddKanjiModal = ({ isOpen, onClose }: AddKanjiModalProps) => {
         setNewExamplePreviews([]);
 
         dispatch(clearListSampleVocab());
+        setSearchKanji("");
+        setIsAllowUpload(false);
       }, 0);
     }
   }, [isOpen, isEditMode, editedKanji, dispatch]);
@@ -359,106 +419,123 @@ const AddKanjiModal = ({ isOpen, onClose }: AddKanjiModalProps) => {
                       />
                     </div>
 
+                    {/* Find Kanji image from DB */}
                     <div className="mb-5">
                       <label
-                        htmlFor="kanjiImage-upload"
+                        htmlFor="kanji-search"
                         className="block mb-2 text-sm font-medium text-black-900"
                       >
-                        Upload File
+                        Kanji Image
                       </label>
-                      <label
-                        htmlFor="kanjiImage-upload"
-                        className="flex flex-col items-center justify-center w-full h-32 border-2 border-dashed 
-                        border-gray-300 rounded-lg cursor-pointer bg-gray-50 
-                        hover:bg-gray-100 transition-all duration-200 ease-in-out overflow-hidden"
-                        onClickCapture={(e) => {
-                          const target = e.target as HTMLElement;
-                          if (target.closest(".stop-label-click"))
-                            e.preventDefault();
-                        }}
-                      >
+                      <div className="flex gap-1">
+                        <input
+                          type="text"
+                          id="kanji-search"
+                          className={cn(
+                            "border border-black-400 text-black-900 text-sm rounded-lg focus:ring-blue-300 focus:border-blue-500 block w-full p-2.5",
+                            !!newMainPreview || !!existingImgUrl
+                              ? "bg-black-100"
+                              : ""
+                          )}
+                          placeholder=""
+                          value={searchKanji}
+                          onChange={(e) => setSearchKanji(e.target.value)}
+                          disabled={!!newMainPreview || !!existingImgUrl}
+                        />
+                        <button
+                          type="button"
+                          className={cn(
+                            "px-2 py-2 bg-blue-400 text-white rounded-lg disabled:bg-gray-300",
+                            !!newMainPreview ||
+                              !!existingImgUrl ||
+                              searchLoading ||
+                              !searchKanji
+                              ? "bg-gray-300 cursor-not-allowed"
+                              : ""
+                          )}
+                          disabled={
+                            !!newMainPreview ||
+                            !!existingImgUrl ||
+                            searchLoading ||
+                            !searchKanji
+                          }
+                          onClick={handleSearchKanjiImg}
+                        >
+                          <FileSearch></FileSearch>
+                        </button>
+                        <button
+                          type="button"
+                          className={cn(
+                            "px-2 py-2 bg-blue-400 text-white rounded-lg",
+                            (!isAllowUpload ||
+                              !!newMainPreview ||
+                              !!existingImgUrl) &&
+                              "bg-gray-300 cursor-not-allowed"
+                          )}
+                          disabled={
+                            !isAllowUpload ||
+                            !!newMainPreview ||
+                            !!existingImgUrl
+                          }
+                          onClick={handleUploadKanjiImg}
+                        >
+                          <FileUp />
+                        </button>
+                      </div>
+                    </div>
+                    {/* Preview is always displayed */}
+                    <div className="mb-5">
+                      <div className="flex flex-col items-center justify-center w-full h-32 border-2 border-dashed border-gray-300 rounded-lg bg-gray-50 overflow-hidden relative">
                         {newMainPreview ? (
-                          <div className="relative w-full h-full">
+                          <>
                             {/* eslint-disable-next-line @next/next/no-img-element */}
                             <img
                               src={newMainPreview}
                               alt="new preview"
                               className="object-contain w-full h-full rounded-lg"
                             />
-                            <button
-                              type="button"
-                              onClick={(e) => {
-                                e.stopPropagation();
-                                removeMainImage();
-                              }}
-                              className="stop-label-click absolute top-2 right-2 bg-black/60 text-white text-sm rounded-full px-1 hover:bg-black/80"
-                            >
-                              ✕
-                            </button>
-                          </div>
+                          </>
                         ) : existingImgUrl ? (
-                          <div className="relative w-full h-full">
+                          <>
                             {/* eslint-disable-next-line @next/next/no-img-element */}
                             <img
                               src={existingImgUrl}
                               alt="existing"
                               className="object-contain w-full h-full rounded-lg"
                             />
-                            <button
-                              type="button"
-                              onClick={(e) => {
-                                e.stopPropagation();
-                                removeExistingMainImage();
-                              }}
-                              className="stop-label-click absolute top-2 right-2 bg-black/60 text-white text-sm rounded-full px-1 hover:bg-black/80"
-                            >
-                              ✕
-                            </button>
-                          </div>
-                        ) : (
-                          <>
-                            <svg
-                              className="w-8 h-8 mb-2 text-gray-400"
-                              fill="none"
-                              stroke="currentColor"
-                              strokeWidth="2"
-                              viewBox="0 0 24 24"
-                            >
-                              <path
-                                strokeLinecap="round"
-                                strokeLinejoin="round"
-                                d="M12 4v16m8-8H4"
-                              />
-                            </svg>
-                            <p className="text-center text-sm text-gray-500">
-                              <span className="font-semibold">
-                                Click to upload
-                              </span>
-                              <br />
-                              <span>or drag and drop</span>
-                            </p>
                           </>
+                        ) : (
+                          <span className="text-center text-gray-400">
+                            No preview available
+                          </span>
                         )}
-
-                        <input
-                          id="kanjiImage-upload"
-                          type="file"
-                          accept="image/*,application/pdf"
-                          className="hidden"
-                          onChange={(e) => {
-                            const f = e.target.files?.[0];
-                            if (!f) return;
-                            if (f.type.startsWith("image/")) onPickMainImage(f);
-                            else onPickMainImage(f); // skip preview if PDF
-                          }}
-                        />
-                      </label>
-
-                      {newMainFile && !newMainPreview && (
-                        <p className="mt-2 text-sm text-gray-600 text-center">
-                          {newMainFile.name}
-                        </p>
-                      )}
+                        {(newMainPreview || existingImgUrl) && (
+                          <button
+                            type="button"
+                            onClick={() => {
+                              if (newMainPreview) removeMainImage();
+                              else removeExistingMainImage();
+                            }}
+                            className="absolute top-2 right-2 bg-black/60 text-white text-sm rounded-full px-1 hover:bg-black/80"
+                          >
+                            ✕
+                          </button>
+                        )}
+                      </div>
+                      <input
+                        id="kanjiImage-upload"
+                        type="file"
+                        accept="image/*,application/pdf"
+                        className="hidden"
+                        disabled={
+                          !isAllowUpload || !!newMainPreview || !!existingImgUrl
+                        }
+                        onChange={(e) => {
+                          const f = e.target.files?.[0];
+                          if (!f) return;
+                          onPickMainImage(f);
+                        }}
+                      />
                     </div>
                   </div>
 
