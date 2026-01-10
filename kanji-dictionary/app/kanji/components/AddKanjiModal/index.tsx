@@ -28,8 +28,10 @@ import {
   setListSampleVocab,
   setSampleVocab,
   setSelectedKanji,
+  setEditedKanji,
 } from "@/store/slices/kanji-collection";
 import {
+  getKanjiByCollectionIdThunk,
   getKanjiImageUrlThunk,
   insertKanjiImageThunk,
   upsertKanjiThunk,
@@ -48,9 +50,8 @@ const AddKanjiModal = ({ isOpen, onClose }: AddKanjiModalProps) => {
   const [searchKanji, setSearchKanji] = useState("");
   const [searchLoading, setSearchLoading] = useState(false);
   const [isAllowUpload, setIsAllowUpload] = useState(false);
-  const { editedKanji, listSampleVocab, selectedCollection } = useAppSelector(
-    (state: RootState) => state.kanji
-  );
+  const { editedKanji, selectedKanji, listSampleVocab, selectedCollection } =
+    useAppSelector((state: RootState) => state.kanji);
   const isEditMode = Boolean(editedKanji);
 
   // ------- Form Fields (controlled) -------
@@ -228,7 +229,9 @@ const AddKanjiModal = ({ isOpen, onClose }: AddKanjiModalProps) => {
       ).unwrap();
 
       dispatch(clearListSampleVocab());
+      dispatch(getKanjiByCollectionIdThunk(selectedCollection.id));
       dispatch(setSelectedKanji(kanjiData));
+      dispatch(setEditedKanji(null));
       onClose();
     } catch (error) {
       const msg =
@@ -240,6 +243,7 @@ const AddKanjiModal = ({ isOpen, onClose }: AddKanjiModalProps) => {
 
   const handleCancel = () => {
     dispatch(clearListSampleVocab());
+    dispatch(setEditedKanji(null));
     onClose();
   };
 

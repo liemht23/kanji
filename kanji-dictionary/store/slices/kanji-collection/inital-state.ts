@@ -11,7 +11,6 @@ export const kanjiCollectionInitialState: KanjiCollectionState = {
   kanjiCards: [],
   selectedKanji: null,
   editedKanji: null,
-  kanji_img: null,
   selectedKanjiRange: null,
   currentSampleVocab: DEFAULT_SAMPLE_VOCAB,
   listSampleVocab: [],

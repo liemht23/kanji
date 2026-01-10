@@ -30,11 +30,14 @@ import {
   setSelectedKanjiCollection,
 } from "@/store/slices/kanji-collection";
 import {
+  deleteKanjiThunk,
+  getAllKanjiCollectionThunk,
   updateIsPublishedThunk,
   upsertMemorizedKanjiThunk,
 } from "@/store/slices/kanji-collection/thunk";
 import KanjiListModal from "../KanjiListModal";
 import KanjiQuizFilterModal from "../KanjiQuizFilterModal";
+import Swal from "sweetalert2";
 
 const KanjiToolBar = () => {
   const dispatch = useAppDispatch();
@@ -101,7 +104,48 @@ const KanjiToolBar = () => {
   };
 
   const handleDeleteKanji = () => {
-    alert("Chưa có làm tính năng xoá kanji!");
+    // Show alert confirm delete kanji
+    Swal.fire({
+      title: "Are you sure?",
+      text: "This action cannot be undone!",
+      icon: "warning",
+      showCancelButton: true,
+      confirmButtonText: "Confirm",
+      cancelButtonText: "Cancel",
+    }).then((result) => {
+      if (result.isConfirmed) {
+        if (!selectedKanji) return;
+
+        dispatch(deleteKanjiThunk(selectedKanji));
+      }
+    });
+
+    Swal.fire({
+      title: "Are you sure?",
+      text: "You won't be able to revert this!",
+      icon: "warning",
+      showCancelButton: true,
+      confirmButtonColor: "#0096d5",
+      cancelButtonColor: "#df0000",
+      confirmButtonText: "Yes, delete it!",
+    }).then((result) => {
+      if (result.isConfirmed) {
+        if (!selectedKanji) return;
+
+        dispatch(deleteKanjiThunk(selectedKanji))
+          .unwrap()
+          .then(() => {
+            Swal.fire({
+              title: "Deleted!",
+              text: "The kanji has been deleted.",
+              icon: "success",
+            });
+
+            // Refresh the kanji list or perform any other necessary actions
+            dispatch(getAllKanjiCollectionThunk());
+          });
+      }
+    });
   };
 
   const saveMemorizedKanjiProgress = () => {

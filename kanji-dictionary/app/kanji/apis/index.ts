@@ -44,6 +44,17 @@ export const updateKanji = async (kanjiWord: Kanji) => {
   return data;
 };
 
+export const deleteKanji = async (id: string | undefined) => {
+  if (!id) {
+    throw new Error("Missing id for delete");
+  }
+
+  const { data, error } = await supabase.from("kanji").delete().eq("id", id);
+
+  if (error) throw error;
+  return data;
+};
+
 export const updateIsPublished = async (id: string, isPublished: boolean) => {
   const { data, error } = await supabase
     .from("kanji")

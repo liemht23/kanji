@@ -8,6 +8,7 @@ import {
   upsertMemorizedKanji,
   getKanjiImageUrl,
   insertKanjiImage,
+  deleteKanji,
 } from "@/app/kanji/apis";
 import { PROGRESS_TYPE } from "@/enum/progress-enum";
 import { supabase } from "@/lib/supabase-client";
@@ -53,6 +54,20 @@ export const upsertKanjiThunk = createAsyncThunk(
       const response = isEdit
         ? await updateKanji(data)
         : await insertKanji(data);
+      return response;
+    } catch (error) {
+      const msg =
+        error instanceof Error ? error.message : JSON.stringify(error);
+      return rejectWithValue(msg);
+    }
+  }
+);
+
+export const deleteKanjiThunk = createAsyncThunk(
+  "kanji/deleteKanji",
+  async (kanji: Kanji, { rejectWithValue }) => {
+    try {
+      const response = await deleteKanji(kanji.id);
       return response;
     } catch (error) {
       const msg =

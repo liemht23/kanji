@@ -142,7 +142,7 @@ const KanjiCard = () => {
                         <>
                           {isImgLoading && <Spinner />}
                           <Image
-                            key={selectedKanji?.img_url}
+                            key={selectedKanji?.id}
                             src={selectedKanji?.img_url}
                             alt={selectedKanji?.character}
                             fill
@@ -152,6 +152,7 @@ const KanjiCard = () => {
                             )}
                             onLoad={() => {
                               if (showKanjiAnimation) return;
+
                               setIsImgLoading(false);
                             }}
                           />

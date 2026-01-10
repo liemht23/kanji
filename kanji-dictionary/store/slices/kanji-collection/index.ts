@@ -221,7 +221,9 @@ export const kanjiCollectionSlice = createSlice({
       .addCase(getKanjiByCollectionIdThunk.fulfilled, (state, action) => {
         state.loading = false;
         state.kanjiCards = action.payload;
-        state.selectedKanji = state.kanjiCards[0] || null;
+        if (!state.selectedKanji) {
+          state.selectedKanji = state.kanjiCards[0] || null;
+        }
       })
       .addCase(getKanjiByCollectionIdThunk.rejected, (state) => {
         state.loading = false;
@@ -253,19 +255,6 @@ export const kanjiCollectionSlice = createSlice({
         }
       })
       .addCase(updateIsPublishedThunk.rejected, (state) => {
-        state.loading = false;
-      });
-
-    builder
-      .addCase(getKanjiImageUrlThunk.pending, (state) => {
-        state.loading = true;
-      })
-      .addCase(getKanjiImageUrlThunk.fulfilled, (state, action) => {
-        state.loading = false;
-        const kanjiImg = action.payload;
-        state.kanji_img = kanjiImg?.url;
-      })
-      .addCase(getKanjiImageUrlThunk.rejected, (state) => {
         state.loading = false;
       });
   },
