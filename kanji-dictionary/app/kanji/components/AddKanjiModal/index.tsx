@@ -111,7 +111,7 @@ const AddKanjiModal = ({ isOpen, onClose }: AddKanjiModalProps) => {
     setIsAllowUpload(false);
     // Reset input file to allow re-upload
     const input = document.getElementById(
-      "kanjiImage-upload"
+      "kanji-image-upload"
     ) as HTMLInputElement | null;
     if (input) input.value = "";
   };
@@ -260,7 +260,7 @@ const AddKanjiModal = ({ isOpen, onClose }: AddKanjiModalProps) => {
 
   const handleUploadKanjiImg = () => {
     // focus input file
-    const input = document.getElementById("kanjiImage-upload");
+    const input = document.getElementById("kanji-image-upload");
     if (input) input.click();
   };
 
@@ -416,7 +416,7 @@ const AddKanjiModal = ({ isOpen, onClose }: AddKanjiModalProps) => {
                     {/* Preview is always displayed */}
                     <div className="mb-5">
                       <label
-                        htmlFor="kanji-search"
+                        htmlFor="kanji-image-upload"
                         className="block mb-2 text-sm font-medium text-black-900"
                       >
                         Kanji Image
@@ -471,7 +471,7 @@ const AddKanjiModal = ({ isOpen, onClose }: AddKanjiModalProps) => {
                       )}
 
                       <input
-                        id="kanjiImage-upload"
+                        id="kanji-image-upload"
                         type="file"
                         accept="image/*,application/pdf"
                         className="hidden"
