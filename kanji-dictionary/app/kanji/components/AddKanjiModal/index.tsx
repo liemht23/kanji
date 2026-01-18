@@ -47,9 +47,8 @@ const AddKanjiModal = ({ isOpen, onClose }: AddKanjiModalProps) => {
   const [isOpenAddSampleKanjiModal, setIsOpenAddSampleKanjiModal] =
     useState(false);
   const [isAllowUpload, setIsAllowUpload] = useState(false);
-  const { editedKanji, listSampleVocab, selectedCollection } = useAppSelector(
-    (state: RootState) => state.kanji
-  );
+  const { editedKanji, kanjiCards, listSampleVocab, selectedCollection } =
+    useAppSelector((state: RootState) => state.kanji);
   const isEditMode = Boolean(editedKanji);
 
   // ------- Form Fields (controlled) -------
@@ -115,11 +114,6 @@ const AddKanjiModal = ({ isOpen, onClose }: AddKanjiModalProps) => {
       "kanjiImage-upload"
     ) as HTMLInputElement | null;
     if (input) input.value = "";
-  };
-
-  const removeExistingMainImage = () => {
-    setExistingImgUrl(null);
-    setIsAllowUpload(false);
   };
 
   const removeExistingExampleAt = (idx: number) => {
@@ -319,9 +313,10 @@ const AddKanjiModal = ({ isOpen, onClose }: AddKanjiModalProps) => {
         setIsAllowUpload(false);
       }, 0);
     } else {
+      const maxKanjiId = Math.max(...kanjiCards.map((x) => x.kanji_id || 0));
       // Add mode → reset everything
       setTimeout(() => {
-        setKanjiId("");
+        setKanjiId(maxKanjiId + 1);
         setCharacter("");
         setOnReading("");
         setKunReading("");
@@ -340,7 +335,7 @@ const AddKanjiModal = ({ isOpen, onClose }: AddKanjiModalProps) => {
         setIsAllowUpload(false);
       }, 0);
     }
-  }, [isOpen, isEditMode, editedKanji, dispatch]);
+  }, [isOpen, isEditMode, editedKanji, dispatch, kanjiCards]);
 
   if (!isOpen) return;
 
@@ -383,10 +378,9 @@ const AddKanjiModal = ({ isOpen, onClose }: AddKanjiModalProps) => {
                         type="text"
                         id="kanji_id"
                         name="kanji_id"
-                        className={cn(
-                          "border border-black-400 text-black-900 text-sm rounded-lg focus:ring-blue-300 focus:border-blue-500 block w-full p-2.5",
-                          isEditMode ? "bg-black-100" : ""
-                        )}
+                        className={
+                          "border border-black-400 text-black-900 text-sm rounded-lg focus:ring-blue-300 focus:border-blue-500 block w-full p-2.5 bg-black-100"
+                        }
                         placeholder="1"
                         value={kanjiId}
                         onChange={(e) =>
@@ -394,7 +388,7 @@ const AddKanjiModal = ({ isOpen, onClose }: AddKanjiModalProps) => {
                             e.target.value ? Number(e.target.value) : ""
                           )
                         }
-                        disabled={isEditMode}
+                        disabled
                         required
                       />
                     </div>
