@@ -46,12 +46,10 @@ interface AddKanjiModalProps {
 const AddKanjiModal = ({ isOpen, onClose }: AddKanjiModalProps) => {
   const [isOpenAddSampleKanjiModal, setIsOpenAddSampleKanjiModal] =
     useState(false);
-  // Find kanji image
-  const [searchKanji, setSearchKanji] = useState("");
-  const [searchLoading, setSearchLoading] = useState(false);
   const [isAllowUpload, setIsAllowUpload] = useState(false);
-  const { editedKanji, selectedKanji, listSampleVocab, selectedCollection } =
-    useAppSelector((state: RootState) => state.kanji);
+  const { editedKanji, listSampleVocab, selectedCollection } = useAppSelector(
+    (state: RootState) => state.kanji
+  );
   const isEditMode = Boolean(editedKanji);
 
   // ------- Form Fields (controlled) -------
@@ -90,8 +88,6 @@ const AddKanjiModal = ({ isOpen, onClose }: AddKanjiModalProps) => {
     setNewMainPreview(URL.createObjectURL(file));
     // Disable upload button
     setIsAllowUpload(false);
-    // Clear search
-    setSearchKanji("");
   };
 
   const onPickExampleImages = (files: File[]) => {
@@ -160,10 +156,10 @@ const AddKanjiModal = ({ isOpen, onClose }: AddKanjiModalProps) => {
           img_url = await uploadImage(newMainFile, BUCKET_KANJI_IMAGES);
           // Then insert into table kanji_images
           const kanjiImg: KanjiImages = {
-            id: "", // Generate or assign an ID as needed
             kanji: character,
             url: img_url,
           };
+          console.log(kanjiImg);
           await dispatch(insertKanjiImageThunk(kanjiImg)).unwrap();
         } catch (err) {
           const msg = err instanceof Error ? err.message : JSON.stringify(err);
@@ -254,7 +250,6 @@ const AddKanjiModal = ({ isOpen, onClose }: AddKanjiModalProps) => {
 
   const handleOnBlur = async () => {
     if (character && !newMainPreview && !existingImgUrl) {
-      setSearchLoading(true);
       try {
         const url = await dispatch(getKanjiImageUrlThunk(character)).unwrap();
         if (url) {
@@ -266,26 +261,7 @@ const AddKanjiModal = ({ isOpen, onClose }: AddKanjiModalProps) => {
       } catch {
         setIsAllowUpload(true);
       }
-      setSearchLoading(false);
     }
-  };
-
-  const handleSearchKanjiImg = async () => {
-    setSearchLoading(true);
-    try {
-      const url = await dispatch(getKanjiImageUrlThunk(searchKanji)).unwrap();
-      if (url) {
-        setExistingImgUrl(url);
-        setIsAllowUpload(false);
-      } else {
-        alert("Kanji image not found! Please upload a new image.");
-        setIsAllowUpload(true);
-      }
-    } catch (err) {
-      alert("Error searching for image!");
-      setIsAllowUpload(true);
-    }
-    setSearchLoading(false);
   };
 
   const handleUploadKanjiImg = () => {
@@ -306,7 +282,6 @@ const AddKanjiModal = ({ isOpen, onClose }: AddKanjiModalProps) => {
         setNewExamplePreviews([]);
         setNewMainFile(null);
         setNewExampleFiles([]);
-        setSearchKanji("");
         setIsAllowUpload(false);
       }, 0);
     }
@@ -341,7 +316,6 @@ const AddKanjiModal = ({ isOpen, onClose }: AddKanjiModalProps) => {
         // Prefill vocab list
         dispatch(clearListSampleVocab());
         dispatch(setListSampleVocab(editedKanji.example || []));
-        setSearchKanji("");
         setIsAllowUpload(false);
       }, 0);
     } else {
@@ -363,7 +337,6 @@ const AddKanjiModal = ({ isOpen, onClose }: AddKanjiModalProps) => {
         setNewExamplePreviews([]);
 
         dispatch(clearListSampleVocab());
-        setSearchKanji("");
         setIsAllowUpload(false);
       }, 0);
     }
