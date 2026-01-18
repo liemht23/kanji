@@ -252,6 +252,24 @@ const AddKanjiModal = ({ isOpen, onClose }: AddKanjiModalProps) => {
     onClose();
   };
 
+  const handleOnBlur = async () => {
+    if (character && !newMainPreview && !existingImgUrl) {
+      setSearchLoading(true);
+      try {
+        const url = await dispatch(getKanjiImageUrlThunk(character)).unwrap();
+        if (url) {
+          setExistingImgUrl(url);
+          setIsAllowUpload(false);
+        } else {
+          setIsAllowUpload(true);
+        }
+      } catch {
+        setIsAllowUpload(true);
+      }
+      setSearchLoading(false);
+    }
+  };
+
   const handleSearchKanjiImg = async () => {
     setSearchLoading(true);
     try {
@@ -428,7 +446,7 @@ const AddKanjiModal = ({ isOpen, onClose }: AddKanjiModalProps) => {
                       />
                     </div>
 
-                    {/* Find Kanji image from DB */}
+                    {/* Preview is always displayed */}
                     <div className="mb-5">
                       <label
                         htmlFor="kanji-search"
@@ -436,64 +454,6 @@ const AddKanjiModal = ({ isOpen, onClose }: AddKanjiModalProps) => {
                       >
                         Kanji Image
                       </label>
-                      <div className="flex gap-1">
-                        <input
-                          type="text"
-                          id="kanji-search"
-                          className={cn(
-                            "border border-black-400 text-black-900 text-sm rounded-lg focus:ring-blue-300 focus:border-blue-500 block w-full p-2.5",
-                            !!newMainPreview || !!existingImgUrl
-                              ? "bg-black-100"
-                              : ""
-                          )}
-                          placeholder=""
-                          value={searchKanji}
-                          onChange={(e) => setSearchKanji(e.target.value)}
-                          disabled={!!newMainPreview || !!existingImgUrl}
-                        />
-                        <button
-                          type="button"
-                          className={cn(
-                            "px-2 py-2 bg-blue-400 text-white rounded-lg disabled:bg-gray-300",
-                            !!newMainPreview ||
-                              !!existingImgUrl ||
-                              searchLoading ||
-                              !searchKanji
-                              ? "bg-gray-300 cursor-not-allowed"
-                              : ""
-                          )}
-                          disabled={
-                            !!newMainPreview ||
-                            !!existingImgUrl ||
-                            searchLoading ||
-                            !searchKanji
-                          }
-                          onClick={handleSearchKanjiImg}
-                        >
-                          <FileSearch></FileSearch>
-                        </button>
-                        <button
-                          type="button"
-                          className={cn(
-                            "px-2 py-2 bg-blue-400 text-white rounded-lg",
-                            (!isAllowUpload ||
-                              !!newMainPreview ||
-                              !!existingImgUrl) &&
-                              "bg-gray-300 cursor-not-allowed"
-                          )}
-                          disabled={
-                            !isAllowUpload ||
-                            !!newMainPreview ||
-                            !!existingImgUrl
-                          }
-                          onClick={handleUploadKanjiImg}
-                        >
-                          <FileUp />
-                        </button>
-                      </div>
-                    </div>
-                    {/* Preview is always displayed */}
-                    <div className="mb-5">
                       <div className="flex flex-col items-center justify-center w-full h-32 border-2 border-dashed border-gray-300 rounded-lg bg-gray-50 overflow-hidden relative">
                         {newMainPreview ? (
                           <>
@@ -518,19 +478,31 @@ const AddKanjiModal = ({ isOpen, onClose }: AddKanjiModalProps) => {
                             No preview available
                           </span>
                         )}
-                        {(newMainPreview || existingImgUrl) && (
+                        {newMainPreview && (
                           <button
                             type="button"
-                            onClick={() => {
-                              if (newMainPreview) removeMainImage();
-                              else removeExistingMainImage();
-                            }}
+                            onClick={removeMainImage}
                             className="absolute top-2 right-2 bg-black/60 text-white text-sm rounded-full px-1 hover:bg-black/80"
                           >
                             ✕
                           </button>
                         )}
                       </div>
+                      {isAllowUpload && !newMainPreview && !existingImgUrl && (
+                        <div className="block mt-2 text-sm font-medium text-black-900">
+                          <span>No image found!</span>
+                          <button
+                            type="button"
+                            className={
+                              "text-blue-400 hover:text-blue-500 hover:underline"
+                            }
+                            onClick={handleUploadKanjiImg}
+                          >
+                            Upload
+                          </button>
+                        </div>
+                      )}
+
                       <input
                         id="kanjiImage-upload"
                         type="file"
@@ -564,7 +536,15 @@ const AddKanjiModal = ({ isOpen, onClose }: AddKanjiModalProps) => {
                     focus:ring-blue-300 focus:border-blue-500 block w-full p-2.5"
                         placeholder="達"
                         value={character}
-                        onChange={(e) => setCharacter(e.target.value)}
+                        onChange={(e) => {
+                          setCharacter(e.target.value);
+                          setExistingImgUrl(null);
+                          if (newMainPreview) {
+                            URL.revokeObjectURL(newMainPreview);
+                            setNewMainPreview(null);
+                          }
+                        }}
+                        onBlur={handleOnBlur}
                         required
                       />
                     </div>
