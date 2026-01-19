@@ -153,7 +153,7 @@ const AddKanjiModal = ({ isOpen, onClose }: AddKanjiModalProps) => {
             kanji: character,
             url: img_url,
           };
-          console.log(kanjiImg);
+
           await dispatch(insertKanjiImageThunk(kanjiImg)).unwrap();
         } catch (err) {
           const msg = err instanceof Error ? err.message : JSON.stringify(err);

@@ -27,7 +27,7 @@ export const insertKanji = async (kanjiWord: Kanji) => {
     .insert(kanjiWord)
     .select()
     .single();
-  console.log("Inserted kanji:", data, error);
+
   if (error) throw error;
   return data;
 };
