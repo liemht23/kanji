@@ -4,7 +4,8 @@ import { ChevronRight, CircleCheck, Lightbulb, XCircle } from "lucide-react";
 import KanjiQuizResult from "../KanjiQuizResult";
 import { useAppDispatch, useAppSelector } from "@/store/hook";
 import { RootState } from "@/store/store";
-import { setCurrentQuiz } from "@/store/slices/kanji-collection";
+import { setCurrentQuiz, setOpenQuiz } from "@/store/slices/kanji-collection";
+import type { KanjiQuiz } from "@/types/kanji-collection";
 import Correct from "@/components/common/Correct";
 import Incorrect from "@/components/common/Incorrect";
 
@@ -24,6 +25,7 @@ const KanjiQuiz = () => {
   // Track total correct/incorrect answers and incorrect details
   const [totalCorrect, setTotalCorrect] = useState(0);
   const [totalIncorrect, setTotalIncorrect] = useState(0);
+  // incorrectAnswers to show incorrect answers details in summary
   const [incorrectAnswers, setIncorrectAnswers] = useState<
     {
       question: string;
@@ -32,6 +34,8 @@ const KanjiQuiz = () => {
       meaning: string;
     }[]
   >([]);
+  // incorrectQuizList save all quiz objects that were answered incorrectly (for redo quiz)
+  const [incorrectQuizList, setIncorrectQuizList] = useState<KanjiQuiz[]>([]);
   const [showSummary, setShowSummary] = useState(false);
   // Track if answer has been submitted (for disabling input)
   const [hasSubmitted, setHasSubmitted] = useState(false);
@@ -43,7 +47,7 @@ const KanjiQuiz = () => {
   // Find index of current quiz, default to 0 if not found
   const currentQuizIndex = currentQuiz
     ? listCurrentQuiz.findIndex(
-        (quiz) => quiz.quizIndex === currentQuiz.quizIndex
+        (quiz) => quiz.quizIndex === currentQuiz.quizIndex,
       )
     : 0;
 
@@ -183,7 +187,7 @@ const KanjiQuiz = () => {
           setIsCorrect(false);
           setShowIncorrectAnim(true);
           setTotalIncorrect((prev) => prev + 1);
-          // Save incorrect answer detail
+          // Save incorrect answer detail for display
           setIncorrectAnswers((prev) => [
             ...prev,
             {
@@ -193,6 +197,12 @@ const KanjiQuiz = () => {
               meaning: currentQuiz?.meaning || "",
             },
           ]);
+          // Save quiz object for redo
+          if (currentQuiz) {
+            setIncorrectQuizList((prev) => {
+              return [...prev, currentQuiz];
+            });
+          }
           setTimeout(() => {
             setShowIncorrectAnim(false);
             setShowAnswer(true);
@@ -234,12 +244,44 @@ const KanjiQuiz = () => {
     };
   }, []);
 
+  // Handler for Redo Quiz (only incorrect answers)
+  // Redo quiz just with incorrectQuizList
+  const handleRedoQuiz = () => {
+    if (!incorrectQuizList.length) return;
+    // Reset quiz state
+    setShowSummary(false);
+    setTotalCorrect(0);
+    setTotalIncorrect(0);
+    setIncorrectAnswers([]);
+    setIncorrectQuizList([]);
+
+    // Prepare new quiz list
+    const allQuiz = [...incorrectQuizList];
+    // Add index
+    const quizData = allQuiz.map((quiz, index) => ({
+      ...quiz,
+      quizIndex: index + 1,
+    }));
+    console.log(quizData);
+    const timePerQuestion = 30; // As default
+    const numQuestions = quizData.length;
+    dispatch(
+      setOpenQuiz({
+        isOpenQuiz: true,
+        timePerQuestion,
+        numQuestions,
+        listCurrentQuiz: quizData,
+      }),
+    );
+  };
+
   if (showSummary) {
     return (
       <KanjiQuizResult
         totalCorrect={totalCorrect}
         totalIncorrect={totalIncorrect}
         incorrectAnswers={incorrectAnswers}
+        onRedoQuiz={handleRedoQuiz}
       />
     );
   }

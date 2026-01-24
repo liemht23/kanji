@@ -1,13 +1,6 @@
 "use client";
 import Tooltip from "@/components/common/Tooltip";
-import {
-  CircleX,
-  FileSearch,
-  FileUp,
-  Pencil,
-  SquarePlus,
-  Trash2,
-} from "lucide-react";
+import { CircleX, Pencil, SquarePlus, Trash2 } from "lucide-react";
 import { useEffect, useState } from "react";
 import AddSampleKanjiModal from "../AddSampleKanjiModal";
 import { useAppDispatch, useAppSelector } from "@/store/hook";
@@ -20,7 +13,6 @@ import {
   BUCKET_KANJI_IMAGES,
 } from "@/constants/kanji-const";
 import { getLabel } from "@/utils/select-option";
-import { cn } from "@/utils/class-name";
 import { LEVEL_OPTION } from "@/constants/common-const";
 import {
   clearListSampleVocab,
@@ -111,7 +103,7 @@ const AddKanjiModal = ({ isOpen, onClose }: AddKanjiModalProps) => {
     setIsAllowUpload(false);
     // Reset input file to allow re-upload
     const input = document.getElementById(
-      "kanji-image-upload"
+      "kanji-image-upload",
     ) as HTMLInputElement | null;
     if (input) input.value = "";
   };
@@ -183,7 +175,7 @@ const AddKanjiModal = ({ isOpen, onClose }: AddKanjiModalProps) => {
                   console.error(msg);
                   return null;
                 }
-              })
+              }),
             )
           ).filter((url): url is string => Boolean(url));
           example_images.push(...uploadedUrls);
@@ -385,7 +377,7 @@ const AddKanjiModal = ({ isOpen, onClose }: AddKanjiModalProps) => {
                         value={kanjiId}
                         onChange={(e) =>
                           setKanjiId(
-                            e.target.value ? Number(e.target.value) : ""
+                            e.target.value ? Number(e.target.value) : "",
                           )
                         }
                         disabled
@@ -779,7 +771,7 @@ const AddKanjiModal = ({ isOpen, onClose }: AddKanjiModalProps) => {
                                 </td>
                               </tr>
                             );
-                          }
+                          },
                         )
                       )}
                     </tbody>

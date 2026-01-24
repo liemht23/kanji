@@ -12,13 +12,20 @@ interface KanjiQuizResultProps {
   totalCorrect: number;
   totalIncorrect: number;
   incorrectAnswers: IncorrectAnswer[];
+  onRedoQuiz?: () => void;
 }
 
 const KanjiQuizResult: React.FC<KanjiQuizResultProps> = ({
   totalCorrect,
   totalIncorrect,
   incorrectAnswers,
+  onRedoQuiz,
 }) => {
+  const handleRedoQuiz = () => {
+    if (onRedoQuiz) {
+      onRedoQuiz();
+    }
+  };
   return (
     <div className="bg-black-0 border border-black-100 rounded-3xl shadow-lg max-w-3xl mx-auto mt-16 relative overflow-hidden p-8">
       <div className="mb-2 text-center">
@@ -39,9 +46,19 @@ const KanjiQuizResult: React.FC<KanjiQuizResultProps> = ({
 
       {incorrectAnswers.length > 0 ? (
         <div>
-          <h3 className="text-xl font-semibold text-red-600 mb-4">
-            # Incorrect Answers
-          </h3>
+          <div className="flex items-center justify-between mb-4">
+            <h3 className="text-xl font-semibold text-red-600">
+              # Incorrect Answers
+            </h3>
+            {onRedoQuiz && (
+              <button
+                className="px-4 py-2 bg-blue-500 text-white rounded-lg shadow hover:bg-blue-600 transition-colors"
+                onClick={handleRedoQuiz}
+              >
+                Redo Quiz
+              </button>
+            )}
+          </div>
           <div className="max-h-[316px] overflow-y-auto rounded-lg">
             <table className="min-w-full border-collapse">
               <thead className="bg-gray-200 text-gray-700 sticky top-0 z-10">
