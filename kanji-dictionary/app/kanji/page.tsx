@@ -22,9 +22,8 @@ const KanjiPage = () => {
   const { isMobile } = useLayout();
   const { checking } = useAuthGuard();
   const dispatch = useAppDispatch();
-  const { selectedCollection, toolbarState, loading } = useAppSelector(
-    (state: RootState) => state.kanji
-  );
+  const { selectedCollection, toolbarState, loading, kanjiCards } =
+    useAppSelector((state: RootState) => state.kanji);
 
   useEffect(() => {
     return () => {
@@ -52,13 +51,14 @@ const KanjiPage = () => {
     }
   }, [dispatch, selectedCollection?.id]);
 
-  if (checking) {
+  if (checking || loading) {
     return (
       <div className="w-full h-screen flex items-center justify-center">
         <Spinner />
       </div>
     );
   }
+
   return (
     <div className={cn("h-full", isMobile ? "p-4" : "px-10 py-8")}>
       <KanjiToolBar />
@@ -68,6 +68,11 @@ const KanjiPage = () => {
         <>
           {toolbarState.isOpenQuiz ? (
             <KanjiQuiz />
+          ) : kanjiCards.length === 0 ? (
+            <div className="w-full flex flex-col items-center justify-center py-20 text-gray-400">
+              <span className="text-4xl mb-2">😶</span>
+              <span>Không có từ kanji nào trong collection này.</span>
+            </div>
           ) : (
             <>
               <KanjiCard />
