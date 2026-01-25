@@ -9,6 +9,7 @@ import {
   clearListSampleVocab,
   setSelectedKanji,
   setEditedKanji,
+  setListSampleVocab,
 } from "@/store/slices/kanji-collection";
 import {
   getKanjiByCollectionIdThunk,
@@ -72,6 +73,8 @@ export function useKanjiModalForm(isOpen: boolean, onClose: () => void) {
     removeNewExampleAt,
   } = useKanjiImageUpload(isOpen);
 
+  const dispatch = useAppDispatch();
+
   // Ensure existingImgUrl is set when editing
   useEffect(() => {
     if (isOpen && isEditMode && editedKanji && editedKanji.img_url) {
@@ -83,7 +86,12 @@ export function useKanjiModalForm(isOpen: boolean, onClose: () => void) {
     }
   }, [isOpen, isEditMode, editedKanji, setExistingImgUrl]);
 
-  const dispatch = useAppDispatch();
+  // Ensure listSampleVocab is set when editing
+  useEffect(() => {
+    if (isOpen && isEditMode && editedKanji && editedKanji.example) {
+      dispatch(setListSampleVocab(editedKanji.example));
+    }
+  }, [isOpen, isEditMode, editedKanji, dispatch]);
 
   const handleCharacterChange = (value: string) => {
     setCharacter(value);

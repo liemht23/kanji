@@ -2,6 +2,7 @@ import React from "react";
 import { Vocab } from "@/types/vocab";
 import { getLabel } from "@/utils/select-option";
 import { LEVEL_OPTION } from "@/constants/common-const";
+import { Pencil, Trash2 } from "lucide-react";
 
 interface SampleVocabTableProps {
   listSampleVocab: Vocab[];
@@ -77,13 +78,13 @@ const SampleVocabTable = ({
                       onClick={(e) => handleEditClick(sampleVocab, e)}
                       className="p-1 text-blue-600 hover:text-blue-800"
                     >
-                      Edit
+                      <Pencil size={18} />
                     </button>
                     <button
                       onClick={(e) => handleDeleteClick(sampleVocab.id, e)}
                       className="p-1 text-red-600 hover:text-red-800"
                     >
-                      Delete
+                      <Trash2 size={18} />
                     </button>
                   </div>
                 </td>
